@@ -39,14 +39,8 @@ function SlackLogger(application, name, config) {
         details  = Object.assign({ }, details, config.composing.details);
         details.Senders = _this.expandSenders(senders);
 
-        let formattedMessage = '';
-        let formattedDetails = '';
-
-        formattedMessage += data.message.replace(/<strong>/g, '*').replace(/<\/strong>/g, '*');
-
-        formattedDetails += _this.packDetails(details, config.composing, 'text', { prefix: '*', suffix: '*' });
-
-        formattedMessage = formattedMessage.trim();
+        let formattedMessage = _this.formatMessage(data.message, 'markdown');
+        let formattedDetails = _this.packDetails(details, config.composing, 'markdown');
 
         if (formattedDetails.length > 0) {
           formattedMessage += '\n\n' + formattedDetails;

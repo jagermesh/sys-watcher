@@ -23,11 +23,11 @@ function ConfigurationWatcher(application, name, config) {
         details.Check = rule.check;
         let r = new RegExp(rule.check);
         if (!r.test(stdout)) {
-          _this.getApplication().notify(_this.getLoggers(), { message: 'Configuration check for ' + rule.check + ' failed:\n\n' + stdout }, details, _this);
+          _this.getApplication().notify(_this.getLoggers(), { message: 'Configuration check for ' + rule.check + ' failed:\n\n<pre>' + stdout + '</pre>'}, details, _this);
         }
       }
     }).catch(function(stdout) {
-        _this.getApplication().notify(_this.getLoggers(), { message: 'Configuration check for ' + cmd + ' failed:\n\n' + stdout }, details, _this);
+        _this.getApplication().notify(_this.getLoggers(), { message: 'Configuration check for ' + cmd + ' failed:\n\n<pre>' + stdout + '</pre>' }, details, _this);
     });
 
   }

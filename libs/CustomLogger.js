@@ -72,6 +72,29 @@ function CustomLogger(application, name, config) {
 
   };
 
+  _this.formatMessage = function(message, format) {
+
+    switch(format) {
+      case 'html':
+        message = message.replace(/\n/g, '<br />');
+        break;
+      case 'text':
+        message = message.replace(/<br[^>]*?>/g, '\n');
+        message = message.replace(/<[^>]*?>/g, '');
+        break;
+      case 'markdown':
+        message = message.replace(/<strong>/g, '*');
+        message = message.replace(/<\/strong>/g, '*');
+        message = message.replace(/<pre>/g, '```');
+        message = message.replace(/<\/pre>/g, '```');
+        message = message.replace(/<[^>]+>/g, '');
+        break;
+    }
+
+    return message.trim();
+
+  };
+
   _this.packDetails = function(details, composing, format, options) {
 
     let packableDetails = Object.create({ }), name;
@@ -104,6 +127,20 @@ function CustomLogger(application, name, config) {
         options        = options || Object.create({ });
         options.prefix = options.prefix || '';
         options.suffix = options.suffix || '';
+        options.eol    = options.eol    || '\n';
+        result = packDetails(packableDetails, options);
+        break;
+      case 'html':
+        options        = options || Object.create({ });
+        options.prefix = options.prefix || '<strong>';
+        options.suffix = options.suffix || '</strong>';
+        options.eol    = options.eol    || '<br />';
+        result = packDetails(packableDetails, options);
+        break;
+      case 'markdown':
+        options        = options || Object.create({ });
+        options.prefix = options.prefix || '*';
+        options.suffix = options.suffix || '*';
         options.eol    = options.eol    || '\n';
         result = packDetails(packableDetails, options);
         break;

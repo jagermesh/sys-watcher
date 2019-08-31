@@ -62,7 +62,7 @@ function MySQLWatcher(application, name, config) {
       connection.query(runSQL, function(error, results, fields) {
         let details = { RuleName: ruleName, Database: database.database, SQL: runSQL };
         if (error) {
-          _this.getApplication().notify(_this.getLoggers(ruleConfig.loggers), { message: 'Can not run query: ' + error.toString(), isError: true }, details, _this);
+          _this.getApplication().notify(_this.getLoggers(ruleConfig.loggers), { message: 'Can not run query: <pre>' + error.toString() + '</pre>', isError: true }, details, _this);
         } else {
           if (ruleConfig.format) {
             ruleConfig.format(results, function(data) {

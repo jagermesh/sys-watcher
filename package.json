@@ -1,33 +1,35 @@
 {
-  "name": "sys-watcher",
-  "version": "1.0.3",
-  "description": "System Watcher",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "_from": "sys-watcher@1.0.3",
+  "_id": "sys-watcher@1.0.3",
+  "_inBundle": false,
+  "_integrity": "sha512-sRsw6MyR/nLB7wL471Jp2kbJM5YRYfm90xRSuHpjN2uI9oCUUtD8JvTB5fA6fYbYH3crtncuPqVRNKz5Ich+MA==",
+  "_location": "/sys-watcher",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "sys-watcher@1.0.3",
+    "name": "sys-watcher",
+    "escapedName": "sys-watcher",
+    "rawSpec": "1.0.3",
+    "saveSpec": null,
+    "fetchSpec": "1.0.3"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/jagermesh/sys-watcher.git"
-  },
-  "keywords": [
-    "watcher",
-    "free",
-    "space",
-    "apache",
-    "logs",
-    "logs",
-    "mysql",
-    "slack",
-    "telegram",
-    "logging"
+  "_requiredBy": [
+    "#USER",
+    "/"
   ],
-  "author": "Jager Mesh",
-  "license": "MIT",
+  "_resolved": "https://registry.npmjs.org/sys-watcher/-/sys-watcher-1.0.3.tgz",
+  "_shasum": "08352035e4d8b16552ae2f365d722daacc6c1277",
+  "_spec": "sys-watcher@1.0.3",
+  "_where": "/Users/jagermesh/www/current/watcher",
+  "author": {
+    "name": "Jager Mesh"
+  },
   "bugs": {
     "url": "https://github.com/jagermesh/sys-watcher/issues"
   },
-  "homepage": "https://github.com/jagermesh/sys-watcher#readme",
+  "bundleDependencies": false,
   "dependencies": {
     "@slack/client": "^4.12.0",
     "amqplib": "^0.5.3",
@@ -59,5 +61,31 @@
     "tail": "^2.0.2",
     "tmp": "0.0.33",
     "uuid": "^3.3.2"
-  }
+  },
+  "deprecated": false,
+  "description": "System Watcher",
+  "homepage": "https://github.com/jagermesh/sys-watcher#readme",
+  "keywords": [
+    "watcher",
+    "free",
+    "space",
+    "apache",
+    "logs",
+    "logs",
+    "mysql",
+    "slack",
+    "telegram",
+    "logging"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "name": "sys-watcher",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/jagermesh/sys-watcher.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.0.4"
 }

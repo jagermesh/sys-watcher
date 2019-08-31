@@ -111,7 +111,7 @@ function TelegramLogger(application, name, config) {
             details  = Object.assign({ }, details, config.composing.details);
             details.Senders = _this.expandSenders(senders);
 
-            let formattedMessage = data.message;
+            let formattedMessage = _this.formatMessage(data.message, 'text');
             let formattedDetails = _this.packDetails(details, config.composing, 'text');
             let chunkLength = Math.max(2, MESSAGE_LENGTH - formattedDetails.length - 2); // 2 for new lines
             let chunks = formattedMessage.match(new RegExp('.{1,' + chunkLength + '}', 'gsm'));

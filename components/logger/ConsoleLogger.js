@@ -39,9 +39,7 @@ function ConsoleLogger(application, name, config) {
           formattedMessage += colors.red('[ERROR]') + ' ';
         }
 
-        if (data.message) {
-          formattedMessage +=  data.message.replace(/<[^>]+>/g, '') + ' ';
-        }
+        formattedMessage += _this.formatMessage(data.message, 'text') + ' ';
 
         formattedDetails = _this.packDetails(details, config.composing, 'json');
 

@@ -34,7 +34,7 @@ function MailLogger(application, name, config) {
         details  = Object.assign({ }, details, config.composing.details);
         details.Senders = _this.expandSenders(senders);
 
-        let formattedMessage = '';
+        let formattedMessage = data.message;
         let formattedSubject = '';
         let formattedDetails = '';
 
@@ -65,16 +65,8 @@ function MailLogger(application, name, config) {
 
             switch(_this.config.composing.format) {
               case 'html':
-                formattedMessage = data.message.replace(/\n/g, '<br />');
-                // formattedMessage = data.message.replace(/&/g, '&amp;')
-                //                                .replace(/</g, '&lt;')
-                //                                .replace(/>/g, '&gt;')
-                //                                .replace(/"/g, '&quot;')
-                //                                .replace(/\n/g, '<br />');
-
-                formattedDetails = _this.packDetails(details, config.composing, 'text', { prefix: '<strong>', suffix: '</strong>', eol: '<br />' });
-
-                formattedMessage = formattedMessage.trim();
+                formattedMessage = _this.formatMessage(formattedMessage, 'html');
+                formattedDetails = _this.packDetails(details, config.composing, 'html');
 
                 if (formattedDetails.length > 0) {
                   formattedMessage += '<br /><br />' + formattedDetails;
@@ -83,11 +75,8 @@ function MailLogger(application, name, config) {
                 mailMessage.html = formattedMessage;
                 break;
               default:
-                formattedMessage = data.message.replace(/<br[^>]*?>/g, '\n').replace(/<[^>]*?>/g, '');
-
+                formattedMessage = _this.formatMessage(formattedMessage, 'text');
                 formattedDetails = _this.packDetails(details, config.composing, 'text');
-
-                formattedMessage = formattedMessage.trim();
 
                 if (formattedDetails.length > 0) {
                   formattedMessage += '\n\n' + formattedDetails;
