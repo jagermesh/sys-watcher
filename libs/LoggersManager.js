@@ -1,4 +1,4 @@
-const CustomManager = require(__dirname + '/../libs/CustomManager.js');
+const CustomManager = require(__dirname + '/CustomManager.js');
 
 function LoggersManager(application, config) {
 

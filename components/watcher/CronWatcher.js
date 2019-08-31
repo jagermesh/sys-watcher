@@ -1,6 +1,6 @@
 const path = require('path');
 
-const CustomWatcher = require(__dirname + '/../libs/CustomWatcher.js');
+const CustomWatcher = require(__dirname + '/../../libs/CustomWatcher.js');
 
 function CronWatcher(application, name, config) {
 

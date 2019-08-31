@@ -1,7 +1,7 @@
 const aws = require('aws-sdk');
 
-const CustomWatcher = require(__dirname + '/../libs/CustomWatcher.js');
-const Scheduler = require(__dirname + '/../libs/Scheduler.js');
+const CustomWatcher = require(__dirname + '/../../libs/CustomWatcher.js');
+const Scheduler = require(__dirname + '/../../libs/Scheduler.js');
 
 function AWSSQSWatcher(application, name, config, owner) {
 

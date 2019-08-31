@@ -3,7 +3,7 @@ const parseDuration = require('parse-duration');
 const fileCache = require('node-file-cache');
 const os = require('os');
 
-const CustomCache = require(__dirname + '/../libs/CustomCache.js');
+const CustomCache = require(__dirname + '/../../libs/CustomCache.js');
 
 function FileCache(application, name, config) {
 

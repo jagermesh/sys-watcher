@@ -2,7 +2,7 @@ const md5 = require('md5');
 const redis = require('redis');
 const parseDuration = require('parse-duration');
 
-const CustomCache = require(__dirname + '/../libs/CustomCache.js');
+const CustomCache = require(__dirname + '/../../libs/CustomCache.js');
 
 function RedisCache(application, name, config) {
 

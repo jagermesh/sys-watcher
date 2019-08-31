@@ -1,7 +1,7 @@
 const diskusage = require('diskusage');
 const bytes = require('bytes');
 
-const CustomWatcher = require(__dirname + '/../libs/CustomWatcher.js');
+const CustomWatcher = require(__dirname + '/../../libs/CustomWatcher.js');
 
 function FreeSpaceWatcher(application, name, config) {
 

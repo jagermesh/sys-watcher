@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 // const _ = require('lodash');
 
-const CustomLogger = require(__dirname + '/../libs/CustomLogger.js');
+const CustomLogger = require(__dirname + '/../../libs/CustomLogger.js');
 
 function MailLogger(application, name, config) {
 

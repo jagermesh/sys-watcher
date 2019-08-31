@@ -2,7 +2,7 @@ const bytes = require('bytes');
 const memory = require('free-memory');
 const si = require('systeminformation');
 
-const CustomWatcher = require(__dirname + '/../libs/CustomWatcher.js');
+const CustomWatcher = require(__dirname + '/../../libs/CustomWatcher.js');
 
 function FreeRAMWatcher(application, name, config) {
 

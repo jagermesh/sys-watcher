@@ -3,7 +3,7 @@ const fs = require('fs');
 const Tail = require('tail').Tail;
 const parseDuration = require('parse-duration');
 
-const CustomWatcher = require(__dirname + '/../libs/CustomWatcher.js');
+const CustomWatcher = require(__dirname + '/../../libs/CustomWatcher.js');
 
 function FileWatcher(application, name, config) {
 

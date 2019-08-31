@@ -3,7 +3,7 @@ const bodyparser = require('body-parser');
 const multer = require('multer');
 const querystring = require('querystring');
 
-const CustomWatcher = require(__dirname + '/../libs/CustomWatcher.js');
+const CustomWatcher = require(__dirname + '/../../libs/CustomWatcher.js');
 
 function WebWatcher(application, name, config, owner) {
 

@@ -1,6 +1,6 @@
 {
   "name": "sys-watcher",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "System Watcher",
   "main": "index.js",
   "scripts": {

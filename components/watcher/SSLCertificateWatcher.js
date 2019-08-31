@@ -1,7 +1,7 @@
 const colors = require('colors');
 const SSLChecker = require("ssl-checker");
 
-const CustomWatcher = require(__dirname + '/../libs/CustomWatcher.js');
+const CustomWatcher = require(__dirname + '/../../libs/CustomWatcher.js');
 
 function SSLCertificateWatcher(application, name, config) {
 

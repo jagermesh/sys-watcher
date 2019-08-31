@@ -74,94 +74,96 @@ function SysWatcher() {
 
   }
 
-  commander
-    .option('-c, --config [filename]', 'Config file name')
-    .option('-e, --extra [JSON]', 'Parameters in JSON format')
-    .parse(process.argv);
+  _this.start = function() {
 
-  let application;
-  try {
-    if (commander.config) {
-      let configFile = commander.config;
-      if (configFile.indexOf('/') == -1) {
-        configFile = path.resolve(__dirname, 'config/' + configFile);
-      }
-      if (configFile.indexOf('/') > 0) {
-        configFile = path.resolve(__dirname, configFile);
-      }
-      try {
-        fs.statSync(configFile);
-      } catch (error) {
-        throw 'Can not load configuration from ' + configFile + ':\n  ' + error;
-      }
-      switch(commander.args[0]) {
-        case 'run-script':
-          if (commander.args.length == 1) {
-            throw 'Parameters validation error:\n  Missing <script-name> parameter';
-          }
-          break;
-        case 'send-message':
-          if (commander.args.length == 1) {
-            throw 'Parameters validation error:\n  Missing <logger-name> and <message> parameters';
-          }
-          if (commander.args.length == 2) {
-            throw 'Parameters validation error:\n  Missing <message> parameter';
-          }
-          break;
-      }
-      application = new Application(configFile);
-      if (commander.args[0] == 'start') {
-        application.start();
-      } else {
-        try {
-          switch(commander.args[0]) {
-            case 'scripts':
-              showHelp(application);
-              break;
-            case 'run-script':
-              application.getExecPool().exec(commander.args[1], commander.extra);
-              break;
-            case 'send-message':
-              let extra = Object.create({ });
-              if (commander.extra) {
-                try {
-                  extra = requireS('module.exports = ' + commander.extra);
-                } catch (error) {
-                  throw 'Incorrect format of extra parameter: ' + error;
-                }
-              }
-              application.notifyLogger(commander.args[1], { message: commander.args[2] }, null,  null, { settings: extra }).then(function(result) {
+    commander
+      .option('-c, --config [filename]', 'Config file name')
+      .option('-e, --extra [JSON]', 'Parameters in JSON format')
+      .parse(process.argv);
 
-              }).catch(function(error) {
-                error = error || 'Unknown error';
-                error = (typeof error == 'string' ? { error: error } : error);
-                let errorMessage = colors.red(error.error) + '\n';
-                if (error.details) {
-                  errorMessage += '  You can specify additional parameters via ' + colors.yellow('--extra') + '\n'
-                                + '  Example: ' + colors.yellow('--extra "' + error.details + '"\n');
-                }
-                showHelp(application);
-                console.log('');
-                console.log(errorMessage);
-              });
-              break;
-            default:
-              throw 'Parameters validation error:\n  Missing or unknown <command> parameter';
-          }
-        } finally {
-          application.stop();
+    let application;
+    try {
+      if (commander.config) {
+        let configFile = commander.config;
+        if (configFile.indexOf('/') == -1) {
+          configFile = path.resolve(__dirname, 'config/' + configFile);
         }
-      }
-    } else {
-      throw 'Parameters validation error:\n  Missing --config option';
-    }
-  } catch (error) {
-    showHelp(application);
-    console.log('');
-    console.log(colors.red(error));
-  }
+        if (configFile.indexOf('/') > 0) {
+          configFile = path.resolve(__dirname, configFile);
+        }
+        try {
+          fs.statSync(configFile);
+        } catch (error) {
+          throw 'Can not load configuration from ' + configFile + ':\n  ' + error;
+        }
+        switch(commander.args[0]) {
+          case 'run-script':
+            if (commander.args.length == 1) {
+              throw 'Parameters validation error:\n  Missing <script-name> parameter';
+            }
+            break;
+          case 'send-message':
+            if (commander.args.length == 1) {
+              throw 'Parameters validation error:\n  Missing <logger-name> and <message> parameters';
+            }
+            if (commander.args.length == 2) {
+              throw 'Parameters validation error:\n  Missing <message> parameter';
+            }
+            break;
+        }
+        application = new Application(configFile);
+        if (commander.args[0] == 'start') {
+          application.start();
+        } else {
+          try {
+            switch(commander.args[0]) {
+              case 'scripts':
+                showHelp(application);
+                break;
+              case 'run-script':
+                application.getExecPool().exec(commander.args[1], commander.extra);
+                break;
+              case 'send-message':
+                let extra = Object.create({ });
+                if (commander.extra) {
+                  try {
+                    extra = requireS('module.exports = ' + commander.extra);
+                  } catch (error) {
+                    throw 'Incorrect format of extra parameter: ' + error;
+                  }
+                }
+                application.notifyLogger(commander.args[1], { message: commander.args[2] }, null,  null, { settings: extra }).then(function(result) {
 
-  return this;
+                }).catch(function(error) {
+                  error = error || 'Unknown error';
+                  error = (typeof error == 'string' ? { error: error } : error);
+                  let errorMessage = colors.red(error.error) + '\n';
+                  if (error.details) {
+                    errorMessage += '  You can specify additional parameters via ' + colors.yellow('--extra') + '\n'
+                                  + '  Example: ' + colors.yellow('--extra "' + error.details + '"\n');
+                  }
+                  showHelp(application);
+                  console.log('');
+                  console.log(errorMessage);
+                });
+                break;
+              default:
+                throw 'Parameters validation error:\n  Missing or unknown <command> parameter';
+            }
+          } finally {
+            application.stop();
+          }
+        }
+      } else {
+        throw 'Parameters validation error:\n  Missing --config option';
+      }
+    } catch (error) {
+      showHelp(application);
+      console.log('');
+      console.log(colors.red(error));
+    }
+
+  };
 
 }
 

@@ -6,8 +6,8 @@ const path = require('path');
 const moment = require('moment');
 const HashMap = require('hashmap');
 
-const CustomWatcher = require(__dirname + '/../libs/CustomWatcher.js');
-const ProcessInfo = require(__dirname + '/../libs/ProcessInfo.js');
+const CustomWatcher = require(__dirname + '/../../libs/CustomWatcher.js');
+const ProcessInfo = require(__dirname + '/../../libs/ProcessInfo.js');
 
 function ProcessWatcher(application, name, config) {
 

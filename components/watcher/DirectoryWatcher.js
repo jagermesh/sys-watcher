@@ -3,7 +3,7 @@ const fs = require('fs');
 const parseDuration = require('parse-duration');
 const moment = require('moment');
 
-const CustomWatcher = require(__dirname + '/../libs/CustomWatcher.js');
+const CustomWatcher = require(__dirname + '/../../libs/CustomWatcher.js');
 
 function DirectoryWatcher(application, name, config) {
 

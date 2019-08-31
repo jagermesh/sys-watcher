@@ -2,7 +2,7 @@ const ip = require('ip');
 const amqpcb = require('amqplib/callback_api');
 const amqp = require('amqplib');
 
-const CustomWatcher = require(__dirname + '/../libs/CustomWatcher.js');
+const CustomWatcher = require(__dirname + '/../../libs/CustomWatcher.js');
 
 function RabbitMQWatcher(application, name, config) {
 

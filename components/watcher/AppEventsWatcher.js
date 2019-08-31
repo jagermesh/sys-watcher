@@ -1,4 +1,4 @@
-const CustomWatcher = require(__dirname + '/../libs/CustomWatcher.js');
+const CustomWatcher = require(__dirname + '/../../libs/CustomWatcher.js');
 
 function AppEventsWatcher(application, name, config, owner) {
 

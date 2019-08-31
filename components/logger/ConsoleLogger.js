@@ -2,7 +2,7 @@ const colors = require('colors');
 const moment = require('moment');
 const ip = require('ip');
 
-const CustomLogger = require(__dirname + '/../libs/CustomLogger.js');
+const CustomLogger = require(__dirname + '/../../libs/CustomLogger.js');
 
 function ConsoleLogger(application, name, config) {
 

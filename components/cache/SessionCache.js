@@ -2,7 +2,7 @@ const md5 = require('md5');
 const parseDuration = require('parse-duration');
 const moment = require('moment');
 
-const CustomCache = require(__dirname + '/../libs/CustomCache.js');
+const CustomCache = require(__dirname + '/../../libs/CustomCache.js');
 
 function SessionCache(application, name, config) {
 

@@ -3,7 +3,7 @@ const bytes = require('bytes');
 const parseDuration = require('parse-duration');
 const mysql = require('mysql');
 
-const CustomWatcher = require(__dirname + '/../libs/CustomWatcher.js');
+const CustomWatcher = require(__dirname + '/../../libs/CustomWatcher.js');
 
 function MySQLWatcher(application, name, config) {
 
