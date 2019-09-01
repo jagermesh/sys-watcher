@@ -13,19 +13,23 @@ function ConfigurationWatcher(application, name, config) {
 
     let cmd = rule.cmd;
     let cwd = rule.cwd = rule.cwd || process.cwd();
+    let check = rule.check;
 
-    let details = Object.create({ Cmd: cmd, Cwd: cwd });
+    let details = Object.create({ });
+
+    details.Cmd = cmd;
+    details.Cwd = cwd;
+    details.Check = check;
 
     _this.getApplication().getExecPool().exec(cmd, cwd).then(function(stdout) {
-      if (rule.check) {
-        details.Check = rule.check;
-        let r = new RegExp(rule.check);
+      if (check) {
+        let r = new RegExp(check);
         if (!r.test(stdout)) {
-          _this.getApplication().notify(_this.getLoggers(), { message: 'Configuration check for ' + rule.check + ' failed:\n\n<pre>' + stdout + '</pre>'}, details, _this);
+          _this.getApplication().notify(_this.getLoggers(), { message: 'Configuration check ' + cmd + ' for ' + check + ' failed:\n\n<pre>' + stdout + '</pre>'}, details, _this);
         }
       }
     }).catch(function(stdout) {
-        _this.getApplication().notify(_this.getLoggers(), { message: 'Configuration check for ' + cmd + ' failed:\n\n<pre>' + stdout + '</pre>' }, details, _this);
+      _this.getApplication().notify(_this.getLoggers(), { message: 'Configuration check ' + cmd + ' failed:\n\n<pre>' + stdout + '</pre>' }, details, _this);
     });
 
   }
