@@ -10,16 +10,20 @@ function ShellScript(application, name, config) {
 
   _this.exec = function () {
 
-    let details = { Cmd: _this.config.settings.cmd };
+    let cmd = _this.config.settings.cmd;
+    let cwd = _this.config.settings.cwd || process.cwd();
+    let cmdGroup = _this.config.settings.cmdGroup;
 
-    _this.getApplication().getConsole().log('Executing ' + colors.yellow(cmd), Object.create({ }), _this);
+    let details = { Cmd: cmd, Cwd: cwd, CmdGroup: cmdGroup };
 
-    return _this.getApplication().getExecPool().exec(_this.config.settings.cmd).then(function(stdout) {
-      _this.getApplication().getConsole().log('Executed ' + colors.yellow(_this.config.settings.cmd), Object.create({ }), _this);
-      _this.getApplication().notify(_this.getLoggers(), { message: stdout }, details, _this);
+    return _this.getApplication().getExecPool().exec(cmd, cwd, cmdGroup, _this).then(function(stdout) {
+      if (!_this.getApplication().isToolMode()) {
+        _this.getApplication().notify(_this.getLoggers(), { message: stdout }, details, _this);
+      }
     }).catch(function(stdout) {
-      _this.getApplication().getConsole().log('Execution failed ' + colors.red(_this.config.settings.cmd), Object.create({ }), _this);
-      _this.getApplication().notify(_this.getLoggers(), { message: stdout, isError: true }, details, _this);
+      if (!_this.getApplication().isToolMode()) {
+        _this.getApplication().notify(_this.getLoggers(), { message: stdout, isError: true }, details, _this);
+      }
     });
 
   };

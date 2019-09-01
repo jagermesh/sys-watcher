@@ -22,7 +22,7 @@
   "_resolved": "https://registry.npmjs.org/sys-watcher/-/sys-watcher-1.0.4.tgz",
   "_shasum": "c59de3b05f8319a32c2779f3b86ef5aaa90931c7",
   "_spec": "sys-watcher@1.0.4",
-  "_where": "/Users/jagermesh/www/current/watcher",
+  "_where": "/Users/jagermesh/www/current/sys-watcher-configs/jm-local",
   "author": {
     "name": "Jager Mesh"
   },
@@ -87,5 +87,5 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "version": "1.0.5"
+  "version": "1.0.6"
 }

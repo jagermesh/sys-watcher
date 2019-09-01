@@ -12,11 +12,9 @@ function ConfigurationWatcher(application, name, config) {
   function watchRule(rule) {
 
     let cmd = rule.cmd;
-    let cwd = rule.cwd = rule.cwd || path.dirname(__dirname);
+    let cwd = rule.cwd = rule.cwd || process.cwd();
 
-    let details = Object.create(null);
-    details.Cmd = cmd;
-    details.Cwd = cwd;
+    let details = Object.create({ Cmd: cmd, Cwd: cwd });
 
     _this.getApplication().getExecPool().exec(cmd, cwd).then(function(stdout) {
       if (rule.check) {

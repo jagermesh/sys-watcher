@@ -1,3 +1,5 @@
+const path = require('path');
+
 const LoggersManager = require(__dirname + '/../libs/LoggersManager.js');
 const CacheManager = require(__dirname + '/../libs/CacheManager.js');
 const WatchersManager = require(__dirname + '/../libs/WatchersManager.js');
@@ -7,13 +9,13 @@ const CustomObject = require(__dirname + '/CustomObject.js');
 const ExecPool = require(__dirname + '/ExecPool.js');
 const ConnectionsPool = require(__dirname + '/ConnectionsPool.js');
 
-function Application(configFile) {
+function Application(configFilePath) {
 
   const _this = this;
 
-  _this.configFile = configFile;
+  let __configFilePath = configFilePath;
 
-  let config = require(_this.configFile);
+  let config = require(__configFilePath);
 
   CustomObject.call(this, this, 'Application', config);
 
@@ -39,9 +41,15 @@ function Application(configFile) {
 
   // get
 
-  _this.getConfigFile = function() {
+  _this.getConfigFileName = function() {
 
-    return _this.configFile;
+    return path.basename(__configFilePath);
+
+  };
+
+  _this.getConfigFilePath = function() {
+
+    return __configFilePath;
 
   };
 

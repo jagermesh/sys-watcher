@@ -70,7 +70,7 @@ function GitHubWebHookWatcher(application, name, config) {
                     }
                     let details = _this.getRequestDetails(request);
                     if (requestHandler.cmd) {
-                      requestHandler.cwd = requestHandler.cwd || path.dirname(__dirname);
+                      requestHandler.cwd = requestHandler.cwd || process.cwd();
                       details.Cmd = requestHandler.cmd;
                       details.Cwd = requestHandler.cwd;
 

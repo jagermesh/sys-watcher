@@ -16,10 +16,12 @@ function CronWatcher(application, name, config) {
       }
       if (_this.config.settings.cmd) {
         let cmd = typeof _this.config.settings.cmd == 'function' ? _this.config.settings.cmd.call(_this) : _this.config.settings.cmd;
-        let cwd = _this.config.settings.cwd || path.dirname(__dirname);
-        let details = { Cmd: cmd };
+        let cwd = _this.config.settings.cwd || process.cwd();
+        let cmdGroup = _this.config.settings.cmdGroup;
 
-        return _this.getApplication().getExecPool().exec(cmd, cwd, _this.config.settings.cmdGroup).then(function(stdout) {
+        let details = { Cmd: cmd, Cwd: cwd, CmdGroup: cmdGroup };
+
+        return _this.getApplication().getExecPool().exec(cmd, cwd, cmdGroup).then(function(stdout) {
           _this.getApplication().notify(_this.getLoggers(), { message: stdout }, details, _this);
         }).catch(function(stdout) {
             _this.getApplication().notify(_this.getLoggers(), { message: stdout, isError: true }, details, _this);

@@ -20,7 +20,7 @@ function ProcessWatcher(application, name, config) {
   function restart(ruleName, ruleConfig, results) {
 
     let cmd = ruleConfig.cmd;
-    let cwd = ruleConfig.cwd || path.dirname(__dirname);
+    let cwd = ruleConfig.cwd || process.cwd();
 
     ruleConfig.retryTimeout = ruleConfig.retryTimeout || '3 sec';
 

@@ -9,9 +9,9 @@ const CustomObject    = require(__dirname + '/CustomObject.js');
 
 function ExecPool(application) {
 
-  CustomObject.call(this, application, 'ExecPool');
-
   const _this = this;
+
+  CustomObject.call(this, application, 'ExecPool');
 
   _this.tasks = Object.create({ });
 
@@ -19,14 +19,14 @@ function ExecPool(application) {
 
     fs.stat(out.name, function(error) {
       if (error) {
-        _this.getApplication().getConsole().error('Executed ' + colors.yellow(task.cmd) + ', stdout log not found', details, _this);
+        _this.getApplication().getConsole().error('Executed ' + colors.yellow(task.cmd) + ', stdout log not found', details, task.senders.concat([_this]));
         task.status = 3;
         task.done(false, '');
       }
       if (!error) {
         fs.stat(err.name, function(error) {
           if (error) {
-            _this.getApplication().getConsole().error('Executed ' + colors.yellow(task.cmd) + ', stderr log not found', details, _this);
+            _this.getApplication().getConsole().error('Executed ' + colors.yellow(task.cmd) + ', stderr log not found', details, task.senders.concat([_this]));
             task.status = 3;
             task.done(false, '');
           }
@@ -35,11 +35,11 @@ function ExecPool(application) {
             let errRes = fs.readFileSync(err.name);
             let stdout = (outRes.toString().trim() + '\n' + errRes.toString().trim()).trim();
             if ((errRes.toString().trim().length > 0) || closeError) {
-              _this.getApplication().getConsole().error('Executed ' + colors.yellow(task.cmd) + ', error:\n' + colors.red(stdout), details, _this);
+              _this.getApplication().getConsole().error('Executed ' + colors.yellow(task.cmd) + ', error:\n' + colors.red(stdout), details, task.senders.concat([_this]));
               task.status = 3;
               task.done(false, stdout);
             } else {
-              _this.getApplication().getConsole().log('Executed ' + colors.yellow(task.cmd) + ', success:\n' + colors.green(stdout), details, _this);
+              _this.getApplication().getConsole().log('Executed ' + colors.yellow(task.cmd) + ', success:\n' + colors.green(stdout), details, task.senders.concat([_this]));
               task.status = 2;
               task.done(true, stdout);
             }
@@ -66,7 +66,7 @@ function ExecPool(application) {
 
     let cmdLog = '';
 
-    _this.getApplication().getConsole().log('Executing ' + colors.yellow(task.cmd), details, _this);
+    _this.getApplication().getConsole().log('Executing ' + colors.yellow(task.cmd), details, task.senders.concat([_this]));
 
     let cmdProcess = child_process.spawn(cmd, { detached: true, shell: true, cwd: task.cwd });
 
@@ -83,24 +83,24 @@ function ExecPool(application) {
       });
     }
     cmdProcess.on('error', function(data) {
-      _this.getApplication().getConsole().error('Executed ' + colors.yellow(task.cmd) + ', error:\n' + colors.red(cmdLog), details, _this);
+      _this.getApplication().getConsole().error('Executed ' + colors.yellow(task.cmd) + ', error:\n' + colors.red(cmdLog), details, task.senders.concat([_this]));
       task.status = 3;
       task.done(false, cmdLog.trim());
     });
     cmdProcess.on('close', function(code) {
       clearTimeout(postCheckProcessLog);
       if (code == 0) {
-        _this.getApplication().getConsole().log('Executed ' + colors.yellow(task.cmd) + ', success:\n' + colors.green(cmdLog), details, _this);
+        _this.getApplication().getConsole().log('Executed ' + colors.yellow(task.cmd) + ', success:\n' + colors.green(cmdLog), details, task.senders.concat([_this]));
         task.status = 2;
         task.done(true, cmdLog.trim());
       } else
       if ((code == null) || (code > 128)) {
         if (task.longRunning) {
-          _this.getApplication().getConsole().error('Executed ' + colors.yellow(task.cmd) + ', but crashed:\n' + colors.red(cmdLog), details, _this);
+          _this.getApplication().getConsole().error('Executed ' + colors.yellow(task.cmd) + ', but crashed:\n' + colors.red(cmdLog), details, task.senders.concat([_this]));
           task.status = 3;
           task.done(false, cmdLog.trim());
         } else {
-          _this.getApplication().getConsole().error('Executed ' + colors.yellow(task.cmd) + ', error:\n' + colors.red(cmdLog), details, _this);
+          _this.getApplication().getConsole().error('Executed ' + colors.yellow(task.cmd) + ', error:\n' + colors.red(cmdLog), details, task.senders.concat([_this]));
           task.status = 3;
           task.done(false, cmdLog.trim());
         }
@@ -109,7 +109,7 @@ function ExecPool(application) {
         if (task.longRunning) {
           postCheckProcessLogs(task, details, out, err, true);
         } else {
-          _this.getApplication().getConsole().error('Executed ' + colors.yellow(task.cmd) + ', error:\n' + colors.red(cmdLog), details, _this);
+          _this.getApplication().getConsole().error('Executed ' + colors.yellow(task.cmd) + ', error:\n' + colors.red(cmdLog), details, task.senders.concat([_this]));
           task.status = 3;
           task.done(false, cmdLog.trim());
         }
@@ -148,17 +148,36 @@ function ExecPool(application) {
 
   _this.stop = function() {
 
-    clearInterval(interval);
+    let checkInterval = setInterval(function() {
+
+      let tasksCount = 0;
+
+      for(let tag in _this.tasks) {
+        tasksCount += _this.tasks[tag].length;
+      }
+
+      if (tasksCount == 0) {
+        clearInterval(checkInterval);
+        clearInterval(interval);
+      }
+
+    }, 100);
 
   };
 
-  _this.exec = function(cmd, cwd, done, tag) {
+  _this.exec = function(cmd, cwd, tag, senders) {
 
     tag = tag || uuid();
 
+    senders = senders || [];
+
+    if (senders && !Array.isArray(senders)) {
+      senders = [senders];
+    }
+
     return new Promise(function(resolve, reject) {
       _this.tasks[tag] = _this.tasks[tag] || [];
-      _this.tasks[tag].push({ status: 0, cmd: cmd, cwd: cwd || path.dirname(__dirname), longRunning: false, done:
+      _this.tasks[tag].push({ status: 0, cmd: cmd, cwd: cwd || process.cwd(), longRunning: false, senders: senders, done:
         function(result, stdout) {
           if (result) {
             resolve(stdout);
@@ -171,13 +190,19 @@ function ExecPool(application) {
 
   };
 
-  _this.spawn = function(cmd, cwd, done) {
+  _this.spawn = function(cmd, cwd, senders) {
 
     let tag = uuid();
 
+    senders = senders || [];
+
+    if (senders && !Array.isArray(senders)) {
+      senders = [senders];
+    }
+
     return new Promise(function(resolve, reject) {
       _this.tasks[tag] = _this.tasks[tag] || [];
-      _this.tasks[tag].push({ status: 0, cmd: cmd, cwd: cwd || path.dirname(__dirname), longRunning: true, done:
+      _this.tasks[tag].push({ status: 0, cmd: cmd, cwd: cwd || process.cwd(), longRunning: true, senders: senders, done:
         function(result, stdout) {
           if (result) {
             resolve(stdout);
