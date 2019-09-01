@@ -12,7 +12,7 @@ function MailQueueWatcher(application, name, config) {
 
   _this.watch = function() {
 
-    _this.getApplication().getExecPull().exec('mailq').then(function(stdout) {
+    _this.getApplication().getExecPool().exec('mailq').then(function(stdout) {
       let regexp = /([0-9]+) Requests/;
       let match = regexp.exec(stdout);
       let amount = 0;

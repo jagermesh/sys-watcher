@@ -1,6 +1,6 @@
 {
-  "_from": "sys-watcher@1.0.6",
-  "_id": "sys-watcher@1.0.6",
+  "_from": "sys-watcher@1.0.10",
+  "_id": "sys-watcher@1.0.10",
   "_inBundle": false,
   "_integrity": "sha512-pUxSioKjRVi7Is0ztWCuY08QrUiEw+enOZZ6b3iNLhcwSRnNV22xiL01EIPz9Tt1BIZrJqYKMW7/k3OUPNRiOg==",
   "_location": "/sys-watcher",
@@ -8,20 +8,20 @@
   "_requested": {
     "type": "version",
     "registry": true,
-    "raw": "sys-watcher@1.0.6",
+    "raw": "sys-watcher@1.0.10",
     "name": "sys-watcher",
     "escapedName": "sys-watcher",
-    "rawSpec": "1.0.6",
+    "rawSpec": "1.0.10",
     "saveSpec": null,
-    "fetchSpec": "1.0.6"
+    "fetchSpec": "1.0.10"
   },
   "_requiredBy": [
     "#USER",
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/sys-watcher/-/sys-watcher-1.0.6.tgz",
+  "_resolved": "https://registry.npmjs.org/sys-watcher/-/sys-watcher-1.0.10.tgz",
   "_shasum": "096c3458e2fd629159d267dbba128da5d3a5fabc",
-  "_spec": "sys-watcher@1.0.6",
+  "_spec": "sys-watcher@1.0.10",
   "_where": "/Users/jagermesh/www/current/sys-watcher-configs/jm-local",
   "author": {
     "name": "Jager Mesh"
@@ -87,5 +87,5 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "version": "1.0.7"
+  "version": "1.0.10"
 }
