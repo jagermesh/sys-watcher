@@ -65,10 +65,13 @@ class SysWatcher {
       let configFileName = commander.config || 'config.js';
       let configFilePath = path.resolve(process.cwd(), configFileName);
       if (!fs.existsSync(configFilePath)) {
-        if (!commander.config) {
-          throw 'Parameters validation error:\n  Missing --config option';
+        configFilePath = path.resolve(process.cwd(), 'config/' + configFileName);
+        if (!fs.existsSync(configFilePath)) {
+          if (!commander.config) {
+            throw 'Parameters validation error:\n  Missing --config option';
+          }
+          throw 'Configuration file ' + configFileName + ' not found';
         }
-        throw 'Configuration file ' + configFileName + ' not found';
       }
       switch(commander.args[0]) {
         case 'run-script':
