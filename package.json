@@ -1,27 +1,27 @@
 {
-  "_from": "sys-watcher@1.0.3",
-  "_id": "sys-watcher@1.0.3",
+  "_from": "sys-watcher@1.0.4",
+  "_id": "sys-watcher@1.0.4",
   "_inBundle": false,
-  "_integrity": "sha512-sRsw6MyR/nLB7wL471Jp2kbJM5YRYfm90xRSuHpjN2uI9oCUUtD8JvTB5fA6fYbYH3crtncuPqVRNKz5Ich+MA==",
+  "_integrity": "sha512-O9CnyZ2ib8r5+40AXsxhwZKU51Cv6pHcO78O79PXr7iGo8TgpeBEo0k9L/RMfKMg2xF+fQKgeDA1w0+mmC7GqQ==",
   "_location": "/sys-watcher",
   "_phantomChildren": {},
   "_requested": {
     "type": "version",
     "registry": true,
-    "raw": "sys-watcher@1.0.3",
+    "raw": "sys-watcher@1.0.4",
     "name": "sys-watcher",
     "escapedName": "sys-watcher",
-    "rawSpec": "1.0.3",
+    "rawSpec": "1.0.4",
     "saveSpec": null,
-    "fetchSpec": "1.0.3"
+    "fetchSpec": "1.0.4"
   },
   "_requiredBy": [
     "#USER",
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/sys-watcher/-/sys-watcher-1.0.3.tgz",
-  "_shasum": "08352035e4d8b16552ae2f365d722daacc6c1277",
-  "_spec": "sys-watcher@1.0.3",
+  "_resolved": "https://registry.npmjs.org/sys-watcher/-/sys-watcher-1.0.4.tgz",
+  "_shasum": "c59de3b05f8319a32c2779f3b86ef5aaa90931c7",
+  "_spec": "sys-watcher@1.0.4",
   "_where": "/Users/jagermesh/www/current/watcher",
   "author": {
     "name": "Jager Mesh"
@@ -87,5 +87,5 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "version": "1.0.4"
+  "version": "1.0.5"
 }
