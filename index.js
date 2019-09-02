@@ -10,6 +10,8 @@ class SysWatcher {
 
   start() {
 
+    process.chdir(path.dirname(process.mainModule.filename));
+
     function showHelp(application) {
 
       const watcherCli = 'node watcher.js';
