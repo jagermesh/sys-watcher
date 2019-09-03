@@ -79,24 +79,26 @@ function DirectoryWatcher(application, name, config) {
       }
       list.forEach(function(fileName) {
         fileName = dir + fileName;
-        fs.stat(fileName, function(err, stat) {
-          if (stat && stat.isDirectory()) {
-            walk(fileName + '/', match, except, filters, function(err, res) {
-              results = results.concat(res);
+        fs.stat(fileName, function(error, stat) {
+          if (!error && stat) {
+            if (stat && stat.isDirectory()) {
+              walk(fileName + '/', match, except, filters, function(err, res) {
+                results = results.concat(res);
+                if (!--pending) {
+                  done(null, results);
+                }
+              });
+            } else {
+              let fileInfo = { fileName: fileName
+                             , creationTime: stat.mtimeMs / 1000
+                             , creationTimeStr: moment(stat.mtimeMs).format()
+                             };
+              if (check(fileInfo, match, except, filters)) {
+                results.push(fileInfo);
+              }
               if (!--pending) {
                 done(null, results);
               }
-            });
-          } else {
-            let fileInfo = { fileName: fileName
-                           , creationTime: stat.mtimeMs / 1000
-                           , creationTimeStr: moment(stat.mtimeMs).format()
-                           };
-            if (check(fileInfo, match, except, filters)) {
-              results.push(fileInfo);
-            }
-            if (!--pending) {
-              done(null, results);
             }
           }
         });

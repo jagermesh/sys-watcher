@@ -10,7 +10,7 @@ class SysWatcher {
 
   start() {
 
-    process.chdir(path.dirname(process.mainModule.filename));
+    process.chdir(path.dirname(require.main.filename));
 
     function showHelp(application) {
 
