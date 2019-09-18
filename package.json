@@ -55,7 +55,7 @@
     "parse-duration": "^0.1.1",
     "redis": "^2.8.0",
     "require-from-string": "^2.0.2",
-    "slimbot": "^0.8.7",
+    "slimbot": "^4.4.0",
     "ssl-checker": "^1.2.1",
     "systeminformation": "^4.14.4",
     "tail": "^2.0.2",
