@@ -32,9 +32,9 @@ function ProcessWatcher(application, name, config) {
       _this.getApplication().notify(_this.getLoggers(), { message: 'Process ' + ruleName + ' not found, restarted\n' + stdout.trim().substring(0, 1024) }, details, _this);
     }).catch(function(stdout) {
       _this.getApplication().notify(_this.getLoggers(), { message: 'Process ' + ruleName + ' not found, restart failed\n' + stdout, isError: true }, details, _this);
-      setTimeout(function() {
-        restart(ruleName, ruleConfig, results);
-      }, retryTimeout);
+      // setTimeout(function() {
+      //   restart(ruleName, ruleConfig, results);
+      // }, retryTimeout);
     });
 
   }
