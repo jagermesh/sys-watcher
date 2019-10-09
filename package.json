@@ -1,27 +1,32 @@
 {
-  "_from": "sys-watcher@1.0.10",
-  "_id": "sys-watcher@1.0.10",
+  "_args": [
+    [
+      "sys-watcher@1.0.14",
+      "/Users/jagermesh/www/current/sys-watcher-configs/jm-local"
+    ]
+  ],
+  "_from": "sys-watcher@1.0.14",
+  "_id": "sys-watcher@1.0.14",
   "_inBundle": false,
-  "_integrity": "sha512-1pDHBMNcYpzapuktHZ2NX28f6Tmw3scEZHstlyBn+8FPcf4mwpEpQnkM83GwdrXSiOGSeIk99+SQJnvWeUPGbg==",
+  "_integrity": "sha512-kV+wU0/xz0X5G04CCl+SrwCVnFBAjRsDCijavlz1jpMnyMsmkCKedcR3vTAy2sNiiWjwjOo3Vof8oqbY6w8JQQ==",
   "_location": "/sys-watcher",
   "_phantomChildren": {},
   "_requested": {
     "type": "version",
     "registry": true,
-    "raw": "sys-watcher@1.0.10",
+    "raw": "sys-watcher@1.0.14",
     "name": "sys-watcher",
     "escapedName": "sys-watcher",
-    "rawSpec": "1.0.10",
+    "rawSpec": "1.0.14",
     "saveSpec": null,
-    "fetchSpec": "1.0.10"
+    "fetchSpec": "1.0.14"
   },
   "_requiredBy": [
-    "#USER",
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/sys-watcher/-/sys-watcher-1.0.10.tgz",
+  "_resolved": "https://registry.npmjs.org/sys-watcher/-/sys-watcher-1.0.14.tgz",
   "_shasum": "4244a4f79a19c188aab89e743a2f3dfd2820aab6",
-  "_spec": "sys-watcher@1.0.10",
+  "_spec": "1.0.14",
   "_where": "/Users/jagermesh/www/current/sys-watcher-configs/jm-local",
   "author": {
     "name": "Jager Mesh"
@@ -29,38 +34,37 @@
   "bugs": {
     "url": "https://github.com/jagermesh/sys-watcher/issues"
   },
-  "bundleDependencies": false,
   "dependencies": {
-    "@slack/client": "^5.0.2",
-    "amqplib": "^0.5.3",
-    "aws-sdk": "^2.544.0",
-    "axios": "^0.19.0",
-    "body-parser": "^1.19.0",
-    "bytes": "^3.1.0",
-    "cheerio": "^1.0.0-rc.3",
-    "colors": "^1.4.0",
-    "commander": "^3.0.2",
-    "diskusage": "^1.1.1",
-    "express": "^4.16.4",
-    "free-memory": "^1.0.0",
-    "hashmap": "^2.4.0",
-    "ip": "^1.1.5",
-    "lodash": "^4.17.15",
-    "md5": "^2.2.1",
-    "moment": "^2.24.0",
-    "multer": "^1.4.1",
-    "mysql": "^2.17.1",
-    "node-file-cache": "^1.0.2",
-    "nodemailer": "^4.7.0",
-    "parse-duration": "^0.1.1",
-    "redis": "^2.8.0",
-    "require-from-string": "^2.0.2",
-    "slimbot": "^4.4.0",
-    "ssl-checker": "^2.0.3",
-    "systeminformation": "^4.14.11",
-    "tail": "^2.0.2",
-    "tmp": "0.1.0",
-    "uuid": "^3.3.2"
+    "@slack/client": "*",
+    "amqplib": "*",
+    "aws-sdk": "*",
+    "axios": "*",
+    "body-parser": "*",
+    "bytes": "*",
+    "cheerio": "*",
+    "colors": "*",
+    "commander": "*",
+    "diskusage": "*",
+    "express": "*",
+    "free-memory": "*",
+    "hashmap": "*",
+    "ip": "*",
+    "lodash": "*",
+    "md5": "*",
+    "moment": "*",
+    "multer": "*",
+    "mysql": "*",
+    "node-file-cache": "*",
+    "nodemailer": "*",
+    "parse-duration": "*",
+    "redis": "*",
+    "require-from-string": "*",
+    "slimbot": "*",
+    "ssl-checker": "*",
+    "systeminformation": "*",
+    "tail": "*",
+    "tmp": "*",
+    "uuid": "*"
   },
   "deprecated": false,
   "description": "System Watcher",
@@ -87,5 +91,5 @@
   "scripts": {
     "test": "echo \"OK\""
   },
-  "version": "1.0.15"
+  "version": "1.0.14"
 }
