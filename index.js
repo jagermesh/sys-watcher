@@ -95,6 +95,7 @@ class SysWatcher {
         application.start();
       } else {
         try {
+          let extra = Object.create({});
           switch(commander.args[0]) {
             case 'scripts':
               showHelp(application);
@@ -103,7 +104,6 @@ class SysWatcher {
               application.getScriptsManager().getInstance(commander.args[1]).exec();
               break;
             case 'send-message':
-              let extra = Object.create({ });
               if (commander.extra) {
                 try {
                   extra = requireS('module.exports = ' + commander.extra);
@@ -111,9 +111,7 @@ class SysWatcher {
                   throw 'Incorrect format of extra parameter: ' + error;
                 }
               }
-              application.notifyLogger(commander.args[1], { message: commander.args[2] }, null,  null, { settings: extra }).then(function(result) {
-
-              }).catch(function(error) {
+              application.notifyLogger(commander.args[1], { message: commander.args[2] }, null,  null, { settings: extra }).catch(function(error) {
                 error = error || 'Unknown error';
                 error = (typeof error == 'string' ? { error: error } : error);
                 let errorMessage = colors.red(error.error) + '\n';
