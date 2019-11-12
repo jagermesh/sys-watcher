@@ -51,8 +51,31 @@ function SlackLogger(application, name, config) {
             if (config.settings.webHooks.length > 0) {
               for(i = 0; i < config.settings.webHooks.length; i++) {
                 let webHook = config.settings.webHooks[i];
+                let payload = { text: formattedMessage };
+                if (config.settings.sender) {
+                  if (config.settings.sender.icon && config.settings.sender.name) {
+                    payload.blocks = [ { type: "section"
+                                       , text: { text: '*' + config.settings.sender.name + '*'
+                                               , type: 'mrkdwn'
+                                               }
+                                       }
+                                     , { type: "divider"
+                                       }
+                                     , { type: "section"
+                                       , text: { text: formattedMessage
+                                               , type: 'mrkdwn'
+                                               }
+                                       , accessory: {
+                                           type: 'image'
+                                         , image_url: config.settings.sender.icon
+                                         , alt_text: config.settings.sender.name
+                                         }
+                                       }
+                                     ];
+                  }
+                }
                 const transport = new Slack.IncomingWebhook(webHook);
-                transport.send({ text: formattedMessage })
+                transport.send(payload)
                   .then(function(result) {
                     _this.getApplication().getConsole().log(data.message, details, senders.concat([_this])).then(function() {
                       resolve();
@@ -89,7 +112,30 @@ function SlackLogger(application, name, config) {
                     results.push(new Promise(function(resolve, reject) {
                       let detailsTmp = JSON.parse(JSON.stringify(details));
                       detailsTmp.Recipient = recipient;
-                      transport.chat.postMessage({ channel: recipient, text: formattedMessage, parse: 'full' })
+                      let payload = { channel: recipient, text: formattedMessage };
+                      if (config.settings.sender) {
+                        if (config.settings.sender.icon && config.settings.sender.name) {
+                          payload.blocks = [ { type: "section"
+                                             , text: { text: '*' + config.settings.sender.name + '*'
+                                                     , type: 'mrkdwn'
+                                                     }
+                                             }
+                                           , { type: "divider"
+                                             }
+                                           , { type: "section"
+                                             , text: { text: formattedMessage
+                                                     , type: 'mrkdwn'
+                                                     }
+                                             , accessory: {
+                                                 type: 'image'
+                                               , image_url: config.settings.sender.icon
+                                               , alt_text: config.settings.sender.name
+                                               }
+                                             }
+                                           ];
+                        }
+                      }
+                      transport.chat.postMessage(payload)
                         .then(function(result) {
                           _this.getApplication().getConsole().log(data, detailsTmp, senders.concat([_this])).then(function() {
                             resolve();
