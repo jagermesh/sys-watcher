@@ -87,7 +87,7 @@ function CustomLogger(application, name, config) {
         message = message.replace(/<\/strong>/g, '*');
         message = message.replace(/<pre>/g, '```');
         message = message.replace(/<\/pre>/g, '```');
-        message = message.replace(/<[^>]+>/g, '');
+        // message = message.replace(/<[^>]+>/g, '');
         break;
     }
 
