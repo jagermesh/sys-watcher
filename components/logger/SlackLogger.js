@@ -52,7 +52,7 @@ function SlackLogger(application, name, config) {
               for(i = 0; i < config.settings.webHooks.length; i++) {
                 let webHook = config.settings.webHooks[i];
                 const transport = new Slack.IncomingWebhook(webHook);
-                transport.send({ text: formattedMessage, parse: 'full' })
+                transport.send({ text: formattedMessage })
                   .then(function(result) {
                     _this.getApplication().getConsole().log(data.message, details, senders.concat([_this])).then(function() {
                       resolve();
