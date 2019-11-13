@@ -112,7 +112,7 @@ function SlackLogger(application, name, config) {
                     results.push(new Promise(function(resolve, reject) {
                       let detailsTmp = JSON.parse(JSON.stringify(details));
                       detailsTmp.Recipient = recipient;
-                      let payload = { channel: recipient, text: formattedMessage };
+                      let payload = { channel: recipient, text: formattedMessage, as_user: true, link_names: true };
                       if (config.settings.sender) {
                         if (config.settings.sender.icon && config.settings.sender.name) {
                           payload.blocks = [ { type: "section"
