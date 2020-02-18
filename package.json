@@ -56,7 +56,7 @@
     "mysql": "*",
     "node-file-cache": "*",
     "nodemailer": "*",
-    "np": "^5.1.3",
+    "np": "^6.1.0",
     "parse-duration": "*",
     "redis": "*",
     "require-from-string": "*",
