@@ -30,7 +30,6 @@ function MailLogger(application, name, config) {
         config.settings  = Object.assign({ }, _this.config.settings, config.settings);
         config.composing = Object.assign({ }, _this.config.composing, config.composing);
 
-
         details  = Object.assign({ }, details, config.composing.details);
         details.Senders = _this.expandSenders(senders);
 
@@ -52,7 +51,8 @@ function MailLogger(application, name, config) {
           }
         }
 
-        formattedSubject = formattedSubject.replace(/<[^>]*?>/g, '').replace(/\n/g, ' ');
+        // formattedSubject = formattedSubject.replace(/<[^>]*?>/g, '').replace(/\n/g, ' ');
+        formattedSubject = formattedSubject.replace(/\n/g, ' ').substring(0, 512);
 
         if (config.settings.sender) {
           if (config.settings.recipients.length > 0) {
@@ -63,7 +63,7 @@ function MailLogger(application, name, config) {
             , subject: formattedSubject
             };
 
-            switch(_this.config.composing.format) {
+            switch(config.composing.format) {
               case 'html':
                 formattedMessage = _this.formatMessage(formattedMessage, 'html');
                 formattedDetails = _this.packDetails(details, config.composing, 'html');
