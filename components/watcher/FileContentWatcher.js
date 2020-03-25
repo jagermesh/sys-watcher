@@ -11,7 +11,7 @@ function FileContentWatcher(application, name, config) {
 
   let filesCache = [];
 
-  function watchFile(path) {
+  function watchFile(path, ruleConfig) {
 
     fs.stat(path, function(error, results) {
       let modificationTime;
@@ -24,23 +24,21 @@ function FileContentWatcher(application, name, config) {
         if (filesCache[path] != results.mtimeMs) {
           _this.getApplication().notify(_this.getLoggers(), { message: 'File modified ' + path }, Object.create({ }), _this);
           filesCache[path] = results.mtimeMs;
-          if (_this.config.settings) {
-            if (_this.config.settings.job) {
-              return _this.config.settings.job.call(_this);
-            }
-            if (_this.config.settings.cmd) {
-              let cmd = typeof _this.config.settings.cmd == 'function' ? _this.config.settings.cmd.call(_this) : _this.config.settings.cmd;
-              let cwd = _this.config.settings.cwd || process.cwd();
-              let cmdGroup = _this.config.settings.cmdGroup;
+          if (ruleConfig.job) {
+            return ruleConfig.job.call(_this);
+          }
+          if (ruleConfig.cmd) {
+            let cmd = typeof ruleConfig.cmd == 'function' ? ruleConfig.cmd.call(_this) : ruleConfig.cmd;
+            let cwd = ruleConfig.cwd || process.cwd();
+            let cmdGroup = ruleConfig.cmdGroup;
 
-              let details = { Cmd: cmd, Cwd: cwd, CmdGroup: cmdGroup };
+            let details = { Cmd: cmd, Cwd: cwd, CmdGroup: cmdGroup };
 
-              return _this.getApplication().getExecPool().exec(cmd, cwd, cmdGroup).then(function(stdout) {
-                _this.getApplication().notify(_this.getLoggers(), { message: stdout }, details, _this);
-              }).catch(function(stdout) {
-                _this.getApplication().notify(_this.getLoggers(), { message: stdout, isError: true }, details, _this);
-              });
-            }
+            return _this.getApplication().getExecPool().exec(cmd, cwd, cmdGroup).then(function(stdout) {
+              _this.getApplication().notify(_this.getLoggers(), { message: stdout }, details, _this);
+            }).catch(function(stdout) {
+              _this.getApplication().notify(_this.getLoggers(), { message: stdout, isError: true }, details, _this);
+            });
           }
         }
       }
@@ -48,11 +46,22 @@ function FileContentWatcher(application, name, config) {
 
   }
 
+  function watchRule(ruleConfig) {
+
+    let paths = ruleConfig.path;
+    for(let i = 0; i < paths.length; i++) {
+      watchFile(paths[i], ruleConfig);
+    }
+
+  }
+
   _this.watch = function() {
 
-    let paths = _this.getArrayValue(_this.config.settings.path);
-    for(let i = 0; i < paths.length; i++) {
-      watchFile(paths[i]);
+    if (_this.config.settings.rules) {
+      for(let ruleName in _this.config.settings.rules) {
+        let ruleConfig = _this.config.settings.rules[ruleName];
+        watchRule(ruleConfig);
+      }
     }
 
   };
