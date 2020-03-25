@@ -1,9 +1,9 @@
 const colors = require('colors');
 const child_process = require('child_process');
-const uuid = require('uuid/v4');
 const path = require('path');
 const fs = require('fs');
 const tmp = require('tmp');
+const { v4: uuidv4 } = require('uuid');
 
 const CustomObject    = require(__dirname + '/CustomObject.js');
 
@@ -167,7 +167,7 @@ function ExecPool(application) {
 
   _this.exec = function(cmd, cwd, tag, senders) {
 
-    tag = tag || uuid();
+    tag = tag || uuidv4();
 
     senders = senders || [];
 
@@ -192,7 +192,7 @@ function ExecPool(application) {
 
   _this.spawn = function(cmd, cwd, senders) {
 
-    let tag = uuid();
+    let tag = uuidv4();
 
     senders = senders || [];
 

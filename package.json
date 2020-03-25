@@ -37,7 +37,7 @@
   "dependencies": {
     "@slack/client": "*",
     "amqplib": "*",
-    "aws-sdk": "^2.639.0",
+    "aws-sdk": "^2.645.0",
     "axios": "^0.19.2",
     "body-parser": "*",
     "bytes": "*",
@@ -55,7 +55,7 @@
     "multer": "*",
     "mysql": "^2.18.1",
     "node-file-cache": "*",
-    "nodemailer": "^6.4.5",
+    "nodemailer": "^6.4.6",
     "np": "^5.2.1",
     "parse-duration": "^0.1.2",
     "redis": "^3.0.2",
