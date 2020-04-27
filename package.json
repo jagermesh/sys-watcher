@@ -43,7 +43,7 @@
     "bytes": "*",
     "cheerio": "*",
     "colors": "*",
-    "commander": "^4.1.1",
+    "commander": "^5.1.0",
     "diskusage": "*",
     "express": "*",
     "free-memory": "*",
