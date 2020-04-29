@@ -47,7 +47,7 @@ function WebWatcher(application, name, config, owner) {
     } else {
       let server = express();
       _this.getApplication().getConnectionsPool().set(tag, server);
-      server.use(bodyparser.json({ limit: '50mb', extended: true, verify: function(req,res,buf) { req.rawBody = buf; } }));
+      server.use(bodyparser.json({ limit: '50mb', extended: true, type: ['application/json', 'application/csp-report'], verify: function(req,res,buf) { req.rawBody = buf; } }));
       server.use(bodyparser.urlencoded({ limit: '50mb', extended: true, verify: function(req,res,buf) {req.rawBody = buf; } }));
       let upload = multer();
       server.use(upload.fields([]));
@@ -58,7 +58,7 @@ function WebWatcher(application, name, config, owner) {
       server.all(/.*/, function(request, response, next) {
         let details = _this.getRequestDetails(request);
         _this.getApplication().getConsole().log(request.method + ' ' + _this.getRequestUrl(request), details, _this);
-        if (request.method == 'POST') {
+        if ((request.method == 'POST') || (request.method == 'PUT')) {
           _this.getApplication().getConsole().log(request.method + ' ' + JSON.stringify(request.body), details, _this);
         }
         next();
