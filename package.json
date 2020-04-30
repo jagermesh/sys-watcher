@@ -36,7 +36,7 @@
     "systeminformation": "^4.23.1",
     "tail": "*",
     "tmp": "*",
-    "uuid": "^7.0.2"
+    "uuid": "^8.0.0"
   },
   "deprecated": false,
   "description": "System Watcher",
