@@ -1,5 +1,4 @@
 const amqpcb = require('amqplib/callback_api');
-// const _ = require('lodash');
 
 const CustomLogger = require(__dirname + '/../../libs/CustomLogger.js');
 

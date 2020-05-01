@@ -1,5 +1,4 @@
 const nodemailer = require('nodemailer');
-// const _ = require('lodash');
 
 const CustomLogger = require(__dirname + '/../../libs/CustomLogger.js');
 

@@ -1,5 +1,4 @@
 const Slack = require('@slack/client');
-// const _ = require('lodash');
 
 const CustomLogger = require(__dirname + '/../../libs/CustomLogger.js');
 
