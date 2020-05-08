@@ -26,7 +26,7 @@
     "node-file-cache": "^1.0.2",
     "nodemailer": "^6.4.6",
     "np": "^6.2.3",
-    "parse-duration": "^0.3.0",
+    "parse-duration": "^0.4.3",
     "redis": "^3.0.2",
     "require-from-string": "^2.0.2",
     "slimbot": "^4.7.0",
