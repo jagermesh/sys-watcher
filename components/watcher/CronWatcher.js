@@ -24,7 +24,8 @@ function CronWatcher(application, name, config) {
         return _this.getApplication().getExecPool().exec(cmd, cwd, cmdGroup).then(function(stdout) {
           _this.getApplication().notify(_this.getLoggers(), { message: stdout }, details, _this);
         }).catch(function(stdout) {
-          _this.getApplication().notify(_this.getLoggers(), { message: stdout, isError: true }, details, _this);
+          _this.getApplication().notify(_this.getErrorLoggers(), { message: stdout, isError: true }, details, _this);
+          throw new Error(stdout);
         });
       }
     }

@@ -47,6 +47,18 @@ function CustomLoggable(application, name, config, owner) {
 
   };
 
+  _this.getErrorLoggers = function(including) {
+
+    let result = _this.getLoggers(including);
+
+    if (result.length == 0) {
+      result = _this.getApplication().getAppErrorsWatcher().getLoggers();
+    }
+
+    return result;
+
+  };
+
   _this.needScheduler = function() {
 
     return !!_this.getConfig().scheduling;

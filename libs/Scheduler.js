@@ -16,6 +16,8 @@ function Scheduler(application, name, config, owner) {
       if (result && result.then) {
         result.then(function() {
           parsedSchedule.touchMarker();
+        }).catch(function() {
+
         });
       } else {
         parsedSchedule.touchMarker();
