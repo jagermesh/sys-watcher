@@ -59,6 +59,7 @@
     "url": "git+ssh://git@github.com/jagermesh/sys-watcher.git"
   },
   "scripts": {
+    "release": "np --no-2fa",
     "test": "echo \"OK\""
   },
   "version": "1.0.34"
