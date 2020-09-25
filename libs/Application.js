@@ -272,7 +272,6 @@ function Application(configFilePath) {
       let data = (typeof message == 'string' ? { message: message } : message);
 
       data.isFatalError = true;
-
       _this.reportError(data, Object.create({ }), sender).then(function() {
         _this.die();
       }).catch(function() {
@@ -308,9 +307,7 @@ function Application(configFilePath) {
 
       let loggers = convertLoggerNamesToLoggers(_this.getAppErrorsWatcher().getLoggers(), sender);
 
-      if (loggers.length > 0) {
-        return _this.notify(loggers, data, details, senders);
-      }
+      return _this.notify(loggers, data, details, senders);
     }
 
     // and if so - do nothing

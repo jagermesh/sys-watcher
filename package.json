@@ -5,10 +5,15 @@
   "bugs": {
     "url": "https://github.com/jagermesh/sys-watcher/issues"
   },
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-jshint": "^2.1.0",
+    "jshint": "^2.12.0"
+  },
   "dependencies": {
     "@slack/client": "^5.0.2",
     "amqplib": "^0.5.6",
-    "aws-sdk": "^2.736.0",
+    "aws-sdk": "^2.760.0",
     "axios": "^0.19.2",
     "body-parser": "^1.19.0",
     "bytes": "^3.1.0",
@@ -20,24 +25,21 @@
     "hashmap": "^2.4.0",
     "ip": "^1.1.5",
     "md5": "^2.3.0",
-    "moment": "^2.27.0",
+    "moment": "^2.29.0",
     "multer": "^1.4.2",
     "mysql": "^2.18.1",
     "node-file-cache": "^1.0.2",
     "nodemailer": "^6.4.11",
-    "np": "^6.4.0",
     "parse-duration": "^0.3.0",
     "redis": "^3.0.2",
     "require-from-string": "^2.0.2",
     "slimbot": "^4.9.0",
+    "socket.io-client": "*",
     "ssl-checker": "^2.0.5",
-    "systeminformation": "^4.26.10",
+    "systeminformation": "^4.27.5",
     "tail": "^2.0.4",
     "tmp": "^0.2.1",
-    "uuid": "^8.3.0",
-    "gulp": "^4.0.2",
-    "gulp-jshint": "^2.1.0",
-    "jshint": "^2.12.0"
+    "uuid": "^8.3.0"
   },
   "deprecated": false,
   "description": "System Watcher",
