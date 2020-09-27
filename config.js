@@ -35,18 +35,28 @@ module.exports ={
   , freeRAMWatcher: {
       type: 'FreeRAMWatcher'
     , settings: {
-        threshold: '4 Gb'
+        // threshold: '4 Gb'
       }
     , scheduling: {
-        interval: '30 sec'
+        interval: '3 sec'
       }
+    , loggers: [ 'monitoringHub' ]
     }
   , laWatcher: {
       type: 'LAWatcher'
     , settings: {
       }
     , scheduling: {
-        interval: '5 sec'
+        interval: '3 sec'
+      }
+    , loggers: [ 'monitoringHub' ]
+    }
+  , cpuWatcher: {
+      type: 'CPUWatcher'
+    , settings: {
+      }
+    , scheduling: {
+        interval: '3 sec'
       }
     , loggers: [ 'monitoringHub' ]
     }

@@ -11,36 +11,40 @@ function LAWatcher(application, name, config) {
 
   const _this = this;
 
-  let sensorUid = uuid.v4();
-  let metricUid = uuid.v4();
+  const sensorUid = uuid.v4();
+  const metricUid = uuid.v4();
 
   const cpus     = os.cpus().length;
   const critical = cpus * 0.75;
   const overload = cpus;
 
-  let metricConfig = Object.create({ });
-  metricConfig.lineColor = 'green';
-  metricConfig.fillColor = 'lightgreen';
-  metricConfig.ranges = [];
-  metricConfig.ranges.push({ value: overload
-                           , title: `Overload (>${critical.toFixed(2)})`
-                           , lineColor: 'chocolate'
-                           , fillColor: 'orange'
-                           });
-  metricConfig.ranges.push({ value: critical
-                           , title: `Critical (>${overload.toFixed(2)})`
-                           , lineColor: 'red'
-                           , fillColor: 'lightcoral'
-                           });
+  let metricConfig = {
+    lineColor: 'green'
+  , fillColor: 'lightgreen'
+  , ranges: [ {
+        value: overload
+      , title: `Overload (>${critical.toFixed(2)})`
+      , lineColor: 'chocolate'
+      , fillColor: 'orange'
+      }
+    , { value: critical
+      , title: `Critical (>${overload.toFixed(2)})`
+      , lineColor: 'red'
+      , fillColor: 'lightcoral'
+      }
+    ]
+  };
 
-  let sensorInfo = { sensorUid:   sensorUid
-                   , sensorName:  _this.getApplication().getLocation()
-                   , metricsList: [ { uid:          metricUid
-                                    , name:         'LA'
-                                    , rendererName: 'FilledLineChart'
-                                    , metricConfig: metricConfig
-                                    } ]
-                   };
+  let sensorInfo = {
+    sensorUid:   sensorUid
+  , sensorName:  _this.getApplication().getLocation()
+  , metricsList: [ {
+      uid:          metricUid
+    , name:         'LA'
+    , rendererName: 'FilledLineChart'
+    , metricConfig: metricConfig
+    } ]
+  };
 
   function writeValue(value, critical, overload) {
     let message = '<b';
@@ -64,15 +68,16 @@ function LAWatcher(application, name, config) {
     let sensorData = {
       sensorUid: sensorUid
     , metricUid: metricUid
-    , metricData: { title:    title
-                  , subTitle: subTitle
-                  , value:    value
-                  }
+    , metricData: {
+        title:    title
+      , subTitle: subTitle
+      , value:    value
+      }
     };
 
-    let message = title;
+    let message = `LA ${subTitle}`;
 
-    _this.getApplication().notify(_this.getLoggers(), { message: null, sensorInfo: sensorInfo, sensorData: sensorData }, Object.create({ }), _this);
+    _this.getApplication().notify(_this.getLoggers(), { message: message, value: value, units: 'Count', sensorInfo: sensorInfo, sensorData: sensorData }, Object.create({ }), _this);
 
   };
 

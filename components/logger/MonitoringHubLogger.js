@@ -15,6 +15,17 @@ function MonitoringHubLogger(application, name, config) {
   let initialized;
   let hubConnection;
   let sensors = [];
+  let registered = false;
+
+  function registerSensors() {
+    for(let sensorUid in sensors) {
+      let sensor = sensors[sensorUid];
+      if (!sensor.registered) {
+        _this.getApplication().getConsole().log('Registering sensor', { sensorUid: sensorUid }, _this);
+        hubConnection.emit('registerSensor', sensor.sensorInfo);
+      }
+    }
+  }
 
   function initialize() {
     if (initialized) {
@@ -29,35 +40,26 @@ function MonitoringHubLogger(application, name, config) {
 
     hubConnection.on('connect', function() {
       _this.getApplication().getConsole().log('Connected to hub', { hubUrl: _this.config.settings.hubUrl }, _this);
-      for(let sensorUid in sensors) {
-        let sensor = sensors[sensorUid];
-        _this.getApplication().getConsole().log('Registering sensor', { sensorUid: sensorUid }, _this);
-        hubConnection.emit('registerSensor', sensor.sensorInfo);
-        hubConnection.emit('sensorData', sensor.sensorData);
-      }
+      registerSensors();
     });
 
     hubConnection.on('sensorRegistered', function(data) {
       let sensor = sensors[data.sensorInfo.sensorUid];
       if (sensor) {
+        sensor.registered = true;
         hubConnection.emit('sensorData', sensor.sensorData);
       }
     });
 
     hubConnection.on('disconnect', function(a) {
       _this.getApplication().getConsole().log('Disonnected from hub', { hubUrl: _this.config.settings.hubUrl }, _this);
+      for(let sensorUid in sensors) {
+        sensors[sensorUid].registered = false;
+      }
     });
   }
 
   function sendData(sensorUid) {
-    if (hubConnection && hubConnection.connected) {
-      let sensor = sensors[sensorUid];
-      if (sensor) {
-        hubConnection.emit('sensorData', sensor.sensorData);
-      }
-    } else {
-      initialize();
-    }
   }
 
   _this.getRecipients = function() {
@@ -72,10 +74,20 @@ function MonitoringHubLogger(application, name, config) {
 
       if (data && data.sensorInfo && data.sensorData) {
         let sensorUid = data.sensorInfo.sensorUid;
-        sensors[sensorUid] = { sensorInfo: data.sensorInfo
-                             , sensorData: data.sensorData
-                             };
-        sendData(sensorUid);
+        let sensor = { sensorInfo: data.sensorInfo
+                     , sensorData: data.sensorData
+                     , registered: sensors[sensorUid] ? sensors[sensorUid].registered : false
+                     };
+        sensors[sensorUid] = sensor;
+        if (hubConnection && hubConnection.connected) {
+          if (sensor.registered) {
+            hubConnection.emit('sensorData', sensor.sensorData);
+          } else {
+            registerSensors();
+          }
+        } else {
+          initialize();
+        }
       }
 
       resolve();
