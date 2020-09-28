@@ -97,7 +97,7 @@ function FreeRAMWatcher(application, name, config) {
           }
         };
 
-        _this.getApplication().notify(_this.getLoggers(), { message: message, value: usable, units: 'Bytes', dimensions: Object.create({ }), sensorInfo: sensorInfo, sensorData: sensorData }, Object.create({ }), _this);
+        _this.getApplication().notify(_this.getLoggers(), { message: message, value: usable, units: 'Bytes', dimensions: Object.create({ }), sensorInfo: sensorInfo, sensorData: sensorData, skipConsole: (_this.config.settings.thresholdBytes == 0) }, Object.create({ }), _this);
       }
     }).catch(function(error) {
       _this.getApplication().notify(_this.getLoggers(), { message: 'Can not retrive RAM information: ' + error.toString(), isError: true }, Object.create({ }), _this);

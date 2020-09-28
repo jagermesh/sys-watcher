@@ -77,7 +77,7 @@ function LAWatcher(application, name, config) {
 
     let message = `LA ${subTitle}`;
 
-    _this.getApplication().notify(_this.getLoggers(), { message: message, value: value, units: 'Count', sensorInfo: sensorInfo, sensorData: sensorData }, Object.create({ }), _this);
+    _this.getApplication().notify(_this.getLoggers(), { message: message, value: value, units: 'Count', sensorInfo: sensorInfo, sensorData: sensorData, skipConsole: true }, Object.create({ }), _this);
 
   };
 

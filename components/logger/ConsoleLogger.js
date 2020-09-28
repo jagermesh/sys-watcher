@@ -14,7 +14,7 @@ function ConsoleLogger(application, name, config) {
 
     return new Promise(function(resolve, reject) {
 
-      if (data && data.message) {
+      if (data && data.message && !data.skipConsole) {
 
         config.settings  = Object.assign({ }, _this.config.settings, config.settings);
         config.composing = Object.assign({ }, _this.config.composing, config.composing);

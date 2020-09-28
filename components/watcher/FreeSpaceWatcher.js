@@ -25,7 +25,7 @@ function FreeSpaceWatcher(application, name, config) {
           if (_this.config.settings.thresholdBytes > 0) {
             message += ' which is less than threshold ' + bytes(_this.config.settings.thresholdBytes);
           }
-          _this.getApplication().notify(_this.getLoggers(), { message: message, value: stats.free, units: 'Bytes', dimensions: { Path: path } }, details, _this);
+          _this.getApplication().notify(_this.getLoggers(), { message: message, value: stats.free, units: 'Bytes', dimensions: { Path: path }, skipConsole: (_this.config.settings.thresholdBytes == 0) }, details, _this);
         }
       }
     });

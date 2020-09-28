@@ -69,7 +69,7 @@ function CPUWatcher(application, name, config) {
           }
         };
 
-        _this.getApplication().notify(_this.getLoggers(), { message: message, value: stats.currentload, units: 'Percent', dimensions: Object.create({ }), sensorInfo: sensorInfo, sensorData: sensorData }, Object.create({ }), _this);
+        _this.getApplication().notify(_this.getLoggers(), { message: message, value: stats.currentload, units: 'Percent', dimensions: Object.create({ }), sensorInfo: sensorInfo, sensorData: sensorData, skipConsole: (_this.config.settings.threshold == 0) }, Object.create({ }), _this);
       }
     }).catch(function(error) {
       _this.getApplication().notify(_this.getLoggers(), { message: 'Can not retrive CPU information: ' + error.toString(), isError: true }, Object.create({ }), _this);
