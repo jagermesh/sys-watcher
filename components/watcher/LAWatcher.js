@@ -21,16 +21,15 @@ function LAWatcher(application, name, config) {
   let metricConfig = {
     lineColor: 'green'
   , fillColor: 'lightgreen'
+  , datasets: ['LA']
   , ranges: [ {
         value: overload
       , title: `Overload (>${critical.toFixed(2)})`
       , lineColor: 'chocolate'
-      , fillColor: 'orange'
       }
     , { value: critical
       , title: `Critical (>${overload.toFixed(2)})`
       , lineColor: 'red'
-      , fillColor: 'lightcoral'
       }
     ]
   };
@@ -41,7 +40,7 @@ function LAWatcher(application, name, config) {
   , metricsList: [ {
       uid:          metricUid
     , name:         'LA'
-    , rendererName: 'FilledLineChart'
+    , rendererName: 'Chart'
     , metricConfig: metricConfig
     } ]
   };
@@ -71,7 +70,7 @@ function LAWatcher(application, name, config) {
     , metricData: {
         title:    title
       , subTitle: subTitle
-      , value:    value
+      , values:   [value]
       }
     };
 

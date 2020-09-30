@@ -1,5 +1,6 @@
 const diskusage = require('diskusage');
-const bytes = require('bytes');
+const bytes     = require('bytes');
+const uuid      = require('uuid');
 
 const CustomWatcher = require(__dirname + '/../../libs/CustomWatcher.js');
 
@@ -11,6 +12,9 @@ function FreeSpaceWatcher(application, name, config) {
 
   _this.config.settings.threshold      = _this.config.settings.threshold || '0 b';
   _this.config.settings.thresholdBytes = bytes.parse(_this.config.settings.threshold);
+
+  const sensorUid = uuid.v4();
+  const metricUid = uuid.v4();
 
   function watchPath(path) {
 

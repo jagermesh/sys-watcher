@@ -16,8 +16,8 @@ function CPUWatcher(application, name, config) {
 
   _this.config.settings.threshold = _this.config.settings.threshold || 0;
 
-  let overload  = 75;
-  let critical = 100;
+  let overload = 75;
+  let critical = 90;
 
   let sensorInfo = {
     sensorUid:   sensorUid
@@ -25,20 +25,19 @@ function CPUWatcher(application, name, config) {
   , metricsList: [ {
         uid:          metricUid
       , name:         'CPU Load'
-      , rendererName: 'FilledLineChart'
+      , rendererName: 'Chart'
       , metricConfig: {
           lineColor: 'green'
-        , fillColor: 'lightgreen'
+        , datasets: ['LA']
         , ranges: [ {
-              value:      critical
-            , title:     `Overload (>${critical.toFixed(2)})`
+              value:      overload
+            , title:     `Overload (>${overload.toFixed(2)})`
             , lineColor: 'chocolate'
-            , fillColor: 'orange'
             }
-          , { value:      overload
-            , title:     `Critical (>${overload.toFixed(2)})`
+          , { value:      critical
+            , title:     `Critical (>${critical.toFixed(2)})`
             , lineColor: 'red'
-            , fillColor: 'lightcoral' }
+            }
           ]
         }
       }
@@ -58,6 +57,7 @@ function CPUWatcher(application, name, config) {
 
         const title    = `CPU Load ${stats.currentload.toFixed()}% (${_this.getApplication().getLocation()})`;
         const subTitle = `User ${stats.currentload_user.toFixed()}%, System ${stats.currentload_system.toFixed()}%, Idle ${stats.currentload_idle.toFixed()}%`;
+        const value    = stats.currentload;
 
         let sensorData = {
           sensorUid: sensorUid
@@ -65,7 +65,7 @@ function CPUWatcher(application, name, config) {
         , metricData: {
             title:    title
           , subTitle: subTitle
-          , value:    stats.currentload
+          , values:   [value]
           }
         };
 

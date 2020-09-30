@@ -19,7 +19,6 @@ function FreeRAMWatcher(application, name, config) {
 
   let metricConfig = {
     lineColor: 'green'
-  , fillColor: 'lightgreen'
   };
 
   let sensorInfo = {
@@ -28,7 +27,7 @@ function FreeRAMWatcher(application, name, config) {
   , metricsList: [ {
         uid:          metricUid
       , name:         'Free RAM'
-      , rendererName: 'FilledLineChart'
+      , rendererName: 'Chart'
       , metricConfig: metricConfig
       }
     ]
@@ -47,16 +46,17 @@ function FreeRAMWatcher(application, name, config) {
       critical = critical / 1024;
     }
 
+    metricConfig.datasets = [ 'Free RAM' ];
+
     metricConfig.ranges = [ {
         value:      90
       , title:     `Overload (>${critical.toFixed(2)})`
       , lineColor: 'chocolate'
-      , fillColor: 'orange'
       }
     , { value:      95
       , title:     `Critical (>${overload.toFixed(2)})`
       , lineColor: 'red'
-      , fillColor: 'lightcoral' }
+      }
     ];
 
     sensorInfo.metricsList[0].metricConfig = metricConfig;
@@ -93,7 +93,7 @@ function FreeRAMWatcher(application, name, config) {
         , metricData: {
             title:    title
           , subTitle: subTitle
-          , value:    value
+          , values:   [value]
           }
         };
 
