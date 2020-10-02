@@ -20,15 +20,15 @@ function LAWatcher(application, name, config) {
 
   let metricConfig = {
     lineColor: 'green'
-  , suggestedMax: cpus
+  , suggestedMax: overload
   , min: 0
   , datasets: ['LA']
   , ranges: [ {
-        value: overload
-      , title: `Overload (>${critical.toFixed(2)})`
+        value: critical
+      , title: `Critical (>${critical.toFixed(2)})`
       , lineColor: 'chocolate'
       }
-    , { value: critical
+    , { value: overload
       , title: `Critical (>${overload.toFixed(2)})`
       , lineColor: 'red'
       }
