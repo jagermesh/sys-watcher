@@ -10,7 +10,6 @@ module.exports ={
       composing: {
         hostInfo: true
       }
-    , cache: 'redis'
     }
   }
 , loggers: {
@@ -31,6 +30,7 @@ module.exports ={
     , scheduling: {
         interval: '10 sec'
       }
+    // , loggers: [ 'monitoringHub' ]
     }
   , freeRAMWatcher: {
       type: 'FreeRAMWatcher'

@@ -46,6 +46,14 @@ function FreeRAMWatcher(application, name, config) {
       critical = critical / 1024;
     }
 
+    let suggestedMax = stats.total;
+    while(suggestedMax > 1024) {
+      suggestedMax = suggestedMax / 1024;
+    }
+
+    metricConfig.suggestedMax = suggestedMax;
+    metricConfig.min = 0;
+
     metricConfig.datasets = [ 'Free RAM' ];
 
     metricConfig.ranges = [ {

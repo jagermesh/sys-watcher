@@ -28,7 +28,9 @@ function CPUWatcher(application, name, config) {
       , rendererName: 'Chart'
       , metricConfig: {
           lineColor: 'green'
-        , datasets: ['LA']
+        , datasets: ['CPU']
+        , suggestedMax: 100
+        , min: 0
         , ranges: [ {
               value:      overload
             , title:     `Overload (>${overload.toFixed(2)})`

@@ -20,7 +20,8 @@ function LAWatcher(application, name, config) {
 
   let metricConfig = {
     lineColor: 'green'
-  , fillColor: 'lightgreen'
+  , suggestedMax: cpus
+  , min: 0
   , datasets: ['LA']
   , ranges: [ {
         value: overload
