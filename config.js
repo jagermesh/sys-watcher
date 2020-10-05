@@ -13,12 +13,6 @@ module.exports ={
     }
   }
 , loggers: {
-    // monitoringHub: {
-    //   type: 'MonitoringHubLogger'
-    // , settings: {
-
-    //   }
-    // }
   }
 , watchers: {
     freeSpaceWatcher: {
