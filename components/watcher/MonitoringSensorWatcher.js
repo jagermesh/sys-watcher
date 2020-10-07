@@ -25,8 +25,10 @@ function MonitoringSensorWatcher(application, name, config) {
 
   const _this = this;
 
+  _this.config.settings.name = _this.config.settings.name || _this.getApplication().getLocation();
+
   _this.watch = function() {
-console.log(1);
+
     const sensor = new MonitoringSensor(_this.config.settings, new Logger(_this));
     sensor.start();
 
