@@ -70,5 +70,5 @@
     "release": "np --no-2fa",
     "test": "echo \"OK\""
   },
-  "version": "1.0.47"
+  "version": "1.0.48"
 }
