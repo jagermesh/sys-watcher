@@ -13,7 +13,7 @@
   "dependencies": {
     "@slack/client": "^5.0.2",
     "amqplib": "^0.6.0",
-    "aws-sdk": "^2.768.0",
+    "aws-sdk": "^2.771.0",
     "axios": "^0.20.0",
     "body-parser": "^1.19.0",
     "bytes": "^3.1.0",
@@ -26,7 +26,7 @@
     "ip": "^1.1.5",
     "md5": "^2.3.0",
     "moment": "^2.29.1",
-    "monitoring-sensor": "^1.0.22",
+    "monitoring-sensor": "^1.0.24",
     "multer": "^1.4.2",
     "mysql": "^2.18.1",
     "node-file-cache": "^1.0.2",
@@ -37,7 +37,7 @@
     "slimbot": "^4.9.0",
     "socket.io-client": "^2.3.1",
     "ssl-checker": "^2.0.5",
-    "systeminformation": "^4.27.7",
+    "systeminformation": "^4.27.8",
     "tail": "^2.0.4",
     "tmp": "^0.2.1",
     "uuid": "^8.3.1"
