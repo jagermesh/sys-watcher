@@ -54,159 +54,71 @@ module.exports ={
         metrics: [
           // CPU
           { name: 'CPU'
-          , refreshInterval: 1000
-          , rendererName: 'Chart'
+          , rendererName: 'Chart,Value,Table,Gauge'
           },
           { name: 'CPU'
-          , refreshInterval: 1000
-          , rendererName: 'Chart'
-          , settings: {
-              processes: 'php,node'
-            }
-          },
-          { name: 'CPU'
-          , rendererName: 'Value'
-          , refreshInterval: 1000
-          },
-          { name: 'CPU'
-          , rendererName: 'Value'
-          , refreshInterval: 1000
-          , settings: {
-              processes: 'php,node'
-            }
-          },
-          { name: 'CPU'
-          , refreshInterval: 1000
-          , rendererName: 'Table'
-          },
-          { name: 'CPU'
-          , refreshInterval: 1000
-          , rendererName: 'Table'
+          , rendererName: 'Chart,Value,Table,Gauge'
           , settings: {
               processes: 'php,node'
             }
           },
           // RAM
           { name: 'RAM'
-          , rendererName: 'Chart'
-          , refreshInterval: 1000
-          },
-          { name: 'RAM'
-          , rendererName: 'Value'
-          , refreshInterval: 1000
-          },
-          { name: 'RAM'
-          , rendererName: 'Table'
-          , refreshInterval: 1000
+          , rendererName: 'Chart,Value,Table,Gauge'
           },
           // LA
           { name: 'LA'
-          , rendererName: 'Chart'
-          , refreshInterval: 1000
-          },
-          { name: 'LA'
-          , rendererName: 'Value'
-          , refreshInterval: 1000
-          },
-          { name: 'LA'
-          , rendererName: 'Table'
-          , refreshInterval: 1000
+          , rendererName: 'Chart,Value,Table,Gauge'
           },
           // Processes
           { name: 'Processes'
-          , rendererName: 'Chart'
-          , refreshInterval: 5000
+          , rendererName: 'Chart,Value,Table'
           },
           { name: 'Processes'
-          , rendererName: 'Value'
-          , refreshInterval: 5000
-          },
-          { name: 'Processes'
-          , rendererName: 'Table'
-          , refreshInterval: 5000
-          },
-          { name: 'Processes'
-          , rendererName: 'Chart'
-          , refreshInterval: 5000
-          , settings: {
-              processes: 'php,node'
-            }
-          },
-          { name: 'Processes'
-          , rendererName: 'Value'
-          , refreshInterval: 5000
-          , settings: {
-              processes: 'php,node'
-            }
-          },
-          { name: 'Processes'
-          , rendererName: 'Table'
-          , refreshInterval: 5000
+          , rendererName: 'Chart,Value,Table'
           , settings: {
               processes: 'php,node'
             }
           },
           // HDD
           { name: 'HDD'
-          , rendererName: 'Chart'
-          , refreshInterval: 1000
+          , rendererName: 'Chart,Value,Table'
           },
           { name: 'HDD'
-          , refreshInterval: 1000
-          , rendererName: 'Table'
-          },
-          { name: 'HDD'
-          , refreshInterval: 1000
-          , rendererName: 'Value'
-          },
-          { name: 'HDD'
-          , refreshInterval: 1000
-          , rendererName: 'Chart'
+          , rendererName: 'Chart,Value,Table'
           , settings: {
               mounts: '/System/Volumes/Data'
             , threshold: 80
             }
           },
-          { name: 'HDD'
-          , refreshInterval: 1000
-          , rendererName: 'Table'
+          // Jenkins
+          { name: 'Jenkins'
+          , rendererName: 'Chart,Value,Table'
           , settings: {
-              mounts: '/System/Volumes/Data'
-            }
-          },
-          { name: 'HDD'
-          , refreshInterval: 1000
-          , rendererName: 'Value'
-          , settings: {
-              mounts: '/System/Volumes/Data'
+              apiUrl: 'http://localhost:8080/job/project/',
+              username: 'admin',
+              password: '11acff4a9f050afc3787c908c0812c3c8d',
             }
           },
           // MySQLProcesses
           { name: 'MySQLProcesses'
-          , refreshInterval: 5000
-          , rendererName: 'Chart'
+          , rendererName: 'Chart,Value,Table'
           , settings: {
               host: 'localhost'
             , user: 'root'
             , password: ''
             }
           },
-          { name: 'MySQLProcesses'
-          , refreshInterval: 5000
-          , rendererName: 'Table'
+          // MySQL
+          { name: 'MySQL'
+          , rendererName: 'Chart,Value,Table'
           , settings: {
-              host: 'localhost'
-            , user: 'root'
-            , password: ''
-            }
-          },
-          { name: 'MySQLProcesses'
-          , refreshInterval: 5000
-          , rendererName: 'Value'
-          , settings: {
-              host: 'localhost'
-            , user: 'root'
-            , password: ''
+              host: 'localhost',
+              user: 'root',
+              password: '',
+              database: '',
+              sql: 'SHOW PROCESSLIST',
+              description: 'MySQL Process List'
             }
           },
         ]
