@@ -13,7 +13,7 @@
   "dependencies": {
     "@slack/client": "^5.0.2",
     "amqplib": "^0.6.0",
-    "aws-sdk": "^2.793.0",
+    "aws-sdk": "^2.795.0",
     "axios": "^0.21.0",
     "body-parser": "^1.19.0",
     "bytes": "^3.1.0",
@@ -35,7 +35,7 @@
     "redis": "^3.0.2",
     "require-from-string": "^2.0.2",
     "slimbot": "^4.9.0",
-    "socket.io-client": "^3.0.1",
+    "socket.io-client": "^3.0.3",
     "ssl-checker": "^2.0.7",
     "systeminformation": "^4.30.1",
     "tail": "^2.0.4",
