@@ -34,7 +34,7 @@
     "parse-duration": "^0.4.4",
     "redis": "^3.0.2",
     "require-from-string": "^2.0.2",
-    "slimbot": "^4.9.0",
+    "slimbot": "^5.0.0",
     "socket.io-client": "^3.0.3",
     "ssl-checker": "^2.0.7",
     "systeminformation": "^4.30.11",
