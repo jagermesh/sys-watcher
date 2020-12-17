@@ -4,85 +4,91 @@ const md5 = require('md5');
 const fs = require('fs');
 const os = require('os');
 
-function ParsedSchedule(scheduler, schedule) {
+class ParsedSchedule {
 
-  const re = /every[ ]+([a-z]+)[ ]+at[ ]+([0-9:amp]+)/i;
-  const scheduleRe = re.exec(schedule);
-  const scheduleMs = parseDuration(schedule);
-  const scheduleFile = os.tmpdir() + '/' + md5(scheduler.getName() + schedule) + '.txt';
+  constructor(scheduler, schedule) {
+    const re = /every[ ]+([a-z]+)[ ]+at[ ]+([0-9:amp]+)/i;
 
-  if (!scheduleRe && !scheduleMs) {
-    throw new Error(`Schedule is invalid: "${schedule}"`);
+    this.schedule = schedule;
+    this.scheduler = scheduler;
+    this.scheduleRe = re.exec(this.schedule);
+    this.scheduleDay = null;
+    this.scheduleTime = null;
+    if (this.scheduleRe) {
+      this.scheduleDay = this.scheduleRe[1].toLowerCase();
+      this.scheduleTime = moment(this.scheduleRe[2], 'h:ma');
+    }
+    this.scheduleMs = parseDuration(this.schedule);
+    this.scheduleFile = `${os.tmpdir()}/${md5(this.scheduler.getName() + this.schedule)}.txt`;
+    this.applicableDays = [ 'day', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'satruday', 'sunday' ];
+
+    if (!this.isValid()) {
+      throw new Error(`Schedule is invalid: "${this.schedule}"`);
+    }
   }
 
-  this.isValid = function() {
+  isValid() {
+    return !!this.scheduleMs || (!!this.scheduleRe && this.applicableDays.has(this.scheduleDay));
+  }
 
-    return !!scheduleRe || !!scheduleMs;
+  isTimeToRun() {
 
-  };
-
-  this.isTimeToRun = function() {
-
-    if (!scheduleRe) {
+    if (!this.scheduleRe) {
       return true;
     }
 
     let currentDay = moment().format('dddd').toLowerCase();
-    let scheduleTime = moment(scheduleRe[2], 'h:ma');
-    let scheduleDay = scheduleRe[1].toLowerCase();
 
-    if (scheduleTime.isBefore() && ((scheduleDay == 'day') || scheduleDay == currentDay)) {
+    if (this.scheduleTime.isBefore() && ((this.scheduleDay == 'day') || (this.scheduleDay == currentDay))) {
       let marker;
       try {
-        marker = fs.readFileSync(scheduleFile, 'utf8');
+        marker = fs.readFileSync(this.scheduleFile, 'utf8');
       } catch (error) {
-        fs.writeFileSync(scheduleFile, moment().startOf('day').format());
-        marker = fs.readFileSync(scheduleFile, 'utf8');
+        fs.writeFileSync(this.scheduleFile, moment().startOf('day').format());
+        marker = fs.readFileSync(this.scheduleFile, 'utf8');
       }
       let lastTime = moment(marker);
-      if (lastTime.isBefore(scheduleTime)) {
+      if (lastTime.isBefore(this.scheduleTime)) {
         return true;
       }
     }
 
     return false;
 
-  };
+  }
 
-  this.touchMarker = function() {
+  touchMarker() {
 
-    if (scheduleRe) {
-      scheduler.getApplication().getConsole().log(`Touching marker ${scheduleFile}.`, Object.create({ }), scheduler);
-      fs.writeFileSync(scheduleFile, moment().format());
+    if (this.scheduleRe) {
+      this.scheduler.getApplication().getConsole().log(`Touching marker ${this.scheduleFile}.`, Object.create({ }), this.scheduler);
+      fs.writeFileSync(this.scheduleFile, moment().format());
     }
 
-  };
+  }
 
-  this.getMs = function() {
+  getMs() {
 
-    if (scheduleRe) {
+    if (this.scheduleRe) {
       return 60*1000;
     }
 
-    if (!scheduleMs) {
+    if (!this.scheduleMs) {
       return 60*1000;
     }
 
-    return scheduleMs;
+    return this.scheduleMs;
 
-  };
+  }
 
-  this.getRule = function() {
+  getRule() {
 
-    if (scheduleRe) {
-      return schedule;
+    if (this.scheduleRe) {
+      return this.schedule;
     }
 
-    return 'every ' + schedule;
+    return `every ${this.schedule}`;
 
-  };
-
-  return this;
+  }
 
 }
 
