@@ -6,14 +6,18 @@ const os = require('os');
 
 function ParsedSchedule(scheduler, schedule) {
 
-  const re = /every[ ]+([a-z]+)[ ]+at[ ]+([0-9:amp]+)/;
+  const re = /every[ ]+([a-z]+)[ ]+at[ ]+([0-9:amp]+)/i;
   const scheduleRe = re.exec(schedule);
   const scheduleMs = parseDuration(schedule);
   const scheduleFile = os.tmpdir() + '/' + md5(scheduler.getName() + schedule) + '.txt';
 
+  if (!scheduleRe && !scheduleMs) {
+    throw new Error(`Schedule is invalid: "${schedule}"`);
+  }
+
   this.isValid = function() {
 
-    return !!schedule;
+    return !!scheduleRe || !!scheduleMs;
 
   };
 
@@ -23,9 +27,11 @@ function ParsedSchedule(scheduler, schedule) {
       return true;
     }
 
-    let time = moment(scheduleRe[2], 'h:ma');
+    let currentDay = moment().format('dddd').toLowerCase();
+    let scheduleTime = moment(scheduleRe[2], 'h:ma');
+    let scheduleDay = scheduleRe[1].toLowerCase();
 
-    if (time.isBefore()) {
+    if (scheduleTime.isBefore() && ((scheduleDay == 'day') || scheduleDay == currentDay)) {
       let marker;
       try {
         marker = fs.readFileSync(scheduleFile, 'utf8');
@@ -34,7 +40,7 @@ function ParsedSchedule(scheduler, schedule) {
         marker = fs.readFileSync(scheduleFile, 'utf8');
       }
       let lastTime = moment(marker);
-      if (lastTime.isBefore(time)) {
+      if (lastTime.isBefore(scheduleTime)) {
         return true;
       }
     }
@@ -46,7 +52,7 @@ function ParsedSchedule(scheduler, schedule) {
   this.touchMarker = function() {
 
     if (scheduleRe) {
-      scheduler.getApplication().getConsole().log('Touching marker ' + scheduleFile + '.', Object.create({ }), scheduler);
+      scheduler.getApplication().getConsole().log(`Touching marker ${scheduleFile}.`, Object.create({ }), scheduler);
       fs.writeFileSync(scheduleFile, moment().format());
     }
 
@@ -54,21 +60,25 @@ function ParsedSchedule(scheduler, schedule) {
 
   this.getMs = function() {
 
-    if (!scheduleRe) {
-      return scheduleMs;
+    if (scheduleRe) {
+      return 60*1000;
     }
 
-    return 60*1000;
+    if (!scheduleMs) {
+      return 60*1000;
+    }
+
+    return scheduleMs;
 
   };
 
   this.getRule = function() {
 
-    if (!scheduleRe) {
-      return 'every ' + schedule;
+    if (scheduleRe) {
+      return schedule;
     }
 
-    return schedule;
+    return 'every ' + schedule;
 
   };
 
