@@ -28,7 +28,7 @@ class ParsedSchedule {
   }
 
   isValid() {
-    return !!this.scheduleMs || (!!this.scheduleRe && this.applicableDays.has(this.scheduleDay));
+    return !!this.scheduleMs || (!!this.scheduleRe && (this.applicableDays.indexOf(this.scheduleDay) != -1));
   }
 
   isTimeToRun() {
