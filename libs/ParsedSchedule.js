@@ -20,7 +20,7 @@ class ParsedSchedule {
     }
     this.scheduleMs = parseDuration(this.schedule);
     this.scheduleFile = `${os.tmpdir()}/${md5(this.scheduler.getName() + this.schedule)}.txt`;
-    this.applicableDays = [ 'day', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'satruday', 'sunday' ];
+    this.applicableDays = [ 'day', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday' ];
 
     if (!this.isValid()) {
       throw new Error(`Schedule is invalid: "${this.schedule}"`);
