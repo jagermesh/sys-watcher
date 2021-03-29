@@ -1,4 +1,4 @@
-module.exports ={
+module.exports = {
   globals: {
     location: 'localhost'
   , onStart: {

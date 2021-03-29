@@ -5,9 +5,9 @@ const configs = { jshint: { src: ['*.js', 'libs/*.js','components/*.js', '!node_
 
 gulp.task('jshint', function() {
   return gulp.src(configs.jshint.src)
-             .pipe(jshint())
-             .pipe(jshint.reporter('default'))
-             .pipe(jshint.reporter('fail'));
+    .pipe(jshint())
+    .pipe(jshint.reporter('default'))
+    .pipe(jshint.reporter('fail'));
 });
 
 gulp.task('build',
