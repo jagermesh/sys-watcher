@@ -1,118 +1,118 @@
 module.exports = {
   globals: {
-    location: 'localhost'
-  , onStart: {
+    location: 'localhost',
+    onStart: {
+      composing: {
+        hostInfo: true
+      }
+    },
+    onError: {
       composing: {
         hostInfo: true
       }
     }
-  , onError: {
-      composing: {
-        hostInfo: true
-      }
-    }
-  }
-, loggers: {
-  }
-, watchers: {
+  },
+  loggers: {
+  },
+  watchers: {
     freeSpaceWatcher: {
-      type: 'FreeSpaceWatcher'
-    , settings: {
-        path: '/'
-      , threshold: '100 Gb'
-      }
-    , scheduling: {
+      type: 'FreeSpaceWatcher',
+      settings: {
+        path: '/',
+        threshold: '100 Gb'
+      },
+      scheduling: {
         interval: '10 sec'
       }
-    }
-  , freeRAMWatcher: {
-      type: 'FreeRAMWatcher'
-    , settings: {
+    },
+    freeRAMWatcher: {
+      type: 'FreeRAMWatcher',
+      settings: {
         // threshold: '4 Gb'
-      }
-    , scheduling: {
+      },
+      scheduling: {
         interval: '3 sec'
       }
-    }
-  , laWatcher: {
-      type: 'LAWatcher'
-    , settings: {
-      }
-    , scheduling: {
+    },
+    laWatcher: {
+      type: 'LAWatcher',
+      settings: {
+      },
+      scheduling: {
         interval: '3 sec'
       }
-    }
-  , cpuWatcher: {
-      type: 'CPUWatcher'
-    , scheduling: {
+    },
+    cpuWatcher: {
+      type: 'CPUWatcher',
+      scheduling: {
         interval: '3 sec'
       }
-    }
-  , monitoringSensorWatcher: {
-      type: 'MonitoringSensorWatcher'
-    , settings: {
+    },
+    monitoringSensorWatcher: {
+      type: 'MonitoringSensorWatcher',
+      settings: {
         metrics: [
           // CPU
-          { name: 'CPU'
-          , rendererName: 'Chart,Value,Table,Gauge'
+          { name: 'CPU',
+            rendererName: 'Chart,Value,Table,Gauge'
           },
-          { name: 'CPU'
-          , rendererName: 'Chart,Value,Table,Gauge'
-          , settings: {
+          { name: 'CPU',
+            rendererName: 'Chart,Value,Table,Gauge',
+            settings: {
               processes: 'php,node'
             }
           },
           // RAM
-          { name: 'RAM'
-          , rendererName: 'Chart,Value,Table,Gauge'
+          { name: 'RAM',
+            rendererName: 'Chart,Value,Table,Gauge'
           },
           // LA
-          { name: 'LA'
-          , rendererName: 'Chart,Value,Table,Gauge'
+          { name: 'LA',
+            rendererName: 'Chart,Value,Table,Gauge'
           },
           // Processes
-          { name: 'Processes'
-          , rendererName: 'Chart,Value,Table'
+          { name: 'Processes',
+            rendererName: 'Chart,Value,Table'
           },
-          { name: 'Processes'
-          , rendererName: 'Chart,Value,Table'
-          , settings: {
+          { name: 'Processes',
+            rendererName: 'Chart,Value,Table',
+            settings: {
               processes: 'php,node'
             }
           },
           // HDD
-          { name: 'HDD'
-          , rendererName: 'Chart,Value,Table'
+          { name: 'HDD',
+            rendererName: 'Chart,Value,Table'
           },
-          { name: 'HDD'
-          , rendererName: 'Chart,Value,Table'
-          , settings: {
-              mounts: '/System/Volumes/Data'
-            , threshold: 80
+          { name: 'HDD',
+            rendererName: 'Chart,Value,Table',
+            settings: {
+              mounts: '/System/Volumes/Data',
+              threshold: 80
             }
           },
           // Jenkins
-          { name: 'Jenkins'
-          , rendererName: 'Chart,Value,Table'
-          , settings: {
+          { name: 'Jenkins',
+            rendererName: 'Chart,Value,Table',
+            settings: {
               apiUrl: 'http://localhost:8080/job/project/',
               username: 'admin',
               password: '11acff4a9f050afc3787c908c0812c3c8d',
             }
           },
           // MySQLProcesses
-          { name: 'MySQLProcesses'
-          , rendererName: 'Chart,Value,Table'
-          , settings: {
-              host: 'localhost'
-            , user: 'root'
-            , password: ''
+          { name: 'MySQLProcesses',
+            rendererName: 'Chart,Value,Table',
+            settings: {
+              host: 'localhost',
+              user: 'root',
+              password: ''
             }
           },
           // MySQL
-          { name: 'MySQL'
-          , rendererName: 'Chart,Value,Table'
-          , settings: {
+          { name: 'MySQL',
+            rendererName: 'Chart,Value,Table',
+            settings: {
               host: 'localhost',
               user: 'root',
               password: '',
