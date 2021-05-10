@@ -45,11 +45,12 @@ function ProcessWatcher(application, name, config) {
 
     let cmd = '';
 
-    // if (isMacOS) {
-      cmd = 'ps ax -o pid,%cpu,command | grep "' + ruleConfig.check + '"';
-    // } else {
-      // cmd = 'top -b -n 1 -c -w 4000 | grep "' + ruleConfig.check + '"';
-    // }
+    let usePS = (isMacOS || ((ruleConfig.mode.indexOf('log-cpu') == -1) && (ruleConfig.mode.indexOf('limit-cpu') == -1)));
+    if (usePS) {
+      cmd = `ps ax -o pid,%cpu,command | grep "${ruleConfig.check}"`;
+    } else {
+      cmd = `top -b -n 1 -c -w 4000 | grep "${ruleConfig.check}"`;
+    }
 
     ruleConfig.mode = ruleConfig.mode || 'log-count';
 
@@ -94,13 +95,13 @@ function ProcessWatcher(application, name, config) {
       }
 
       if (results.length > 0) {
-        if (isMacOS && ((ruleConfig.mode.indexOf('log-cpu') != -1) || (ruleConfig.mode.indexOf('limit-cpu') != -1))) {
+        if ((ruleConfig.mode.indexOf('log-cpu') != -1) || (ruleConfig.mode.indexOf('limit-cpu') != -1)) {
           let regexp;
-          // if (isMacOS) {
+          if (usePS) {
             regexp = /([^ ]+?)[ ]+([^ ]+?)[ ]+(.+)/;
-          // } else {
-            // regexp = /([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+(.+)/;
-          // }
+          } else {
+            regexp = /([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+(.+)/;
+          }
           for(let j = 0; j < results.length; j++) {
             let match = regexp.exec(results[j]);
             if (match) {
