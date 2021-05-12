@@ -35,7 +35,7 @@
     "redis": "3.0.2",
     "require-from-string": "^2.0.2",
     "slimbot": "^5.0.0",
-    "socket.io-client": "^3.0.4",
+    "socket.io-client": "^4.1.1",
     "ssl-checker": "^2.0.7",
     "systeminformation": "^4.32.0",
     "tail": "^2.0.4",
