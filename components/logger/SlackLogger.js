@@ -97,8 +97,6 @@ function SlackLogger(application, name, config) {
           formattedMessage += '\n\n' + formattedDetails;
         }
 
-        console.log(config);
-
         switch(config.settings.kind) {
           case 'webhook':
             if (config.settings.webHooks.length > 0) {
