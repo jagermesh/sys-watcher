@@ -24,6 +24,54 @@ function SlackLogger(application, name, config) {
 
   };
 
+  _this.preparePayload = function(formattedMessage, config) {
+    let payload = {
+      text: formattedMessage,
+      as_user: true,
+      link_names: true,
+      blocks: []
+    };
+    if (config.settings.subject) {
+      payload.blocks.push({
+        type: 'section',
+        text: {
+          text: config.settings.subject,
+          type: 'mrkdwn'
+        }
+      });
+      payload.blocks.push({
+        type: 'divider'
+      });
+    }
+    payload.blocks.push({
+      type: 'section',
+      text: {
+        text: formattedMessage,
+        type: 'mrkdwn'
+      }
+    });
+    if (config.settings.sender) {
+      if (config.settings.sender.icon && config.settings.sender.name) {
+        payload.blocks.push({
+          type: 'divider'
+        });
+        payload.blocks.push({
+          type: "section",
+          text: {
+            text: formattedMessage,
+            type: 'mrkdwn'
+          },
+          accessory: {
+            type: 'image',
+            image_url: config.settings.sender.icon,
+            alt_text: config.settings.sender.name
+          }
+        });
+      }
+    }
+    return payload;
+  };
+
   _this.log = function(data, details, senders, config) {
 
     return new Promise(function(resolve, reject) {
@@ -41,38 +89,22 @@ function SlackLogger(application, name, config) {
         let formattedMessage = _this.formatMessage(data.message, 'markdown');
         let formattedDetails = _this.packDetails(details, config.composing, 'markdown');
 
+        // if (config.settings.body) {
+
+        // }
+
         if (formattedDetails.length > 0) {
           formattedMessage += '\n\n' + formattedDetails;
         }
 
+        console.log(config);
+
         switch(config.settings.kind) {
           case 'webhook':
             if (config.settings.webHooks.length > 0) {
-              for(i = 0; i < config.settings.webHooks.length; i++) {
+              for(let i = 0; i < config.settings.webHooks.length; i++) {
                 let webHook = config.settings.webHooks[i];
-                let payload = { text: formattedMessage };
-                if (config.settings.sender) {
-                  if (config.settings.sender.icon && config.settings.sender.name) {
-                    payload.blocks = [ { type: "section"
-                                       , text: { text: '*' + config.settings.sender.name + '*'
-                                               , type: 'mrkdwn'
-                                               }
-                                       }
-                                     , { type: "divider"
-                                       }
-                                     , { type: "section"
-                                       , text: { text: formattedMessage
-                                               , type: 'mrkdwn'
-                                               }
-                                       , accessory: {
-                                           type: 'image'
-                                         , image_url: config.settings.sender.icon
-                                         , alt_text: config.settings.sender.name
-                                         }
-                                       }
-                                     ];
-                  }
-                }
+                let payload = _this.preparePayload(formattedMessage, config);
                 const transport = new Slack.IncomingWebhook(webHook);
                 transport.send(payload)
                   .then(function(result) {
@@ -106,34 +138,13 @@ function SlackLogger(application, name, config) {
               if (config.settings.recipients.length > 0) {
                 const transport = new Slack.WebClient(config.settings.token);
                 let results = [];
-                for(i = 0; i < config.settings.recipients.length; i++) {
+                for(let i = 0; i < config.settings.recipients.length; i++) {
                   (function(recipient) {
                     results.push(new Promise(function(resolve, reject) {
                       let detailsTmp = JSON.parse(JSON.stringify(details));
                       detailsTmp.Recipient = recipient;
-                      let payload = { channel: recipient, text: formattedMessage, as_user: true, link_names: true };
-                      if (config.settings.sender) {
-                        if (config.settings.sender.icon && config.settings.sender.name) {
-                          payload.blocks = [ { type: "section"
-                                             , text: { text: '*' + config.settings.sender.name + '*'
-                                                     , type: 'mrkdwn'
-                                                     }
-                                             }
-                                           , { type: "divider"
-                                             }
-                                           , { type: "section"
-                                             , text: { text: formattedMessage
-                                                     , type: 'mrkdwn'
-                                                     }
-                                             , accessory: {
-                                                 type: 'image'
-                                               , image_url: config.settings.sender.icon
-                                               , alt_text: config.settings.sender.name
-                                               }
-                                             }
-                                           ];
-                        }
-                      }
+                      let payload = _this.preparePayload(formattedMessage, config);
+                      payload.channel = recipient;
                       transport.chat.postMessage(payload)
                         .then(function(result) {
                           _this.getApplication().getConsole().log(data, detailsTmp, senders.concat([_this])).then(function() {
