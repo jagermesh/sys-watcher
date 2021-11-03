@@ -26,9 +26,10 @@ function SlackLogger(application, name, config) {
 
   _this.preparePayload = function(formattedMessage, config) {
     let payload = {
-      text: formattedMessage,
+      text: config.settings.subject ? '' : formattedMessage,
       as_user: true,
       link_names: true,
+      type: 'mrkdwn',
       blocks: [],
     };
     if (!config.settings.unfurling) {
@@ -39,21 +40,21 @@ function SlackLogger(application, name, config) {
       payload.blocks.push({
         type: 'section',
         text: {
-          text: config.settings.subject,
-          type: 'mrkdwn',
+          text: config.settings.subject.substring(0, 3000),
+          type: 'plain_text',
         }
       });
       payload.blocks.push({
         type: 'divider'
       });
+      payload.blocks.push({
+        type: 'section',
+        text: {
+          text: formattedMessage.substring(0, 3000),
+          type: 'mrkdwn',
+        }
+      });
     }
-    payload.blocks.push({
-      type: 'section',
-      text: {
-        text: formattedMessage,
-        type: 'mrkdwn',
-      }
-    });
     return payload;
   };
 
