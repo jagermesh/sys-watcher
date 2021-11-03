@@ -38,10 +38,10 @@ function SlackLogger(application, name, config) {
     }
     if (config.settings.subject) {
       payload.blocks.push({
-        type: 'section',
+        type: 'header',
         text: {
           text: config.settings.subject.substring(0, 3000),
-          type: 'mrkdwn',
+          type: 'plain_text',
         }
       });
       payload.blocks.push({
