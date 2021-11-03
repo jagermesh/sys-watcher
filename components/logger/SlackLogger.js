@@ -29,14 +29,18 @@ function SlackLogger(application, name, config) {
       text: formattedMessage,
       as_user: true,
       link_names: true,
-      blocks: []
+      blocks: [],
     };
+    if (!config.settings.unfurling) {
+      payload.unfurl_links = false;
+      payload.unfurl_media = false;
+    }
     if (config.settings.subject) {
       payload.blocks.push({
         type: 'section',
         text: {
           text: config.settings.subject,
-          type: 'mrkdwn'
+          type: 'mrkdwn',
         }
       });
       payload.blocks.push({
@@ -47,28 +51,9 @@ function SlackLogger(application, name, config) {
       type: 'section',
       text: {
         text: formattedMessage,
-        type: 'mrkdwn'
+        type: 'mrkdwn',
       }
     });
-    if (config.settings.sender) {
-      if (config.settings.sender.icon && config.settings.sender.name) {
-        payload.blocks.push({
-          type: 'divider'
-        });
-        payload.blocks.push({
-          type: "section",
-          text: {
-            text: formattedMessage,
-            type: 'mrkdwn'
-          },
-          accessory: {
-            type: 'image',
-            image_url: config.settings.sender.icon,
-            alt_text: config.settings.sender.name
-          }
-        });
-      }
-    }
     return payload;
   };
 
