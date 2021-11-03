@@ -41,7 +41,7 @@ function SlackLogger(application, name, config) {
         type: 'section',
         text: {
           text: config.settings.subject.substring(0, 3000),
-          type: 'plain_text',
+          type: 'mrkdwn',
         }
       });
       payload.blocks.push({
