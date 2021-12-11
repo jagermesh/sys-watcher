@@ -1,19 +1,17 @@
 const url = require('url');
 const querystring = require('querystring');
 
-const WebWatcher = require(__dirname + '/WebWatcher.js');
+const WebWatcher = require(`${__dirname}/WebWatcher.js`);
 
 function HTTPWatcher(application, name, config) {
-
   WebWatcher.call(this, application, name, config);
 
   const _this = this;
 
-  _this.config.settings.rules = _this.config.settings.rules   || Object.create({ });
-  _this.config.settings.routes = _this.config.settings.routes || Object.create({ });
+  _this.config.settings.rules = _this.config.settings.rules || Object.create({});
+  _this.config.settings.routes = _this.config.settings.routes || Object.create({});
 
   function watch(method, route, config) {
-
     _this.server[method](route, function(request, response, next) {
       if (typeof config == 'function') {
         config.call(_this, request, response, next);
@@ -40,31 +38,19 @@ function HTTPWatcher(application, name, config) {
               }
             }
           } else
-          for(requestAttribute in config.log) {
-            requestValue = request[requestAttribute];
-            requestSubAttribute = config.log[requestAttribute];
-            if (requestSubAttribute == '*') {
-              if (requestValue) {
-                if (typeof requestValue == 'string') {
-                  message = message + (config.nonames ? '' : requestAttribute + ': ') + requestValue + '\n';
-                } else {
-                  message = message + (config.nonames ? '' : requestAttribute + ': ') + JSON.stringify(requestValue) + '\n';
+            for (requestAttribute in config.log) {
+              requestValue = request[requestAttribute];
+              requestSubAttribute = config.log[requestAttribute];
+              if (requestSubAttribute == '*') {
+                if (requestValue) {
+                  if (typeof requestValue == 'string') {
+                    message = message + (config.nonames ? '' : requestAttribute + ': ') + requestValue + '\n';
+                  } else {
+                    message = message + (config.nonames ? '' : requestAttribute + ': ') + JSON.stringify(requestValue) + '\n';
+                  }
                 }
-              }
-            } else
-            if (typeof requestSubAttribute == 'string') {
-              requestSubValue = requestValue[requestSubAttribute];
-              if (requestSubValue) {
-                if (typeof requestSubValue == 'string') {
-                  message = message + (config.nonames ? '' : requestAttribute + '.' + requestSubAttribute + ': ') + requestSubValue + '\n';
-                } else {
-                  message = message + (config.nonames ? '' : requestAttribute + '.' + requestSubAttribute + ': ') + JSON.stringify(requestSubValue) + '\n';
-                }
-              }
-            } else {
-              let requestSubAttributes = JSON.parse(JSON.stringify(requestSubAttribute));
-              for(let i = 0; i < requestSubAttributes.length; i++) {
-                requestSubAttribute = requestSubAttributes[i];
+              } else
+              if (typeof requestSubAttribute == 'string') {
                 requestSubValue = requestValue[requestSubAttribute];
                 if (requestSubValue) {
                   if (typeof requestSubValue == 'string') {
@@ -73,9 +59,21 @@ function HTTPWatcher(application, name, config) {
                     message = message + (config.nonames ? '' : requestAttribute + '.' + requestSubAttribute + ': ') + JSON.stringify(requestSubValue) + '\n';
                   }
                 }
+              } else {
+                let requestSubAttributes = JSON.parse(JSON.stringify(requestSubAttribute));
+                for (let i = 0; i < requestSubAttributes.length; i++) {
+                  requestSubAttribute = requestSubAttributes[i];
+                  requestSubValue = requestValue[requestSubAttribute];
+                  if (requestSubValue) {
+                    if (typeof requestSubValue == 'string') {
+                      message = message + (config.nonames ? '' : requestAttribute + '.' + requestSubAttribute + ': ') + requestSubValue + '\n';
+                    } else {
+                      message = message + (config.nonames ? '' : requestAttribute + '.' + requestSubAttribute + ': ') + JSON.stringify(requestSubValue) + '\n';
+                    }
+                  }
+                }
               }
             }
-          }
         } else {
           logAll = true;
         }
@@ -88,7 +86,7 @@ function HTTPWatcher(application, name, config) {
         }
 
         if (config.except) {
-          for(let j = 0; j < config.except.length; j++) {
+          for (let j = 0; j < config.except.length; j++) {
             let except = config.except[j];
             let regexpExcept = new RegExp(except, 'im');
             matches = regexpExcept.exec(message);
@@ -103,7 +101,9 @@ function HTTPWatcher(application, name, config) {
           let details = _this.getRequestDetails(request);
           details.Method = method;
           details.Route = route;
-          _this.getApplication().notify( _this.getLoggers(config.loggers), { message: message }, details, _this);
+          _this.getApplication().notify(_this.getLoggers(config.loggers), {
+            message: message
+          }, details, _this);
           response.send('ok');
         }
 
@@ -112,22 +112,18 @@ function HTTPWatcher(application, name, config) {
         }
       }
     });
-
   }
 
   _this.watch = function() {
-
     _this.getWebServer(_this.config.settings.port, function(server) {
       _this.server = server;
-      for(let method in _this.config.settings.routes) {
-        for(let route in _this.config.settings.routes[method]) {
+      for (let method in _this.config.settings.routes) {
+        for (let route in _this.config.settings.routes[method]) {
           watch(method, route, _this.config.settings.routes[method][route]);
         }
       }
     });
-
   };
-
 }
 
 module.exports = HTTPWatcher;

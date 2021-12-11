@@ -12,8 +12,7 @@ module.exports = {
       }
     }
   },
-  loggers: {
-  },
+  loggers: {},
   watchers: {
     freeSpaceWatcher: {
       type: 'FreeSpaceWatcher',
@@ -36,8 +35,7 @@ module.exports = {
     },
     laWatcher: {
       type: 'LAWatcher',
-      settings: {
-      },
+      settings: {},
       scheduling: {
         interval: '3 sec'
       }
@@ -53,38 +51,43 @@ module.exports = {
       settings: {
         metrics: [
           // CPU
-          { name: 'CPU',
+          {
+            name: 'CPU',
             rendererName: 'Chart,Value,Table,Gauge'
-          },
-          { name: 'CPU',
+          }, {
+            name: 'CPU',
             rendererName: 'Chart,Value,Table,Gauge',
             settings: {
               processes: 'php,node'
             }
           },
           // RAM
-          { name: 'RAM',
+          {
+            name: 'RAM',
             rendererName: 'Chart,Value,Table,Gauge'
           },
           // LA
-          { name: 'LA',
+          {
+            name: 'LA',
             rendererName: 'Chart,Value,Table,Gauge'
           },
           // Processes
-          { name: 'Processes',
+          {
+            name: 'Processes',
             rendererName: 'Chart,Value,Table'
-          },
-          { name: 'Processes',
+          }, {
+            name: 'Processes',
             rendererName: 'Chart,Value,Table',
             settings: {
               processes: 'php,node'
             }
           },
           // HDD
-          { name: 'HDD',
+          {
+            name: 'HDD',
             rendererName: 'Chart,Value,Table'
-          },
-          { name: 'HDD',
+          }, {
+            name: 'HDD',
             rendererName: 'Chart,Value,Table',
             settings: {
               mounts: '/System/Volumes/Data',
@@ -92,7 +95,8 @@ module.exports = {
             }
           },
           // Jenkins
-          { name: 'Jenkins',
+          {
+            name: 'Jenkins',
             rendererName: 'Chart,Value,Table',
             settings: {
               apiUrl: 'http://localhost:8080/job/project/',
@@ -101,7 +105,8 @@ module.exports = {
             }
           },
           // MySQLProcesses
-          { name: 'MySQLProcesses',
+          {
+            name: 'MySQLProcesses',
             rendererName: 'Chart,Value,Table',
             settings: {
               host: 'localhost',
@@ -110,7 +115,8 @@ module.exports = {
             }
           },
           // MySQL
-          { name: 'MySQL',
+          {
+            name: 'MySQL',
             rendererName: 'Chart,Value,Table',
             settings: {
               host: 'localhost',

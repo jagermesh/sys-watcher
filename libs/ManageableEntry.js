@@ -1,9 +1,8 @@
 const fs = require('fs');
 
-const CustomObject = require(__dirname + '/CustomObject.js');
+const CustomObject = require(`${__dirname}/CustomObject.js`);
 
 function ManageableEntry(application, name, config, classFile, owner) {
-
   CustomObject.call(this, application, name, config, owner);
 
   const _this = this;
@@ -11,7 +10,6 @@ function ManageableEntry(application, name, config, classFile, owner) {
   let instance;
 
   _this.getInstance = function() {
-
     if (!instance) {
       try {
         fs.statSync(classFile);
@@ -23,15 +21,11 @@ function ManageableEntry(application, name, config, classFile, owner) {
     }
 
     return instance;
-
   };
 
   _this.isInitialized = function() {
-
     return !!instance;
-
   };
-
 }
 
 module.exports = ManageableEntry;

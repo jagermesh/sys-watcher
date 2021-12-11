@@ -3,20 +3,20 @@ const child_process = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const tmp = require('tmp');
-const { v4: uuidv4 } = require('uuid');
+const {
+  v4: uuidv4
+} = require('uuid');
 
-const CustomObject    = require(__dirname + '/CustomObject.js');
+const CustomObject = require(`${__dirname}/CustomObject.js`);
 
 function ExecPool(application) {
-
   const _this = this;
 
   CustomObject.call(this, application, 'ExecPool');
 
-  _this.tasks = Object.create({ });
+  _this.tasks = Object.create({});
 
   function postCheckProcessLogs(task, details, out, err, closeError) {
-
     fs.stat(out.name, function(error) {
       if (error) {
         _this.getApplication().getConsole().error('Executed ' + colors.yellow(task.cmd) + ', stdout log not found', details, task.senders.concat([_this]));
@@ -47,18 +47,21 @@ function ExecPool(application) {
         });
       }
     });
-
   }
 
   function start(task) {
-
-    let details = { Cmd: task.cmd, Cwd: task.cwd };
+    let details = {
+      Cmd: task.cmd,
+      Cwd: task.cwd
+    };
 
     let cmd, out, err;
 
     if (task.longRunning) {
-      out = tmp.fileSync(); out.removeCallback();
-      err = tmp.fileSync(); err.removeCallback();
+      out = tmp.fileSync();
+      out.removeCallback();
+      err = tmp.fileSync();
+      err.removeCallback();
       cmd = '(' + task.cmd + ') >' + out.name + ' 2>' + err.name;
     } else {
       cmd = task.cmd;
@@ -68,7 +71,11 @@ function ExecPool(application) {
 
     _this.getApplication().getConsole().log('Executing ' + colors.yellow(task.cmd), details, task.senders.concat([_this]));
 
-    let cmdProcess = child_process.spawn(cmd, { detached: true, shell: true, cwd: task.cwd });
+    let cmdProcess = child_process.spawn(cmd, {
+      detached: true,
+      shell: true,
+      cwd: task.cwd
+    });
 
     let postCheckProcessLog;
 
@@ -123,13 +130,11 @@ function ExecPool(application) {
         postCheckProcessLogs(task, details, out, err);
       }, 3000);
     }
-
   }
 
   let interval = setInterval(function() {
-
-    for(let tag in _this.tasks) {
-      while(_this.tasks[tag].length > 0) {
+    for (let tag in _this.tasks) {
+      while (_this.tasks[tag].length > 0) {
         let task = _this.tasks[tag][0];
         if (task.status == 0) {
           task.status = 1;
@@ -143,16 +148,13 @@ function ExecPool(application) {
         }
       }
     }
-
   }, 100);
 
   _this.stop = function() {
-
     let checkInterval = setInterval(function() {
-
       let tasksCount = 0;
 
-      for(let tag in _this.tasks) {
+      for (let tag in _this.tasks) {
         tasksCount += _this.tasks[tag].length;
       }
 
@@ -160,13 +162,10 @@ function ExecPool(application) {
         clearInterval(checkInterval);
         clearInterval(interval);
       }
-
     }, 100);
-
   };
 
   _this.exec = function(cmd, cwd, tag, senders) {
-
     tag = tag || uuidv4();
 
     senders = senders || [];
@@ -177,8 +176,13 @@ function ExecPool(application) {
 
     return new Promise(function(resolve, reject) {
       _this.tasks[tag] = _this.tasks[tag] || [];
-      _this.tasks[tag].push({ status: 0, cmd: cmd, cwd: cwd || process.cwd(), longRunning: false, senders: senders, done:
-        function(result, stdout) {
+      _this.tasks[tag].push({
+        status: 0,
+        cmd: cmd,
+        cwd: cwd || process.cwd(),
+        longRunning: false,
+        senders: senders,
+        done: function(result, stdout) {
           if (result) {
             resolve(stdout);
           } else {
@@ -187,11 +191,9 @@ function ExecPool(application) {
         }
       });
     });
-
   };
 
   _this.spawn = function(cmd, cwd, senders) {
-
     let tag = uuidv4();
 
     senders = senders || [];
@@ -202,8 +204,13 @@ function ExecPool(application) {
 
     return new Promise(function(resolve, reject) {
       _this.tasks[tag] = _this.tasks[tag] || [];
-      _this.tasks[tag].push({ status: 0, cmd: cmd, cwd: cwd || process.cwd(), longRunning: true, senders: senders, done:
-        function(result, stdout) {
+      _this.tasks[tag].push({
+        status: 0,
+        cmd: cmd,
+        cwd: cwd || process.cwd(),
+        longRunning: true,
+        senders: senders,
+        done: function(result, stdout) {
           if (result) {
             resolve(stdout);
           } else {
@@ -212,9 +219,7 @@ function ExecPool(application) {
         }
       });
     });
-
   };
-
 }
 
 module.exports = ExecPool;

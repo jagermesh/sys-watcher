@@ -5,7 +5,6 @@ const fs = require('fs');
 const os = require('os');
 
 class ParsedSchedule {
-
   constructor(scheduler, schedule) {
     const re = /every[ ]+([a-z]+)[ ]+at[ ]+([0-9:amp]+)/i;
 
@@ -20,7 +19,7 @@ class ParsedSchedule {
     }
     this.scheduleMs = parseDuration(this.schedule);
     this.scheduleFile = `${os.tmpdir()}/${md5(this.scheduler.getName() + this.schedule)}.txt`;
-    this.applicableDays = [ 'day', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday' ];
+    this.applicableDays = ['day', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
     if (!this.isValid()) {
       throw new Error(`Schedule is invalid: "${this.schedule}"`);
@@ -32,7 +31,6 @@ class ParsedSchedule {
   }
 
   isTimeToRun() {
-
     if (!this.scheduleRe) {
       return true;
     }
@@ -54,42 +52,34 @@ class ParsedSchedule {
     }
 
     return false;
-
   }
 
   touchMarker() {
-
     if (this.scheduleRe) {
-      this.scheduler.getApplication().getConsole().log(`Touching marker ${this.scheduleFile}.`, Object.create({ }), this.scheduler);
+      this.scheduler.getApplication().getConsole().log(`Touching marker ${this.scheduleFile}.`, Object.create({}), this.scheduler);
       fs.writeFileSync(this.scheduleFile, moment().format());
     }
-
   }
 
   getMs() {
-
     if (this.scheduleRe) {
-      return 60*1000;
+      return 60 * 1000;
     }
 
     if (!this.scheduleMs) {
-      return 60*1000;
+      return 60 * 1000;
     }
 
     return this.scheduleMs;
-
   }
 
   getRule() {
-
     if (this.scheduleRe) {
       return this.schedule;
     }
 
     return `every ${this.schedule}`;
-
   }
-
 }
 
 module.exports = ParsedSchedule;

@@ -1,9 +1,8 @@
 const child_process = require('child_process');
 
-const CustomWatcher = require(__dirname + '/../../libs/CustomWatcher.js');
+const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
 
 function MailQueueWatcher(application, name, config) {
-
   CustomWatcher.call(this, application, name, config);
 
   const _this = this;
@@ -11,7 +10,6 @@ function MailQueueWatcher(application, name, config) {
   _this.config.settings.threshold = _this.config.settings.threshold || 0;
 
   _this.watch = function() {
-
     _this.getApplication().getExecPool().exec('mailq').then(function(stdout) {
       let regexp = /([0-9]+) Requests/;
       let match = regexp.exec(stdout);
@@ -24,14 +22,17 @@ function MailQueueWatcher(application, name, config) {
         if (_this.config.settings.threshold > 0) {
           message += ' which is more than threshold ' + _this.config.settings.threshold;
         }
-        _this.getApplication().notify(_this.getLoggers(), { message: message, value: amount, units: 'Count', dimensions: Object.create({ }) }, Object.create({ }), _this);
+        _this.getApplication().notify(_this.getLoggers(), {
+          message: message,
+          value: amount,
+          units: 'Count',
+          dimensions: Object.create({})
+        }, Object.create({}), _this);
       }
     }).catch(function(stdout) {
-      _this.getApplication().reportError(stdout, Object.create({ }), _this);
+      _this.getApplication().reportError(stdout, Object.create({}), _this);
     });
-
   };
-
 }
 
 module.exports = MailQueueWatcher;

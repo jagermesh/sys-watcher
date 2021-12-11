@@ -1,7 +1,16 @@
 const gulp = require('gulp');
 const jshint = require('gulp-jshint');
 
-const configs = { jshint: { src: ['*.js', 'libs/*.js','components/*.js', '!node_modules/**/*.js'] } };
+const configs = {
+  jshint: {
+    src: [
+      '*.js',
+      'libs/*.js',
+      'components/*.js',
+      '!node_modules/**/*.js'
+    ]
+  }
+};
 
 gulp.task('jshint', function() {
   return gulp.src(configs.jshint.src)
@@ -11,4 +20,4 @@ gulp.task('jshint', function() {
 });
 
 gulp.task('build',
-  gulp.series( 'jshint' ));
+  gulp.series('jshint'));

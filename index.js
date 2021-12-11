@@ -1,19 +1,16 @@
 const commander = require('commander');
-const colors    = require('colors');
-const fs        = require('fs');
-const path      = require('path');
-const requireS  = require('require-from-string');
+const colors = require('colors');
+const fs = require('fs');
+const path = require('path');
+const requireS = require('require-from-string');
 
 const Application = require(__dirname + '/libs/Application.js');
 
 class SysWatcher {
-
   start() {
-
     process.chdir(path.dirname(require.main.filename));
 
     function showHelp(application) {
-
       const watcherCli = 'node watcher.js';
 
       console.log('Usage');
@@ -54,7 +51,6 @@ class SysWatcher {
           console.log(('  ' + watcherCli + ' send-message ' + loggerName + ' <message>' + configParam).padEnd(max, ' ') + ' ' + colors.yellow(entry.getInstance().getDescription()));
         });
       }
-
     }
 
     commander
@@ -63,6 +59,7 @@ class SysWatcher {
       .parse(process.argv);
 
     let application;
+
     try {
       let configFileName = commander.config || 'config.js';
       let configFilePath = path.resolve(process.cwd(), configFileName);
@@ -75,7 +72,7 @@ class SysWatcher {
           throw 'Configuration file ' + configFileName + ' not found';
         }
       }
-      switch(commander.args[0]) {
+      switch (commander.args[0]) {
         case 'run-script':
           if (commander.args.length == 1) {
             throw 'Parameters validation error:\n  Missing <script-name> parameter';
@@ -96,7 +93,7 @@ class SysWatcher {
       } else {
         try {
           let extra = Object.create({});
-          switch(commander.args[0]) {
+          switch (commander.args[0]) {
             case 'scripts':
               showHelp(application);
               break;
@@ -111,13 +108,19 @@ class SysWatcher {
                   throw 'Incorrect format of extra parameter: ' + error;
                 }
               }
-              application.notifyLogger(commander.args[1], { message: commander.args[2] }, null,  null, { settings: extra }).catch(function(error) {
+              application.notifyLogger(commander.args[1], {
+                message: commander.args[2]
+              }, null, null, {
+                settings: extra
+              }).catch(function(error) {
                 error = error || 'Unknown error';
-                error = (typeof error == 'string' ? { error: error } : error);
+                error = (typeof error == 'string' ? {
+                  error: error
+                } : error);
                 let errorMessage = colors.red(error.error) + '\n';
                 if (error.details) {
                   errorMessage += '  You can specify additional parameters via ' + colors.yellow('--extra') + '\n' +
-                                  '  Example: ' + colors.yellow('--extra "' + error.details + '"\n');
+                    '  Example: ' + colors.yellow('--extra "' + error.details + '"\n');
                 }
                 showHelp(application);
                 console.log('');
@@ -136,9 +139,7 @@ class SysWatcher {
       console.log('');
       console.log(colors.red(error));
     }
-
   }
-
 }
 
 module.exports = SysWatcher;

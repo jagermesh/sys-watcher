@@ -2,26 +2,22 @@ const colors = require('colors');
 const moment = require('moment');
 const ip = require('ip');
 
-const CustomLogger = require(__dirname + '/../../libs/CustomLogger.js');
+const CustomLogger = require(`${__dirname}/../../libs/CustomLogger.js`);
 
 function ConsoleLogger(application, name, config) {
-
   CustomLogger.call(this, application, name, config);
 
   const _this = this;
 
   _this.log = function(data, details, senders, config) {
-
     return new Promise(function(resolve, reject) {
-
       if (data && data.message && !data.skipConsole) {
-
-        config.settings  = Object.assign({ }, _this.config.settings, config.settings);
-        config.composing = Object.assign({ }, _this.config.composing, config.composing);
+        config.settings = Object.assign({}, _this.config.settings, config.settings);
+        config.composing = Object.assign({}, _this.config.composing, config.composing);
 
         let senderNames = _this.expandSenders(senders);
 
-        details  = Object.assign({ }, details, config.composing.details);
+        details = Object.assign({}, details, config.composing.details);
         details.Senders = null;
 
         let formattedMessage = '';
@@ -30,7 +26,7 @@ function ConsoleLogger(application, name, config) {
         formattedMessage = colors.yellow(moment().format()) + ' ';
 
         if (senderNames) {
-          for(let i = 0; i < senderNames.length; i++) {
+          for (let i = 0; i < senderNames.length; i++) {
             formattedMessage += colors.yellow('[' + senderNames[i] + '] ');
           }
         }
@@ -48,15 +44,11 @@ function ConsoleLogger(application, name, config) {
         }
 
         console.log(formattedMessage.trim());
-
       }
 
       resolve();
-
     });
-
   };
-
 }
 
 module.exports = ConsoleLogger;

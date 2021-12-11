@@ -1,7 +1,6 @@
-const CustomLoggable = require(__dirname + '/CustomLoggable.js');
+const CustomLoggable = require(`${__dirname}/CustomLoggable.js`);
 
 function CustomWatcher(application, name, config) {
-
   CustomLoggable.call(this, application, name, config);
 
   const _this = this;
@@ -11,9 +10,7 @@ function CustomWatcher(application, name, config) {
   };
 
   _this.start = function() {
-
     return new Promise(function(resolve, reject) {
-
       if (_this.needScheduler()) {
         _this.getScheduler().start(function() {
           return _this.watch();
@@ -22,22 +19,17 @@ function CustomWatcher(application, name, config) {
         _this.watch();
       }
 
-      _this.getApplication().getConsole().log('Started', Object.create({ }), _this);
+      _this.getApplication().getConsole().log('Started', Object.create({}), _this);
 
       resolve();
-
     });
-
   };
 
   _this.stop = function() {
-
     if (_this.needScheduler()) {
       return _this.getScheduler().stop();
     }
-
   };
-
 }
 
 module.exports = CustomWatcher;

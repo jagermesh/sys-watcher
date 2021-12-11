@@ -1,9 +1,8 @@
 const amqpcb = require('amqplib/callback_api');
 
-const CustomLogger = require(__dirname + '/../../libs/CustomLogger.js');
+const CustomLogger = require(`${__dirname}/../../libs/CustomLogger.js`);
 
 function RabbitMQLogger(application, name, config) {
-
   CustomLogger.call(this, application, name, config);
 
   const _this = this;
@@ -11,23 +10,18 @@ function RabbitMQLogger(application, name, config) {
   _this.config.settings.routingKey = _this.config.settings.routingKey || '';
 
   _this.getRecipients = function() {
-
     return _this.config.settings.exchangeName;
-
   };
 
   _this.log = function(data, details, senders, config) {
-
     return new Promise(function(resolve, reject) {
-
       if (data && data.message) {
-
         data.message = _this.cleanUpFromColoring(data.message);
 
-        config.settings  = Object.assign({ }, _this.config.settings, config.settings);
-        config.composing = Object.assign({ }, _this.config.composing, config.composing);
+        config.settings = Object.assign({}, _this.config.settings, config.settings);
+        config.composing = Object.assign({}, _this.config.composing, config.composing);
 
-        details  = Object.assign({ }, details, config.composing.details);
+        details = Object.assign({}, details, config.composing.details);
         details.Senders = _this.expandSenders(senders);
 
         let formattedMessage = '';
@@ -74,15 +68,10 @@ function RabbitMQLogger(application, name, config) {
       }
 
       if (!data || !data.message) {
-
         resolve();
-
       }
-
     });
-
   };
-
 }
 
 module.exports = RabbitMQLogger;

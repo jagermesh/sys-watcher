@@ -1,9 +1,8 @@
 const Slimbot = require('slimbot');
 
-const CustomLogger = require(__dirname + '/../../libs/CustomLogger.js');
+const CustomLogger = require(`${__dirname}/../../libs/CustomLogger.js`);
 
 function TelegramLogger(application, name, config) {
-
   CustomLogger.call(this, application, name, config);
 
   const _this = this;
@@ -13,15 +12,11 @@ function TelegramLogger(application, name, config) {
   _this.config.settings.recipients = _this.config.settings.recipients || [];
 
   _this.getRecipients = function() {
-
     return _this.config.settings.recipients.join(', ');
-
   };
 
   function sendMessage(message, formattedDetails, data, details, senders, config) {
-
     return new Promise(function(resolve, reject) {
-
       let formattedMessage = message;
 
       if (formattedDetails.length > 0) {
@@ -34,7 +29,7 @@ function TelegramLogger(application, name, config) {
         if (config.settings.recipients.length > 0) {
           const bot = new Slimbot(config.settings.token);
           let results = [];
-          for(let i = 0; i < config.settings.recipients.length; i++) {
+          for (let i = 0; i < config.settings.recipients.length; i++) {
             (function(recipient) {
               results.push(new Promise(function(resolve, reject) {
                 let detailsTmp = JSON.parse(JSON.stringify(details));
@@ -64,25 +59,23 @@ function TelegramLogger(application, name, config) {
           });
         }
       }
-
     });
-
   }
 
   _this.log = function(data, details, senders, config) {
-
     return new Promise(function(resolve, reject) {
-
       if (data && data.message) {
-
         data.message = _this.cleanUpFromColoring(data.message);
 
-        config.settings  = Object.assign({ }, _this.config.settings, config.settings);
-        config.composing = Object.assign({ }, _this.config.composing, config.composing);
+        config.settings = Object.assign({}, _this.config.settings, config.settings);
+        config.composing = Object.assign({}, _this.config.composing, config.composing);
 
         if (!config.settings.token) {
           if (_this.getApplication().isToolMode()) {
-            reject({ error: 'Missing token paramter', details: '{ token: \'TOKEN\' }' });
+            reject({
+              error: 'Missing token paramter',
+              details: '{ token: \'TOKEN\' }'
+            });
           }
           if (!_this.getApplication().isToolMode()) {
             _this.getApplication().reportError('Missing token', details, senders, _this).then(function() {
@@ -93,7 +86,10 @@ function TelegramLogger(application, name, config) {
 
         if (config.settings.recipients.length == 0) {
           if (_this.getApplication().isToolMode()) {
-            reject({ error: 'Missing recipients paramter', details: '{ recipients: [ \'RECIPIENT1\', \'RECIPIENT2\', ... ] }' });
+            reject({
+              error: 'Missing recipients paramter',
+              details: '{ recipients: [ \'RECIPIENT1\', \'RECIPIENT2\', ... ] }'
+            });
           }
           if (!_this.getApplication().isToolMode()) {
             _this.getApplication().reportError('Missing recipients', details, senders, _this).then(function() {
@@ -107,7 +103,7 @@ function TelegramLogger(application, name, config) {
 
             data.message = _this.cleanUpFromColoring(data.message);
 
-            details  = Object.assign({ }, details, config.composing.details);
+            details = Object.assign({}, details, config.composing.details);
             details.Senders = _this.expandSenders(senders);
 
             let formattedMessage = _this.formatMessage(data.message, 'text');
@@ -116,27 +112,21 @@ function TelegramLogger(application, name, config) {
             let chunks = formattedMessage.match(new RegExp('.{1,' + chunkLength + '}', 'gsm'));
 
             chunks.reduce(function(promise, chunk) {
-              return promise.then(function(resolve, reject) {
-                return sendMessage(chunk, formattedDetails, data, details, senders, config);
-              });
-            }, Promise.resolve())
-            .then(resolve)
-            .catch(reject);
-
+                return promise.then(function(resolve, reject) {
+                  return sendMessage(chunk, formattedDetails, data, details, senders, config);
+                });
+              }, Promise.resolve())
+              .then(resolve)
+              .catch(reject);
           }
-
         }
-
       }
 
       if (!data || !data.message) {
         resolve();
       }
-
     });
-
   };
-
 }
 
 module.exports = TelegramLogger;

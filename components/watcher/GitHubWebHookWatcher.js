@@ -1,33 +1,34 @@
 const crypto = require('crypto');
 const path = require('path');
 
-const WebWatcher = require(__dirname + '/WebWatcher.js');
+const WebWatcher = require(`${__dirname}/WebWatcher.js`);
 
 function GitHubWebHookWatcher(application, name, config) {
-
   WebWatcher.call(this, application, name, config);
 
   const _this = this;
 
-  _this.config.settings.events = _this.config.settings.events || Object.create({ });
+  _this.config.settings.events = _this.config.settings.events || Object.create({});
 
   function sendResponse(response, code, responseMessage, loggers, details, config, logMessage) {
-
     logMessage = logMessage || responseMessage;
 
     if (code >= 400) {
-      _this.getApplication().notify(_this.getLoggers(loggers), { message: logMessage, isError: true }, details, _this, config);
+      _this.getApplication().notify(_this.getLoggers(loggers), {
+        message: logMessage,
+        isError: true
+      }, details, _this, config);
     } else {
-      _this.getApplication().notify(_this.getLoggers(loggers), { message: logMessage }, details, _this, config);
+      _this.getApplication().notify(_this.getLoggers(loggers), {
+        message: logMessage
+      }, details, _this, config);
     }
 
     response.status(code);
     response.send(responseMessage);
-
   }
 
   _this.watch = function() {
-
     _this.getWebServer(_this.config.settings.port, function(server) {
       _this.server = server;
       _this.server.post(_this.config.settings.path, function(request, response, next) {
@@ -63,9 +64,9 @@ function GitHubWebHookWatcher(application, name, config) {
                     requestHandler = eventHandler;
                   }
                   if (requestHandler) {
-                    let config = Object.create({ });
+                    let config = Object.create({});
                     if (requestHandler.subject) {
-                      config.composing         = config.settings || Object.create({ });
+                      config.composing = config.settings || Object.create({});
                       config.composing.subject = requestHandler.subject;
                     }
                     let details = _this.getRequestDetails(request);
@@ -95,7 +96,7 @@ function GitHubWebHookWatcher(application, name, config) {
             } else {
               sendResponse(response, 403, 'Incorrect signature');
             }
-          }  else {
+          } else {
             sendResponse(response, 403, 'Secret not configured');
           }
         } else {
@@ -103,9 +104,7 @@ function GitHubWebHookWatcher(application, name, config) {
         }
       });
     });
-
   };
-
 }
 
 module.exports = GitHubWebHookWatcher;
