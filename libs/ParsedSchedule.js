@@ -6,7 +6,7 @@ const os = require('os');
 
 class ParsedSchedule {
   constructor(scheduler, schedule) {
-    const re = /every[ ]+([a-z]+)[ ]+at[ ]+([0-9:amp]+)/i;
+    const re = /every[ ]+([a-z]+)[ ]+at[ ]+([0-9]+:[0-9]+)/i;
 
     this.schedule = schedule;
     this.scheduler = scheduler;
@@ -15,10 +15,10 @@ class ParsedSchedule {
     this.scheduleTime = null;
     if (this.scheduleRe) {
       this.scheduleDay = this.scheduleRe[1].toLowerCase();
-      this.scheduleTime = moment(this.scheduleRe[2], 'h:ma');
+      this.scheduleTime = moment(this.scheduleRe[2], 'HH:mm');
     }
     this.scheduleMs = parseDuration(this.schedule);
-    this.scheduleFile = `${os.tmpdir()}/${md5(this.scheduler.getName() + this.schedule)}.txt`;
+    this.scheduleFile = `${os.tmpdir()}/sys-watcher-scheduler-${md5(this.scheduler.getName())}.lock`;
     this.applicableDays = ['day', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
     if (!this.isValid()) {
@@ -42,6 +42,7 @@ class ParsedSchedule {
       try {
         marker = fs.readFileSync(this.scheduleFile, 'utf8');
       } catch (error) {
+        this.scheduler.getApplication().getConsole().log(`Time marker file not found, recreating at ${this.scheduleFile}.`, { error: error }, this.scheduler);
         fs.writeFileSync(this.scheduleFile, moment().startOf('day').format());
         marker = fs.readFileSync(this.scheduleFile, 'utf8');
       }
@@ -56,7 +57,7 @@ class ParsedSchedule {
 
   touchMarker() {
     if (this.scheduleRe) {
-      this.scheduler.getApplication().getConsole().log(`Touching marker ${this.scheduleFile}.`, Object.create({}), this.scheduler);
+      this.scheduler.getApplication().getConsole().log(`Touching time marker ${this.scheduleFile}.`, Object.create({}), this.scheduler);
       fs.writeFileSync(this.scheduleFile, moment().format());
     }
   }

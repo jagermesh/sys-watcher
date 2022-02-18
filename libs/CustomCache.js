@@ -5,7 +5,7 @@ function CustomCache(application, name, config) {
 
   const _this = this;
 
-  _this.check = function(name, notFound) {
+  _this.check = function() {
     return Promise.resolve();
   };
 
@@ -13,7 +13,7 @@ function CustomCache(application, name, config) {
     callback(null);
   };
 
-  _this.set = function(name, valuem) {
+  _this.set = function() {
 
   };
 }

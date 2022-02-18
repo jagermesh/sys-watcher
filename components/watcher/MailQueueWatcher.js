@@ -1,5 +1,3 @@
-const child_process = require('child_process');
-
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
 
 function MailQueueWatcher(application, name, config) {

@@ -1,8 +1,3 @@
-const colors = require('colors');
-const path = require('path');
-const os = require('os');
-const uuid = require('uuid');
-
 const {
   MonitoringSensor
 } = require('monitoring-sensor');

@@ -42,7 +42,7 @@ function FileCache(application, name, config) {
   };
 
   _this.start = function() {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function(resolve) {
       _this.cacheImpl = fileCache.create({
         file: cacheFileName,
         life: _this.config.settings.lifespanSeconds

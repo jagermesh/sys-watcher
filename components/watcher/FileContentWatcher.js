@@ -1,4 +1,3 @@
-const path = require('path');
 const fs = require('fs');
 
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
@@ -12,7 +11,6 @@ function FileContentWatcher(application, name, config) {
 
   function watchFile(path, ruleConfig) {
     fs.stat(path, function(error, results) {
-      let modificationTime;
       if (error) {
         _this.getApplication().notify(_this.getLoggers(), {
           message: error.toString(),

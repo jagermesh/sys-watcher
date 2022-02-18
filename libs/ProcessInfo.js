@@ -1,6 +1,6 @@
 const moment = require('moment');
 
-function ProcessInfo(pid, cmd) {
+function ProcessInfo(pid) {
   const _this = this;
 
   let metricValues = Object.create({});

@@ -1,7 +1,5 @@
-const colors = require('colors');
 const fs = require('fs');
 const Tail = require('tail').Tail;
-const parseDuration = require('parse-duration');
 
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
 
@@ -11,7 +9,7 @@ function FileWatcher(application, name, config) {
   const _this = this;
 
   function watchPath(path) {
-    fs.stat(path, function(error, results) {
+    fs.stat(path, function(error) {
       if (error) {
         if (_this.config.settings.retryIfNotExists) {
           setTimeout(function() {

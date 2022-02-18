@@ -11,8 +11,6 @@ function RedisCache(application, name, config) {
 
   const _this = this;
 
-  let stopped = false;
-
   _this.config.settings.lifespan = _this.config.settings.lifespan || '5 min';
   _this.config.settings.lifespanSeconds = parseDuration(_this.config.settings.lifespan) / 1000;
   _this.config.settings.connectString = _this.config.settings.connectString || '';
@@ -70,7 +68,7 @@ function RedisCache(application, name, config) {
     return new Promise(function(resolve, reject) {
       const redisClient = redis.createClient(_this.config.settings.connectString);
 
-      redisClient.on('connect', function(error) {
+      redisClient.on('connect', function() {
         if (!inStart) {
           _this.getApplication().getConsole().log('Redis re-connected', Object.create({}), _this);
         }
@@ -92,7 +90,7 @@ function RedisCache(application, name, config) {
         }
       });
 
-      redisClient.on('end', function(error) {
+      redisClient.on('end', function() {
         _this.cacheImpl = null;
       });
     });
@@ -102,8 +100,6 @@ function RedisCache(application, name, config) {
     if (_this.cacheImpl) {
       _this.cacheImpl.quit();
     }
-
-    stopped = true;
   };
 }
 

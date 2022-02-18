@@ -131,9 +131,9 @@ function Application(configFilePath) {
       return _this.getCacheManager().start();
     }).then(function() {
       return _this.getScriptsManager().start();
-    }).then(function(result) {
+    }).then(function() {
       return _this.getWatchersManager().start();
-    }).then(function(result) {
+    }).then(function() {
       return _this.notify(_this.getAppStartWatcher().getLoggers(), {
         message: 'Watcher started'
       }, Object.create({}), _this.getAppStartWatcher());
@@ -315,7 +315,7 @@ function Application(configFilePath) {
           let cacheKey = data.cacheKey || data.message;
           cache.check(cacheKey).then(function() {
             resolve();
-          }).catch(function(error) {
+          }).catch(function() {
             logger.log(data, details, senders, config).then(function() {
               resolve();
             }).catch(function(error) {
@@ -363,7 +363,7 @@ function Application(configFilePath) {
               for (let i = 0; i < loggers.length; i++) {
                 results.push(_this.notifyLogger(loggers[i], data, details, senders, config));
               }
-              Promise.all(results).then(function(res) {
+              Promise.all(results).then(function() {
                 resolve();
               }).catch(function(error) {
                 reject(error);

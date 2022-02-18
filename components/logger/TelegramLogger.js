@@ -31,13 +31,13 @@ function TelegramLogger(application, name, config) {
           let results = [];
           for (let i = 0; i < config.settings.recipients.length; i++) {
             (function(recipient) {
-              results.push(new Promise(function(resolve, reject) {
+              results.push(new Promise(function(resolve) {
                 let detailsTmp = JSON.parse(JSON.stringify(details));
                 let dataTmp = JSON.parse(JSON.stringify(data));
                 dataTmp.message = message;
                 detailsTmp.Recipient = recipient;
                 bot.sendMessage(recipient, formattedMessage)
-                  .then(function(result) {
+                  .then(function() {
                     _this.getApplication().getConsole().log(dataTmp, detailsTmp, senders.concat([_this])).then(function() {
                       resolve();
                     });
@@ -45,7 +45,7 @@ function TelegramLogger(application, name, config) {
                   .catch(function(error) {
                     _this.getApplication().reportError(error.toString(), detailsTmp, senders, _this).then(function() {
                       resolve();
-                    }).catch(function(error) {
+                    }).catch(function() {
                       resolve();
                     });
                   });
@@ -112,10 +112,10 @@ function TelegramLogger(application, name, config) {
             let chunks = formattedMessage.match(new RegExp('.{1,' + chunkLength + '}', 'gsm'));
 
             chunks.reduce(function(promise, chunk) {
-                return promise.then(function(resolve, reject) {
-                  return sendMessage(chunk, formattedDetails, data, details, senders, config);
-                });
-              }, Promise.resolve())
+              return promise.then(function() {
+                return sendMessage(chunk, formattedDetails, data, details, senders, config);
+              });
+            }, Promise.resolve())
               .then(resolve)
               .catch(reject);
           }

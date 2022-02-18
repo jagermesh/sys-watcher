@@ -1,6 +1,5 @@
 const colors = require('colors');
 const moment = require('moment');
-const ip = require('ip');
 
 const CustomLogger = require(`${__dirname}/../../libs/CustomLogger.js`);
 
@@ -10,7 +9,7 @@ function ConsoleLogger(application, name, config) {
   const _this = this;
 
   _this.log = function(data, details, senders, config) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function(resolve) {
       if (data && data.message && !data.skipConsole) {
         config.settings = Object.assign({}, _this.config.settings, config.settings);
         config.composing = Object.assign({}, _this.config.composing, config.composing);

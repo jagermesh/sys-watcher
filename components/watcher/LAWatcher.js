@@ -1,7 +1,4 @@
-const colors = require('colors');
-const path = require('path');
 const os = require('os');
-const uuid = require('uuid');
 
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
 
@@ -11,7 +8,6 @@ function LAWatcher(application, name, config) {
   const _this = this;
 
   const cpus = os.cpus().length;
-  const critical = cpus * 0.75;
   const overload = cpus;
 
   _this.watch = function() {

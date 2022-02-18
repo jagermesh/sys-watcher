@@ -1,18 +1,20 @@
 module.exports = {
-  "env": {
-    "node": true,
-    "commonjs": true,
-    "es6": true,
+  root: true,
+  env: {
+    node: true,
+    es2020: true,
+    commonjs: true,
   },
-  "extends": "eslint:recommended",
-  "globals": {
-    "Atomics": "readonly",
-    "SharedArrayBuffer": "readonly"
+  extends: [
+    'eslint:recommended',
+  ],
+  globals: {
   },
-  "parserOptions": {
-    "ecmaVersion": 2018
+  parserOptions: {
+    ecmaVersion: '2020',
+    sourceType: 'module',
   },
-  "rules": {
-    "no-console": "off"
-  }
+  rules: {
+    indent: ['error', 2],
+  },
 };

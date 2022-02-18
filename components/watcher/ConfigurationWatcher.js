@@ -1,6 +1,3 @@
-const colors = require('colors');
-const path = require('path');
-
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
 
 function ConfigurationWatcher(application, name, config) {

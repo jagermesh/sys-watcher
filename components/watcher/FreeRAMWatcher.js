@@ -1,7 +1,5 @@
 const bytes = require('bytes');
-const memory = require('free-memory');
 const si = require('systeminformation');
-const uuid = require('uuid');
 
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
 
@@ -20,7 +18,6 @@ function FreeRAMWatcher(application, name, config) {
       if ((_this.config.settings.thresholdBytes == 0) || (usable < _this.config.settings.thresholdBytes)) {
         let usableBytes = bytes(usable);
         let totalBytes = bytes(total);
-        let percent = (usable * 100 / total).toFixed();
 
         let message = `Free RAM ${usableBytes} out of ${totalBytes}`;
         if (_this.config.settings.thresholdBytes > 0) {

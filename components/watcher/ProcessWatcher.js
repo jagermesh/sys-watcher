@@ -1,9 +1,5 @@
 const colors = require('colors');
-const bytes = require('bytes');
 const parseDuration = require('parse-duration');
-const child_process = require('child_process');
-const path = require('path');
-const moment = require('moment');
 const HashMap = require('hashmap');
 
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
@@ -21,8 +17,6 @@ function ProcessWatcher(application, name, config) {
     let cwd = ruleConfig.cwd || process.cwd();
 
     ruleConfig.retryTimeout = ruleConfig.retryTimeout || '3 sec';
-
-    let retryTimeout = parseDuration(ruleConfig.retryTimeout);
 
     let details = {
       Check: ruleConfig.check,
@@ -143,7 +137,6 @@ function ProcessWatcher(application, name, config) {
                 }
               }
               if (log) {
-                let cpuOverload = false;
                 if (ruleConfig.cpu_threshold) {
                   log = cpu > parseFloat(ruleConfig.cpu_threshold);
                 }

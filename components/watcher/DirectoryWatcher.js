@@ -1,4 +1,3 @@
-const colors = require('colors');
 const fs = require('fs');
 const parseDuration = require('parse-duration');
 const moment = require('moment');
@@ -108,7 +107,7 @@ function DirectoryWatcher(application, name, config) {
       path += '/';
     }
 
-    fs.stat(path, function(error, results) {
+    fs.stat(path, function(error) {
       if (error) {
         if (_this.config.settings.retryIfNotExists) {
           setTimeout(function() {
@@ -133,7 +132,6 @@ function DirectoryWatcher(application, name, config) {
             }, _this);
           } else {
             if ((results.length > 0) || _this.config.settings.reportEmpty) {
-              let files = [];
               results = results.sort(function(a, b) {
                 if (a.creationTime > b.creationTime) {
                   return 1;

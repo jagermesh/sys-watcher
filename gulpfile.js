@@ -1,23 +1,22 @@
 const gulp = require('gulp');
-const jshint = require('gulp-jshint');
+const eslint = require('gulp-eslint');
 
 const configs = {
-  jshint: {
+  eslint: {
     src: [
       '*.js',
-      'libs/*.js',
-      'components/*.js',
-      '!node_modules/**/*.js'
+      'components/**/*.js',
+      'libs/**/*.js',
     ]
   }
 };
 
-gulp.task('jshint', function() {
-  return gulp.src(configs.jshint.src)
-    .pipe(jshint())
-    .pipe(jshint.reporter('default'))
-    .pipe(jshint.reporter('fail'));
+gulp.task('eslint', function() {
+  return gulp.src(configs.eslint.src)
+    .pipe(eslint({quiet: true}))
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError());
 });
 
 gulp.task('build',
-  gulp.series('jshint'));
+  gulp.series('eslint'));

@@ -14,7 +14,7 @@ function RabbitMQLogger(application, name, config) {
   };
 
   _this.log = function(data, details, senders, config) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function(resolve) {
       if (data && data.message) {
         data.message = _this.cleanUpFromColoring(data.message);
 
@@ -41,7 +41,7 @@ function RabbitMQLogger(application, name, config) {
           if (error) {
             _this.getApplication().reportError('Can not connect to RabbitMQ server: ' + error.toString(), details, senders, _this).then(function() {
               resolve();
-            }).catch(function(error) {
+            }).catch(function() {
               resolve();
             });
           }
@@ -51,7 +51,7 @@ function RabbitMQLogger(application, name, config) {
               if (error) {
                 _this.getApplication().reportError('Can not create channel: ' + error.toString(), details, senders, _this).then(function() {
                   resolve();
-                }).catch(function(error) {
+                }).catch(function() {
                   resolve();
                 });
               }

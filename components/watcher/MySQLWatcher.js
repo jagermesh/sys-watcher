@@ -1,6 +1,3 @@
-const colors = require('colors');
-const bytes = require('bytes');
-const parseDuration = require('parse-duration');
 const mysql = require('mysql');
 
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
@@ -62,7 +59,7 @@ function MySQLWatcher(application, name, config) {
   function watchSQL(database, ruleName, ruleConfig, sql) {
     getConnection(database, ruleName, function(connection) {
       let runSQL = substitute(sql, 'settings.database', database);
-      connection.query(runSQL, function(error, results, fields) {
+      connection.query(runSQL, function(error, results) {
         let details = {
           RuleName: ruleName,
           Database: database.database,
@@ -132,7 +129,7 @@ function MySQLWatcher(application, name, config) {
     }
   }
 
-  _this.watch = function(scheduled) {
+  _this.watch = function() {
     for (let i = 0; i < _this.config.settings.database.length; i++) {
       let database = _this.config.settings.database[i];
       watchDatabase(database);

@@ -18,7 +18,7 @@ function AWSSQSWatcher(application, name, config, owner) {
       ReceiptHandle: receiptHandle
     };
 
-    sqs.deleteMessage(sqsParams, function(error, response) {
+    sqs.deleteMessage(sqsParams, function(error) {
       if (error) {
         _this.getApplication().notify(_this.getLoggers(loggers), {
           message: error.toString(),
@@ -50,7 +50,7 @@ function AWSSQSWatcher(application, name, config, owner) {
         });
     } else {
       _this.getApplication().notify(_this.getLoggers(loggers), {
-        message: message,
+        message: line,
         cacheKey: cacheKey
       }, details, _this);
       deleteMessage(sqs, queueName, queueConfig, receiptHandle, line, details, loggers);

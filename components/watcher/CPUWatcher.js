@@ -1,7 +1,4 @@
-const bytes = require('bytes');
-const memory = require('free-memory');
 const si = require('systeminformation');
-const uuid = require('uuid');
 
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
 

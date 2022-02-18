@@ -12,12 +12,12 @@ function SlackLogger(application, name, config) {
 
   _this.getRecipients = function() {
     switch (_this.config.settings.kind) {
-      case 'webhook':
-        return _this.config.settings.webHooks.join(', ');
-      case 'direct':
-        return _this.config.settings.recipients.join(', ');
-      default:
-        return '';
+    case 'webhook':
+      return _this.config.settings.webHooks.join(', ');
+    case 'direct':
+      return _this.config.settings.recipients.join(', ');
+    default:
+      return '';
     }
   };
 
@@ -74,119 +74,119 @@ function SlackLogger(application, name, config) {
         }
 
         switch (config.settings.kind) {
-          case 'webhook':
-            if (config.settings.webHooks.length > 0) {
-              for (let i = 0; i < config.settings.webHooks.length; i++) {
-                let webHook = config.settings.webHooks[i];
-                let payload = _this.preparePayload(formattedMessage, config);
-                const transport = new Slack.IncomingWebhook(webHook);
-                transport.send(payload)
-                  .then(function(result) {
-                    _this.getApplication().getConsole().log(data.message, details, senders.concat([_this])).then(function() {
-                      resolve();
-                    });
-                  })
-                  .catch(function(error) {
-                    _this.getApplication().reportError(error.toString(), details, senders, _this).then(function() {
-                      resolve();
-                    }).catch(function(error, senders, sender) {
-                      resolve();
-                    });
+        case 'webhook':
+          if (config.settings.webHooks.length > 0) {
+            for (let i = 0; i < config.settings.webHooks.length; i++) {
+              let webHook = config.settings.webHooks[i];
+              let payload = _this.preparePayload(formattedMessage, config);
+              const transport = new Slack.IncomingWebhook(webHook);
+              transport.send(payload)
+                .then(function() {
+                  _this.getApplication().getConsole().log(data.message, details, senders.concat([_this])).then(function() {
+                    resolve();
                   });
-              }
+                })
+                .catch(function(error) {
+                  _this.getApplication().reportError(error.toString(), details, senders, _this).then(function() {
+                    resolve();
+                  }).catch(function() {
+                    resolve();
+                  });
+                });
             }
+          }
 
-            if (config.settings.webHooks.length == 0) {
-              if (_this.getApplication().isToolMode()) {
-                reject({
-                  error: 'Missing web hooks paramter',
-                  details: '{ webHooks: [ \'WEB_HOOK1\', \'WEB_HOOK2\', ... ] }'
-                });
-              }
-              if (!_this.getApplication().isToolMode()) {
-                _this.getApplication().reportError('Missing web hooks', details, senders, _this).then(function() {
-                  resolve();
-                });
-              }
-            }
-            break;
-          case 'direct':
-            if (config.settings.token) {
-              if (config.settings.recipients.length > 0) {
-                const transport = new Slack.WebClient(config.settings.token);
-                let results = [];
-                for (let i = 0; i < config.settings.recipients.length; i++) {
-                  (function(recipient) {
-                    results.push(new Promise(function(resolve, reject) {
-                      let detailsTmp = JSON.parse(JSON.stringify(details));
-                      detailsTmp.Recipient = recipient;
-                      let payload = _this.preparePayload(formattedMessage, config);
-                      payload.channel = recipient;
-                      transport.chat.postMessage(payload)
-                        .then(function(result) {
-                          _this.getApplication().getConsole().log(data, detailsTmp, senders.concat([_this])).then(function() {
-                            resolve();
-                          });
-                        })
-                        .catch(function(error) {
-                          _this.getApplication().reportError(error.toString(), detailsTmp, senders, _this).then(function() {
-                            resolve();
-                          }).catch(function(error) {
-                            resolve();
-                          });
-                        });
-                    }));
-                  })(config.settings.recipients[i]);
-                }
-                Promise.all(results).then(function() {
-                  resolve();
-                }).catch(function(error) {
-                  reject(error);
-                });
-              }
-            }
-
-            if (config.settings.recipients.length == 0) {
-              if (_this.getApplication().isToolMode()) {
-                reject({
-                  error: 'Missing recipients paramter',
-                  details: '{ recipients: [ \'RECIPIENT1\', \'RECIPIENT2\', ... ] }'
-                });
-              }
-              if (!_this.getApplication().isToolMode()) {
-                _this.getApplication().reportError('Missing recipients', details, senders, _this).then(function() {
-                  resolve();
-                });
-              }
-            }
-
-            if (!config.settings.token) {
-              if (_this.getApplication().isToolMode()) {
-                reject({
-                  error: 'Missing token paramter',
-                  details: '{ token: \'TOKEN\' }'
-                });
-              }
-              if (!_this.getApplication().isToolMode()) {
-                _this.getApplication().reportError('Missing token', details, senders, _this).then(function() {
-                  resolve();
-                });
-              }
-            }
-            break;
-          default:
+          if (config.settings.webHooks.length == 0) {
             if (_this.getApplication().isToolMode()) {
               reject({
-                error: 'Missing kind parameter',
-                details: '{ kind: \'webhook|direct\' }'
+                error: 'Missing web hooks paramter',
+                details: '{ webHooks: [ \'WEB_HOOK1\', \'WEB_HOOK2\', ... ] }'
               });
             }
             if (!_this.getApplication().isToolMode()) {
-              _this.getApplication().reportError('Missing kind paramtere', details, senders, _this).then(function() {
+              _this.getApplication().reportError('Missing web hooks', details, senders, _this).then(function() {
                 resolve();
               });
             }
-            break;
+          }
+          break;
+        case 'direct':
+          if (config.settings.token) {
+            if (config.settings.recipients.length > 0) {
+              const transport = new Slack.WebClient(config.settings.token);
+              let results = [];
+              for (let i = 0; i < config.settings.recipients.length; i++) {
+                (function(recipient) {
+                  results.push(new Promise(function(resolve) {
+                    let detailsTmp = JSON.parse(JSON.stringify(details));
+                    detailsTmp.Recipient = recipient;
+                    let payload = _this.preparePayload(formattedMessage, config);
+                    payload.channel = recipient;
+                    transport.chat.postMessage(payload)
+                      .then(function() {
+                        _this.getApplication().getConsole().log(data, detailsTmp, senders.concat([_this])).then(function() {
+                          resolve();
+                        });
+                      })
+                      .catch(function(error) {
+                        _this.getApplication().reportError(error.toString(), detailsTmp, senders, _this).then(function() {
+                          resolve();
+                        }).catch(function() {
+                          resolve();
+                        });
+                      });
+                  }));
+                })(config.settings.recipients[i]);
+              }
+              Promise.all(results).then(function() {
+                resolve();
+              }).catch(function(error) {
+                reject(error);
+              });
+            }
+          }
+
+          if (config.settings.recipients.length == 0) {
+            if (_this.getApplication().isToolMode()) {
+              reject({
+                error: 'Missing recipients paramter',
+                details: '{ recipients: [ \'RECIPIENT1\', \'RECIPIENT2\', ... ] }'
+              });
+            }
+            if (!_this.getApplication().isToolMode()) {
+              _this.getApplication().reportError('Missing recipients', details, senders, _this).then(function() {
+                resolve();
+              });
+            }
+          }
+
+          if (!config.settings.token) {
+            if (_this.getApplication().isToolMode()) {
+              reject({
+                error: 'Missing token paramter',
+                details: '{ token: \'TOKEN\' }'
+              });
+            }
+            if (!_this.getApplication().isToolMode()) {
+              _this.getApplication().reportError('Missing token', details, senders, _this).then(function() {
+                resolve();
+              });
+            }
+          }
+          break;
+        default:
+          if (_this.getApplication().isToolMode()) {
+            reject({
+              error: 'Missing kind parameter',
+              details: '{ kind: \'webhook|direct\' }'
+            });
+          }
+          if (!_this.getApplication().isToolMode()) {
+            _this.getApplication().reportError('Missing kind paramtere', details, senders, _this).then(function() {
+              resolve();
+            });
+          }
+          break;
         }
       }
 

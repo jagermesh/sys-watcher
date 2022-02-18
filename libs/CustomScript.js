@@ -10,7 +10,7 @@ function CustomScript(application, name, config) {
   };
 
   _this.start = function() {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function(resolve) {
       if (_this.needScheduler()) {
         _this.getScheduler().start(function() {
           _this.exec();

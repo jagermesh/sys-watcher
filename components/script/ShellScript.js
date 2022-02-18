@@ -1,5 +1,3 @@
-const colors = require('colors');
-
 const CustomScript = require(`${__dirname}/../../libs/CustomScript.js`);
 
 function ShellScript(application, name, config) {

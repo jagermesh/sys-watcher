@@ -1,4 +1,3 @@
-const colors = require('colors');
 const SSLChecker = require('ssl-checker');
 
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);

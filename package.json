@@ -7,8 +7,8 @@
   },
   "devDependencies": {
     "gulp": "^4.0.2",
-    "gulp-jshint": "^2.1.0",
-    "jshint": "^2.12.0"
+    "gulp-eslint": "^6.0.0",
+    "eslint": "^8.7.0"
   },
   "dependencies": {
     "@slack/client": "^5.0.2",

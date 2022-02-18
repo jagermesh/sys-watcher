@@ -56,26 +56,26 @@ function MailLogger(application, name, config) {
             };
 
             switch (config.composing.format) {
-              case 'html':
-                formattedMessage = _this.formatMessage(formattedMessage, 'html');
-                formattedDetails = _this.packDetails(details, config.composing, 'html');
+            case 'html':
+              formattedMessage = _this.formatMessage(formattedMessage, 'html');
+              formattedDetails = _this.packDetails(details, config.composing, 'html');
 
-                if (formattedDetails.length > 0) {
-                  formattedMessage += '<br /><br />' + formattedDetails;
-                }
+              if (formattedDetails.length > 0) {
+                formattedMessage += '<br /><br />' + formattedDetails;
+              }
 
-                mailMessage.html = formattedMessage;
-                break;
-              default:
-                formattedMessage = _this.formatMessage(formattedMessage, 'text');
-                formattedDetails = _this.packDetails(details, config.composing, 'text');
+              mailMessage.html = formattedMessage;
+              break;
+            default:
+              formattedMessage = _this.formatMessage(formattedMessage, 'text');
+              formattedDetails = _this.packDetails(details, config.composing, 'text');
 
-                if (formattedDetails.length > 0) {
-                  formattedMessage += '\n\n' + formattedDetails;
-                }
+              if (formattedDetails.length > 0) {
+                formattedMessage += '\n\n' + formattedDetails;
+              }
 
-                mailMessage.text = formattedMessage;
-                break;
+              mailMessage.text = formattedMessage;
+              break;
             }
 
             const transporter = nodemailer.createTransport({
@@ -85,7 +85,7 @@ function MailLogger(application, name, config) {
             });
 
             transporter.sendMail(mailMessage)
-              .then(function(result) {
+              .then(function() {
                 _this.getApplication().getConsole().log(data, details, senders.concat([_this])).then(function() {
                   resolve();
                 }).catch(function() {

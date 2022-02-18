@@ -1,6 +1,3 @@
-const url = require('url');
-const querystring = require('querystring');
-
 const WebWatcher = require(`${__dirname}/WebWatcher.js`);
 
 function HTTPWatcher(application, name, config) {
@@ -89,7 +86,7 @@ function HTTPWatcher(application, name, config) {
           for (let j = 0; j < config.except.length; j++) {
             let except = config.except[j];
             let regexpExcept = new RegExp(except, 'im');
-            matches = regexpExcept.exec(message);
+            let matches = regexpExcept.exec(message);
             if (matches !== null) {
               message = '';
               break;

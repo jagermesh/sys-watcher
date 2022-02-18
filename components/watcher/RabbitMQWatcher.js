@@ -1,6 +1,5 @@
 const ip = require('ip');
 const amqpcb = require('amqplib/callback_api');
-const amqp = require('amqplib');
 
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
 
@@ -64,7 +63,7 @@ function RabbitMQWatcher(application, name, config) {
           isError: true
         }, details, _this);
       } else {
-        channel.assertExchange(queueConfig.exchangeName, queueConfig.exchangeType, queueConfig.exchangeSettings, function(error, exchange) {
+        channel.assertExchange(queueConfig.exchangeName, queueConfig.exchangeType, queueConfig.exchangeSettings, function(error) {
           if (error) {
             _this.getApplication().notify(_this.getLoggers(), {
               message: 'Can not create exchange: ' + error.toString(),
@@ -78,7 +77,7 @@ function RabbitMQWatcher(application, name, config) {
                   isError: true
                 }, details, _this);
               } else {
-                channel.bindQueue(queue.queue, queueConfig.exchangeName, queueConfig.bindingKey, null, function(error, binding) {
+                channel.bindQueue(queue.queue, queueConfig.exchangeName, queueConfig.bindingKey, null, function(error) {
                   if (error) {
                     _this.getApplication().notify(_this.getLoggers(), {
                       message: 'Can not create binding: ' + error.toString(),

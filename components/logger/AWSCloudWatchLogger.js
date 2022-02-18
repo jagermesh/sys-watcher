@@ -16,7 +16,7 @@ function AWSCloudWatchLogger(application, name, config) {
   };
 
   _this.log = function(data, details, senders, config) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function(resolve) {
       if (data && (data.value != undefined)) {
         config.settings = Object.assign({}, _this.config.settings, config.settings);
         config.composing = Object.assign({}, _this.config.composing, config.composing);
@@ -66,7 +66,7 @@ function AWSCloudWatchLogger(application, name, config) {
           secretAccessKey: _this.config.settings.AWS.secretAccessKey
         });
 
-        cloudwatch.putMetricData(params, function(error, response) {
+        cloudwatch.putMetricData(params, function(error) {
           if (error) {
             _this.getApplication().reportError(error.toString(), details, senders, _this).then(function() {
               resolve();

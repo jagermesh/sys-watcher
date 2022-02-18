@@ -1,6 +1,5 @@
 const colors = require('colors');
 const child_process = require('child_process');
-const path = require('path');
 const fs = require('fs');
 const tmp = require('tmp');
 const {
@@ -89,7 +88,7 @@ function ExecPool(application) {
         cmdLog += data.toString();
       });
     }
-    cmdProcess.on('error', function(data) {
+    cmdProcess.on('error', function() {
       _this.getApplication().getConsole().error('Executed ' + colors.yellow(task.cmd) + ', error:\n' + colors.red(cmdLog), details, task.senders.concat([_this]));
       task.status = 3;
       task.done(false, cmdLog.trim());
