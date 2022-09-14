@@ -16,7 +16,8 @@ function ConfigurationWatcher(application, name, config) {
     details.Cwd = cwd;
     details.Check = check;
 
-    _this.getApplication().getExecPool().exec(cmd, cwd).then(function(stdout) {
+    _this.getApplication().getExecPool().exec(cmd, cwd).then(function(result) {
+      let stdout = result.stdout;
       if (check) {
         let r = new RegExp(check);
         if (!r.test(stdout)) {
@@ -25,7 +26,8 @@ function ConfigurationWatcher(application, name, config) {
           }, details, _this);
         }
       }
-    }).catch(function(stdout) {
+    }).catch(function(result) {
+      let stdout = result.stdout;
       _this.getApplication().notify(_this.getLoggers(), {
         message: 'Configuration check ' + cmd + ' failed:\n\n<pre>' + stdout + '</pre>'
       }, details, _this);

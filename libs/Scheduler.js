@@ -33,7 +33,7 @@ function Scheduler(application, name, config, owner) {
           intervals.push(setInterval(function() {
             run(parsedSchedule, onTime);
           }, parsedSchedule.getMs()));
-          _this.getApplication().getConsole().log('Started. Will trigger ' + parsedSchedule.getRule() + '.', Object.create({}), _this);
+          _this.getApplication().getConsole().log(`Started. Will trigger ${parsedSchedule.getRule()}.`, Object.create({}), _this);
         }
       });
     }

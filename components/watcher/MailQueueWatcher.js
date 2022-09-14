@@ -8,7 +8,8 @@ function MailQueueWatcher(application, name, config) {
   _this.config.settings.threshold = _this.config.settings.threshold || 0;
 
   _this.watch = function() {
-    _this.getApplication().getExecPool().exec('mailq').then(function(stdout) {
+    _this.getApplication().getExecPool().exec('mailq').then(function(result) {
+      let stdout = result.stdout;
       let regexp = /([0-9]+) Requests/;
       let match = regexp.exec(stdout);
       let amount = 0;
@@ -27,7 +28,8 @@ function MailQueueWatcher(application, name, config) {
           dimensions: Object.create({})
         }, Object.create({}), _this);
       }
-    }).catch(function(stdout) {
+    }).catch(function(result) {
+      let stdout = result.stdout;
       _this.getApplication().reportError(stdout, Object.create({}), _this);
     });
   };

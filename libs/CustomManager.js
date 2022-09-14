@@ -16,9 +16,9 @@ function CustomManager(application, name, config, owner, folder) {
 
   _this.appendEntry = function(name, config) {
     if (_this.getEntry(name)) {
-      _this.getApplication().console().error(name + ' already exists, skipping', Object.create({}), _this);
+      _this.getApplication().console().error(`${name} already exists, skipping`, Object.create({}), _this);
     } else {
-      let entry = new ManageableEntry(_this.getApplication(), name, config, __dirname + '/../' + folder + '/' + config.type + '.js', _this);
+      let entry = new ManageableEntry(_this.getApplication(), name, config, `${__dirname}/../${folder}/${config.type}.js`, _this);
       _this.getEntries().set(name, entry);
     }
   };
@@ -34,7 +34,7 @@ function CustomManager(application, name, config, owner, folder) {
       return entry.getInstance();
     } else {
       // throw 'Entry ' + entryName + ' not found';
-      _this.getApplication().fatalError('Can not find entry ' + entryName, _this);
+      _this.getApplication().fatalError(`Can not find entry ${entryName}`, _this);
     }
   };
 

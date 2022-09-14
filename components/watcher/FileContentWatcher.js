@@ -41,11 +41,13 @@ function FileContentWatcher(application, name, config) {
               CmdGroup: cmdGroup
             };
 
-            return _this.getApplication().getExecPool().exec(cmd, cwd, cmdGroup).then(function(stdout) {
+            return _this.getApplication().getExecPool().exec(cmd, cwd, cmdGroup).then(function(result) {
+              let stdout = result.stdout;
               _this.getApplication().notify(_this.getLoggers(), {
                 message: stdout
               }, details, _this);
-            }).catch(function(stdout) {
+            }).catch(function(result) {
+              let stdout = result.stdout;
               _this.getApplication().notify(_this.getLoggers(), {
                 message: stdout,
                 isError: true

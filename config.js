@@ -46,6 +46,24 @@ module.exports = {
         interval: '3 sec'
       }
     },
+    processWatcher: {
+      type: 'ProcessWatcher',
+      settings: {
+        rules: {
+          cron: {
+            check: 'watcher.js',
+            mode: 'log-count,log-cpu,limit-cpu,limit-uptime,keepalive',
+            cpu_period: '1 min',
+            cpu_threshold: 50,
+            cpu_log_threshold: 10,
+            uptime_threshold: '30 min',
+          },
+        }
+      },
+      scheduling: {
+        interval: '30 sec'
+      }
+    },
     monitoringSensorWatcher: {
       type: 'MonitoringSensorWatcher',
       settings: {

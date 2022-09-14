@@ -13,12 +13,14 @@ function RabbitMQWatcher(application, name, config) {
 
   function processMatch(line, details, loggers, cacheKey, config) {
     if (config.cmd) {
-      _this.getApplication().getExecPool().exec(config.cmd, config.cwd, config.cmdGroup).then(function(stdout) {
+      _this.getApplication().getExecPool().exec(config.cmd, config.cwd, config.cmdGroup).then(function(result) {
+        let stdout = result.stdout;
         _this.getApplication().notify(_this.getLoggers(loggers), {
           message: line + '\n\n' + config.cmd + '\n\n' + stdout,
           cacheKey: cacheKey
         }, details, _this);
-      }).catch(function(stdout) {
+      }).catch(function(result) {
+        let stdout = result.stdout;
         _this.getApplication().notify(_this.getLoggers(loggers), {
           message: line + '\n\n' + config.cmd + '\n\n' + stdout,
           isError: true

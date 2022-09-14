@@ -32,22 +32,22 @@ function AWSSQSWatcher(application, name, config, owner) {
 
   function processMatch(sqs, queueName, queueConfig, receiptHandle, line, details, loggers, cacheKey, config) {
     if (config.cmd) {
-      _this.getApplication().getExecPool().exec(config.cmd, config.cwd, config.cmdGroup)
-        .then(function(stdout) {
-          let message = line + '\n\n' + config.cmd + '\n\n' + stdout;
-          _this.getApplication().notify(_this.getLoggers(loggers), {
-            message: message,
-            cacheKey: cacheKey
-          }, details, _this);
-          deleteMessage(sqs, queueName, queueConfig, receiptHandle, line, details, loggers);
-        })
-        .catch(function(stdout) {
-          let message = line + '\n\n' + config.cmd + '\n\n' + stdout;
-          _this.getApplication().notify(_this.getLoggers(loggers), {
-            message: message,
-            isError: true
-          }, details, _this);
-        });
+      _this.getApplication().getExecPool().exec(config.cmd, config.cwd, config.cmdGroup).then(function(result) {
+        let stdout = result.stdout;
+        let message = line + '\n\n' + config.cmd + '\n\n' + stdout;
+        _this.getApplication().notify(_this.getLoggers(loggers), {
+          message: message,
+          cacheKey: cacheKey
+        }, details, _this);
+        deleteMessage(sqs, queueName, queueConfig, receiptHandle, line, details, loggers);
+      }).catch(function(result) {
+        let stdout = result.stdout;
+        let message = line + '\n\n' + config.cmd + '\n\n' + stdout;
+        _this.getApplication().notify(_this.getLoggers(loggers), {
+          message: message,
+          isError: true
+        }, details, _this);
+      });
     } else {
       _this.getApplication().notify(_this.getLoggers(loggers), {
         message: line,

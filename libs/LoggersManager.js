@@ -7,13 +7,13 @@ function LoggersManager(application, config) {
 
   config = config || Object.create({});
 
-  let files = fs.readdirSync(__dirname + '/../' + folder + '/');
+  let files = fs.readdirSync(`${__dirname}/../${folder}/`);
 
   for (let i = 0; i < files.length; i++) {
     if (/.*?Logger[.]js$/.test(files[i])) {
       let loggerName = files[i].replace('.js', '');
       if (config[loggerName]) {
-        throw Error('Error: you can not give logger entry name same as logger class name: ' + loggerName);
+        throw Error(`Error: you can not give logger entry name same as logger class name: ${loggerName}`);
       } else {
         config[loggerName] = {
           type: loggerName

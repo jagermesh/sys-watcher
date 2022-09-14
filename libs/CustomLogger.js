@@ -41,7 +41,7 @@ function CustomLogger(application, name, config) {
     let result = '';
 
     for (let name in details) {
-      result += options.prefix + name + ':' + options.suffix + ' ' + packDetails2(details[name], options) + options.eol;
+      result += `${options.prefix}${name}:${options.suffix} ${packDetails2(details[name], options)}${options.eol}`;
     }
 
     return result;
@@ -145,9 +145,9 @@ function CustomLogger(application, name, config) {
 
   _this.getDescription = function() {
     if (_this.getRecipients()) {
-      return 'Send message to ' + _this.getRecipients() + ' using ' + _this.config.type;
+      return `Send message to ${_this.getRecipients()} using ${_this.config.type}`;
     } else {
-      return 'Send message using ' + _this.config.type + ', --extra paramater must be provided';
+      return `Send message using ${_this.config.type}, --extra paramater must be provided`;
     }
   };
 

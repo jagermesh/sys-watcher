@@ -77,9 +77,11 @@ function GitHubWebHookWatcher(application, name, config) {
                       let cmd = requestHandler.cmd;
                       cmd = cmd.replace('{branch}', request.body.branch);
 
-                      _this.getApplication().getExecPool().exec(cmd, requestHandler.cwd, requestHandler.cmdGroup).then(function(stdout) {
+                      _this.getApplication().getExecPool().exec(cmd, requestHandler.cwd, requestHandler.cmdGroup).then(function(result) {
+                        let stdout = result.stdout;
                         sendResponse(response, 200, 'Success', requestHandler.loggers, details, config, stdout);
-                      }).catch(function(stdout) {
+                      }).catch(function(result) {
+                        let stdout = result.stdout;
                         sendResponse(response, 500, 'Processing failed', requestHandler.loggers, details, config, stdout);
                       });
                     } else {

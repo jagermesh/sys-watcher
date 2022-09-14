@@ -16,7 +16,7 @@ function ManageableEntry(application, name, config, classFile, owner) {
         let classImpl = require(classFile);
         instance = new classImpl(_this.getApplication(), name, config);
       } catch (error) {
-        _this.getApplication().fatalError('Can not create instance of  ' + name + ': ' + error.toString(), _this);
+        _this.getApplication().fatalError(`Can not create instance of  ${name}: ${error.toString()}`, _this);
       }
     }
 

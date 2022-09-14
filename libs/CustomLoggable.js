@@ -58,8 +58,8 @@ function CustomLoggable(application, name, config, owner) {
 
   _this.getScheduler = function() {
     if (!scheduler) {
-      const Scheduler = require(__dirname + '/Scheduler.js');
-      scheduler = new Scheduler(_this.getApplication(), _this.getName() + ': Scheduler', {
+      const Scheduler = require(`${__dirname}/Scheduler.js`);
+      scheduler = new Scheduler(_this.getApplication(), `${_this.getName()}: Scheduler`, {
         settings: _this.getConfig().scheduling
       }, _this);
     }

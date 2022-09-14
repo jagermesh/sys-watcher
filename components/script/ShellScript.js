@@ -16,13 +16,15 @@ function ShellScript(application, name, config) {
       CmdGroup: cmdGroup
     };
 
-    return _this.getApplication().getExecPool().exec(cmd, cwd, cmdGroup, _this).then(function(stdout) {
+    return _this.getApplication().getExecPool().exec(cmd, cwd, cmdGroup, _this).then(function(result) {
+      let stdout = result.stdout;
       if (!_this.getApplication().isToolMode()) {
         _this.getApplication().notify(_this.getLoggers(), {
           message: stdout
         }, details, _this);
       }
-    }).catch(function(stdout) {
+    }).catch(function(result) {
+      let stdout = result.stdout;
       if (!_this.getApplication().isToolMode()) {
         _this.getApplication().notify(_this.getLoggers(), {
           message: stdout,
