@@ -111,7 +111,7 @@ function ProcessWatcher(application, name, config) {
             let match = regexp.exec(results[j]);
             if (match) {
               let pid, cpu, cmd;
-              if (isMacOS) {
+              if (usePS) {
                 pid = parseFloat(match[1]);
                 cpu = parseFloat(match[2]);
                 cmd = match[3];
