@@ -128,12 +128,12 @@ function ProcessWatcher(application, name, config) {
               let match = /([^ ]+?)[ ]+([^ ]+?)[ ]+([A-Za-z]{3} [A-Za-z]{3} [ 0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2} [0-9]{4})[ ]+(.+)/.exec(lines[i]);
               if (match) {
                 processInfo = {
-                  pid: parseFloat(match[1]),
-                  uptime: moment().unix() - moment(match[3], 'ddd MMM DD HH:mm:ss YYYY').unix(),
+                  pid: parseFloat(match[1].trim()),
+                  uptime: moment().unix() - moment(match[3].trim(), 'ddd MMM DD HH:mm:ss YYYY').unix(),
                   cmd: match[4].trim(),
                 };
                 if (isMacOS) {
-                  processInfo.cpu = parseFloat(match[2]);
+                  processInfo.cpu = parseFloat(match[2].trim());
                 }
               }
             } else
@@ -141,8 +141,8 @@ function ProcessWatcher(application, name, config) {
               let match = /([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+(.+)/.exec(lines[i]);
               if (match) {
                 processInfo = {
-                  pid: parseFloat(match[1]),
-                  cpu: parseFloat(match[9]),
+                  pid: parseFloat(match[1].trim()),
+                  cpu: parseFloat(match[9].trim()),
                   cmd: match[12].trim(),
                 };
               }
