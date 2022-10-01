@@ -125,7 +125,7 @@ function ProcessWatcher(application, name, config) {
           if (lines[i].indexOf('grep') == -1) {
             let processInfo;
             if (execResult.marker == 'ps') {
-              let match = /([^ ]+?)[ ]+([^ ]+?)[ ]+([A-Za-z]{3} [A-Za-z]{3} [0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2} [0-9]{4})[ ]+(.+)/.exec(lines[i]);
+              let match = /([^ ]+?)[ ]+([^ ]+?)[ ]+([A-Za-z]{3} [A-Za-z]{3} [ 0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2} [0-9]{4})[ ]+(.+)/.exec(lines[i]);
               if (match) {
                 processInfo = {
                   pid: parseFloat(match[1]),
