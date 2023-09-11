@@ -12,6 +12,14 @@ module.exports = {
       }
     }
   },
+  caching: {
+    redis: {
+      type: 'RedisCache',
+      settings: {
+        lifespan: '3 min'
+      }
+    }
+  },
   loggers: {},
   watchers: {
     freeSpaceWatcher: {

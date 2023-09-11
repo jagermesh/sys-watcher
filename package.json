@@ -6,9 +6,9 @@
     "url": "https://github.com/jagermesh/sys-watcher/issues"
   },
   "devDependencies": {
+    "eslint": "^8.7.0",
     "gulp": "^4.0.2",
-    "gulp-eslint": "^6.0.0",
-    "eslint": "^8.7.0"
+    "gulp-eslint": "^6.0.0"
   },
   "dependencies": {
     "@slack/client": "^5.0.2",

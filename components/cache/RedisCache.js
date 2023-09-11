@@ -69,6 +69,7 @@ function RedisCache(application, name, config) {
       const redisClient = redis.createClient(_this.config.settings.connectString);
 
       redisClient.on('connect', function() {
+        redisClient.stream.setKeepAlive(true, 60*1000);
         if (!inStart) {
           _this.getApplication().getConsole().log('Redis re-connected', Object.create({}), _this);
         }

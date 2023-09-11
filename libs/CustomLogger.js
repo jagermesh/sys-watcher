@@ -48,6 +48,7 @@ function CustomLogger(application, name, config) {
   }
 
   _this.cleanUpFromColoring = function(value) {
+    // eslint-disable-next-line no-control-regex
     return value.replace(/[\u001b]\[[0-9]{1,2}m/g, '');
   };
 
