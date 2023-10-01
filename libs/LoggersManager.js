@@ -5,7 +5,8 @@ const CustomManager = require(`${__dirname}/CustomManager.js`);
 function LoggersManager(application, config) {
   let folder = 'components/logger';
 
-  config = config || Object.create({});
+  config = Object.assign({
+  }, config);
 
   let files = fs.readdirSync(`${__dirname}/../${folder}/`);
 

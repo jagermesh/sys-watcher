@@ -8,8 +8,10 @@ function AWSCloudWatchLogger(application, name, config) {
 
   const _this = this;
 
-  _this.config.settings.nameSpace = _this.config.settings.nameSpace || 'Watcher';
-  _this.config.settings.dimensions = _this.config.settings.dimensions || [];
+  _this.config.settings = Object.assign({
+    nameSpace: 'Watcher',
+    dimensions: [],
+  }, _this.config.settings);
 
   _this.getRecipients = function() {
     return '';

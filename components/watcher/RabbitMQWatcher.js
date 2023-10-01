@@ -8,8 +8,9 @@ function RabbitMQWatcher(application, name, config) {
 
   const _this = this;
 
-  _this.config.settings = _this.config.settings || Object.create({});
-  _this.config.settings.queues = _this.config.settings.queues || Object.create({});
+  _this.config.settings = Object.assign({
+    queues: {},
+  }, _this.config.settings);
 
   function processMatch(line, details, loggers, cacheKey, config) {
     if (config.cmd) {

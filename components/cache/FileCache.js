@@ -12,7 +12,10 @@ function FileCache(application, name, config) {
 
   const _this = this;
 
-  _this.config.settings.lifespan = _this.config.settings.lifespan || '5 min';
+  _this.config.settings = Object.assign({
+    lifespan: '5 min',
+  }, _this.config.settings);
+
   _this.config.settings.lifespanSeconds = parseDuration(_this.config.settings.lifespan) / 1000;
 
   const cacheFileName = os.tmpdir() + '/' + AppId + '-' + _this.config.settings.lifespanSeconds + '.cache';

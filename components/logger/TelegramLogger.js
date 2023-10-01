@@ -9,7 +9,9 @@ function TelegramLogger(application, name, config) {
 
   const MESSAGE_LENGTH = 4096;
 
-  _this.config.settings.recipients = _this.config.settings.recipients || [];
+  _this.config.settings = Object.assign({
+    recipients: [],
+  }, _this.config.settings);
 
   _this.getRecipients = function() {
     return _this.config.settings.recipients.join(', ');
@@ -74,7 +76,9 @@ function TelegramLogger(application, name, config) {
           if (_this.getApplication().isToolMode()) {
             reject({
               error: 'Missing token paramter',
-              details: '{ token: \'TOKEN\' }'
+              details: JSON.stringify({
+                token: 'TOKEN'
+              }),
             });
           }
           if (!_this.getApplication().isToolMode()) {
@@ -88,7 +92,13 @@ function TelegramLogger(application, name, config) {
           if (_this.getApplication().isToolMode()) {
             reject({
               error: 'Missing recipients paramter',
-              details: '{ recipients: [ \'RECIPIENT1\', \'RECIPIENT2\', ... ] }'
+              details: JSON.stringify({
+                recipients: [
+                  'RECIPIENT1',
+                  'RECIPIENT2',
+                  '...'
+                ]
+              }),
             });
           }
           if (!_this.getApplication().isToolMode()) {

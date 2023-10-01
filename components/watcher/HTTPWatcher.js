@@ -5,8 +5,10 @@ function HTTPWatcher(application, name, config) {
 
   const _this = this;
 
-  _this.config.settings.rules = _this.config.settings.rules || Object.create({});
-  _this.config.settings.routes = _this.config.settings.routes || Object.create({});
+  _this.config.settings = Object.assign({
+    rules: {},
+    routes: {},
+  }, _this.config.settings);
 
   function watch(method, route, config) {
     _this.server[method](route, function(request, response, next) {
@@ -46,8 +48,7 @@ function HTTPWatcher(application, name, config) {
                     message = message + (config.nonames ? '' : requestAttribute + ': ') + JSON.stringify(requestValue) + '\n';
                   }
                 }
-              } else
-              if (typeof requestSubAttribute == 'string') {
+              } else if (typeof requestSubAttribute == 'string') {
                 requestSubValue = requestValue[requestSubAttribute];
                 if (requestSubValue) {
                   if (typeof requestSubValue == 'string') {

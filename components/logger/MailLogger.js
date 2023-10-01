@@ -7,9 +7,11 @@ function MailLogger(application, name, config) {
 
   const _this = this;
 
-  _this.config.settings.recipients = _this.config.settings.recipients || [];
-  _this.config.settings.sendmail = _this.config.settings.sendmail || '/usr/sbin/sendmail';
-  _this.config.settings.subject = _this.config.settings.subject || '';
+  _this.config.settings = Object.assign({
+    recipients: [],
+    sendmail: '/usr/sbin/sendmail',
+    subject: '',
+  }, _this.config.settings);
 
   _this.getRecipients = function() {
     return _this.config.settings.recipients.join(', ');

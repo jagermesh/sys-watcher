@@ -10,7 +10,9 @@ function AWSSQSWatcher(application, name, config, owner) {
 
   let schedulers = [];
 
-  _this.config.settings.queues = _this.config.settings.queues || Object.create({});
+  _this.config.settings = Object.assign({
+    queues: {},
+  }, _this.config.settings);
 
   function deleteMessage(sqs, queueName, queueConfig, receiptHandle, line, details, loggers) {
     let sqsParams = {
@@ -76,8 +78,7 @@ function AWSSQSWatcher(application, name, config, owner) {
           message: 'Can not retrieve message: ' + error.toString(),
           isError: true
         }, details, _this);
-      } else
-      if (response.Messages) {
+      } else if (response.Messages) {
         if (response.Messages.length > 0) {
           for (let i = 0; i < response.Messages.length; i++) {
             let line = response.Messages[i].Body;

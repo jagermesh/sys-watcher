@@ -13,7 +13,8 @@ function ExecPool(application) {
 
   CustomObject.call(this, application, 'ExecPool');
 
-  _this.tasks = Object.create({});
+  _this.tasks = Object.assign({
+  }, _this.tasks);
 
   function postCheckProcessLogs(task, details, out, err, closeError) {
     fs.stat(out.name, function(error) {
@@ -99,8 +100,7 @@ function ExecPool(application) {
         _this.getApplication().getConsole().log(`Executed ${colors.yellow(task.cmd)}, success:\n${colors.green(cmdLog)}`, details, task.senders.concat([_this]));
         task.status = 2;
         task.done(true, cmdLog.trim());
-      } else
-      if ((code == null) || (code > 128)) {
+      } else if ((code == null) || (code > 128)) {
         if (task.longRunning) {
           _this.getApplication().getConsole().error(`Executed ${colors.yellow(task.cmd)}, but crashed:\n${colors.red(cmdLog)}`, details, task.senders.concat([_this]));
           task.status = 3;
@@ -110,8 +110,7 @@ function ExecPool(application) {
           task.status = 3;
           task.done(false, cmdLog.trim());
         }
-      } else
-      if (code > 0) {
+      } else if (code > 0) {
         if (task.longRunning) {
           postCheckProcessLogs(task, details, out, err, true);
         } else {
@@ -139,8 +138,7 @@ function ExecPool(application) {
           task.status = 1;
           start(task);
           break;
-        } else
-        if (task.status == 1) {
+        } else if (task.status == 1) {
           break;
         } else {
           _this.tasks[tag].shift();

@@ -5,7 +5,9 @@ function MailQueueWatcher(application, name, config) {
 
   const _this = this;
 
-  _this.config.settings.threshold = _this.config.settings.threshold || 0;
+  _this.config.settings = Object.assign({
+    threshold: 0,
+  }, _this.config.settings);
 
   _this.watch = function() {
     _this.getApplication().getExecPool().exec('mailq').then(function(result) {

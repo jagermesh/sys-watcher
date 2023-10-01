@@ -18,20 +18,34 @@ function Application(configFilePath) {
 
   CustomObject.call(this, this, 'Application', config);
 
-  _this.config.globals = _this.config.globals || Object.create({});
+  _this.config = Object.assign({
+    caching: {},
+    loggers: {},
+    watchers: {},
+    scripts: {},
+    globals: {},
+  }, _this.config);
 
-  _this.config.globals.onStart = _this.config.globals.onStart || Object.create({});
-  _this.config.globals.onStart.composing = _this.config.globals.onStart.composing || Object.create({});
-  _this.config.globals.onStart.composing.hostInfo = _this.config.globals.onStart.composing.hostInfo || false;
+  _this.config.globals = Object.assign({
+    onStart: {},
+    onError: {},
+  }, _this.config.globals);
 
-  _this.config.globals.onError = _this.config.globals.onError || Object.create({});
-  _this.config.globals.onError.composing = _this.config.globals.onError.composing || Object.create({});
-  _this.config.globals.onError.composing.hostInfo = _this.config.globals.onError.composing.hostInfo || false;
+  _this.config.globals.onStart = Object.assign({
+    composing: {},
+  }, _this.config.globals.onStart);
 
-  _this.config.caching = _this.config.caching || Object.create({});
-  _this.config.loggers = _this.config.loggers || Object.create({});
-  _this.config.watchers = _this.config.watchers || Object.create({});
-  _this.config.scripts = _this.config.scripts || Object.create({});
+  _this.config.globals.onError = Object.assign({
+    composing: {},
+  }, _this.config.globals.onError);
+
+  _this.config.globals.onStart.composing = Object.assign({
+    hostInfo: false,
+  }, _this.config.globals.onStart.composing);
+
+  _this.config.globals.onError.composing = Object.assign({
+    hostInfo: false,
+  }, _this.config.globals.onError.composing);
 
   let connectionsPool, execPool, loggersManager, cacheManager, watchersManager, scriptsManager, appStartWatcher, appErrorsWatcher;
   let isToolMode = true;

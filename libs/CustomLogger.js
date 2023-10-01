@@ -8,7 +8,9 @@ function CustomLogger(application, name, config) {
 
   const _this = this;
 
-  _this.config.composing = _this.config.composing || Object.create({});
+  _this.config = Object.assign({
+    composing: {},
+  }, _this.config);
 
   function packDetails2(details) {
     let result = '';
@@ -27,8 +29,7 @@ function CustomLogger(application, name, config) {
       if (!complex) {
         result += details.join(', ');
       }
-    } else
-    if (typeof details === 'object') {
+    } else if (typeof details === 'object') {
       result += JSON.stringify(details);
     } else {
       result += details;

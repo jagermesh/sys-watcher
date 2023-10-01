@@ -5,11 +5,16 @@ function CustomLoggable(application, name, config, owner) {
 
   const _this = this;
 
-  _this.config.settings = _this.config.settings || Object.create({});
-  _this.config.overrides = _this.config.overrides || Object.create({});
-  _this.config.overrides.loggers = _this.config.overrides.loggers || Object.create({});
-  _this.config.loggers = _this.config.loggers || [];
-  _this.config.scheduling = _this.config.scheduling || null;
+  _this.config = Object.assign({
+    settings: {},
+    overrides: {},
+    loggers: [],
+    scheduling: null,
+  }, _this.config);
+
+  _this.config.overrides = Object.assign({
+    loggers: {},
+  }, _this.config.overrides);
 
   if (typeof _this.config.loggers === 'string') {
     _this.config.loggers = _this.config.loggers.split(',');

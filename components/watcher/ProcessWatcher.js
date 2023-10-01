@@ -136,8 +136,7 @@ function ProcessWatcher(application, name, config) {
                   processInfo.cpu = parseFloat(match[2].trim());
                 }
               }
-            } else
-            if (execResult.marker == 'top') {
+            } else if (execResult.marker == 'top') {
               let match = /([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+([^ ]+?)[ ]+(.+)/.exec(lines[i]);
               if (match) {
                 processInfo = {

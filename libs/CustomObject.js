@@ -1,7 +1,8 @@
 function CustomObject(application, name, config, owner) {
   const _this = this;
 
-  _this.config = config || Object.create({});
+  _this.config = Object.assign({
+  }, config);
 
   _this.getApplication = function() {
     return application;

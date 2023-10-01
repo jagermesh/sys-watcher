@@ -7,8 +7,10 @@ function SlackLogger(application, name, config) {
 
   const _this = this;
 
-  _this.config.settings.recipients = _this.config.settings.recipients || [];
-  _this.config.settings.webHooks = _this.config.settings.webHooks || [];
+  _this.config.settings = Object.assign({
+    recipients: [],
+    webHooks: [],
+  }, _this.config.settings);
 
   _this.getRecipients = function() {
     switch (_this.config.settings.kind) {

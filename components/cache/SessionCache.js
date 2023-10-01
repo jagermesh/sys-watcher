@@ -11,7 +11,10 @@ function SessionCache(application, name, config) {
 
   let cacheData = Object.create({});
 
-  _this.config.settings.lifespan = _this.config.settings.lifespan || '5 min';
+  _this.config.settings = Object.assign({
+    lifespan: '5 min',
+  }, _this.config.settings);
+
   _this.config.settings.lifespanSeconds = parseDuration(_this.config.settings.lifespan) / 1000;
 
   function getKey(name) {

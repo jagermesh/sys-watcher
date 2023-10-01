@@ -8,7 +8,10 @@ function FreeSpaceWatcher(application, name, config) {
 
   const _this = this;
 
-  _this.config.settings.threshold = _this.config.settings.threshold || '0 b';
+  _this.config.settings = Object.assign({
+    threshold: '0 b',
+  }, _this.config.settings);
+
   _this.config.settings.thresholdBytes = bytes.parse(_this.config.settings.threshold);
 
   function watchPath(path) {

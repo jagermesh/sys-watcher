@@ -9,11 +9,12 @@ function DirectoryWatcher(application, name, config) {
 
   const _this = this;
 
-  _this.config.settings.match = _this.config.settings.match || [];
-  _this.config.settings.except = _this.config.settings.except || [];
-  _this.config.settings.filters = _this.config.settings.filters || [];
-
-  _this.config.settings.reportEmpty = _this.config.settings.reportEmpty == undefined ? true : _this.config.settings.reportEmpty;
+  _this.config.settings = Object.assign({
+    match: [],
+    except: [],
+    filters: [],
+    reportEmpty: true,
+  }, _this.config.settings);
 
   function check(fileInfo, match, except, filters) {
     let result = true;
@@ -132,7 +133,7 @@ function DirectoryWatcher(application, name, config) {
             }, _this);
           } else {
             if ((results.length > 0) || _this.config.settings.reportEmpty) {
-              results = results.sort(function(a, b) {
+              results = results.sort((a, b) => {
                 if (a.creationTime > b.creationTime) {
                   return 1;
                 } else {
@@ -148,15 +149,15 @@ function DirectoryWatcher(application, name, config) {
                 message = _this.config.settings.formatMessage(details);
               }
               if (!message) {
-                message = 'Folder ' + path + ' contain ' + results.length + ' file(s)';
+                message = `Folder ${path} contain ${results.length} file(s)`;
                 if (match.length > 0) {
-                  message += ' matching the regular expression(s) ' + match.join(',');
+                  message += ` matching the regular expression(s) ${match.join(',')}`;
                 }
                 if (except.length > 0) {
-                  message += ' except ' + except.join(',');
+                  message += ` except ${except.join(',')}`;
                 }
                 if (filters.length > 0) {
-                  message += ' filtered by ' + filters.join(',');
+                  message += ` filtered by ${filters.join(',')}`;
                 }
               }
               _this.getApplication().notify(_this.getLoggers(), {
