@@ -1,16 +1,16 @@
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
 
-function MailQueueWatcher(application, name, config) {
-  CustomWatcher.call(this, application, name, config);
+class MailQueueWatcher extends CustomWatcher {
+  constructor(application, name, config) {
+    super(application, name, config);
 
-  const _this = this;
+    this.config.settings = Object.assign({
+      threshold: 0,
+    }, this.config.settings);
+  }
 
-  _this.config.settings = Object.assign({
-    threshold: 0,
-  }, _this.config.settings);
-
-  _this.watch = function() {
-    _this.getApplication().getExecPool().exec('mailq').then(function(result) {
+  watch() {
+    this.getApplication().getExecPool().exec('mailq').then(function(result) {
       let stdout = result.stdout;
       let regexp = /([0-9]+) Requests/;
       let match = regexp.exec(stdout);
@@ -18,23 +18,23 @@ function MailQueueWatcher(application, name, config) {
       if (match) {
         amount = parseFloat(match[1]);
       }
-      if ((_this.config.settings.threshold == 0) || (amount > _this.config.settings.threshold)) {
-        let message = 'Mail queue has ' + amount + ' requests';
-        if (_this.config.settings.threshold > 0) {
-          message += ' which is more than threshold ' + _this.config.settings.threshold;
+      if ((this.getConfig().settings.threshold == 0) || (amount > this.getConfig().settings.threshold)) {
+        let message = `Mail queue has ${amount} requests`;
+        if (this.getConfig().settings.threshold > 0) {
+          message += ` which is more than threshold ${this.getConfig().settings.threshold}`;
         }
-        _this.getApplication().notify(_this.getLoggers(), {
+        this.getApplication().notify(this.getLoggers(), {
           message: message,
           value: amount,
           units: 'Count',
-          dimensions: Object.create({})
-        }, Object.create({}), _this);
+          dimensions: {},
+        }, {}, this);
       }
-    }).catch(function(result) {
+    }).catch((result) => {
       let stdout = result.stdout;
-      _this.getApplication().reportError(stdout, Object.create({}), _this);
+      this.getApplication().reportError(stdout, {}, this);
     });
-  };
+  }
 }
 
 module.exports = MailQueueWatcher;

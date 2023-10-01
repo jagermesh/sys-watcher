@@ -1,31 +1,31 @@
 const CustomLoggable = require(`${__dirname}/CustomLoggable.js`);
 
-function CustomScript(application, name, config) {
-  CustomLoggable.call(this, application, name, config);
+class CustomScript extends CustomLoggable {
+  constructor(application, name, config) {
+    super(application, name, config);
+  }
 
-  const _this = this;
+  exec() {
 
-  _this.exec = function() {
+  }
 
-  };
-
-  _this.start = function() {
-    return new Promise(function(resolve) {
-      if (_this.needScheduler()) {
-        _this.getScheduler().start(function() {
-          _this.exec();
+  start() {
+    return new Promise((resolve) => {
+      if (this.needScheduler()) {
+        this.getScheduler().start(() => {
+          this.exec();
         });
       }
 
       resolve();
     });
-  };
+  }
 
-  _this.stop = function() {
-    if (_this.needScheduler()) {
-      _this.getScheduler().stop();
+  stop() {
+    if (this.needScheduler()) {
+      this.getScheduler().stop();
     }
-  };
+  }
 }
 
 module.exports = CustomScript;

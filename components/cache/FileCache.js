@@ -5,59 +5,59 @@ const os = require('os');
 
 const CustomCache = require(`${__dirname}/../../libs/CustomCache.js`);
 
-function FileCache(application, name, config) {
-  CustomCache.call(this, application, name, config);
+class FileCache extends CustomCache {
+  constructor(application, name, config) {
+    super(application, name, config);
 
-  const AppId = 'a54c5178-d185-4113-8501-8bdaffcf5ab5';
+    this.appId = 'a54c5178-d185-4113-8501-8bdaffcf5ab5';
 
-  const _this = this;
+    this.config.settings = Object.assign({
+      lifespan: '5 min',
+    }, this.config.settings);
 
-  _this.config.settings = Object.assign({
-    lifespan: '5 min',
-  }, _this.config.settings);
+    this.config.settings.lifespanSeconds = parseDuration(this.config.settings.lifespan) / 1000;
 
-  _this.config.settings.lifespanSeconds = parseDuration(_this.config.settings.lifespan) / 1000;
+    this.cacheFileName = `${os.tmpdir()}/${this.appId}-${this.config.settings.lifespanSeconds}.cache`;
+  }
 
-  const cacheFileName = os.tmpdir() + '/' + AppId + '-' + _this.config.settings.lifespanSeconds + '.cache';
-
-  function getKey(name) {
+  getKey(name) {
     return md5(name);
   }
 
-  _this.check = function(name) {
-    return new Promise(function(resolve, reject) {
-      let cachedValue = _this.cacheImpl.get(getKey(name));
-      _this.set(name, 1);
+  check(name) {
+    return new Promise((resolve, reject) => {
+      let cachedValue = this.instance.get(this.getKey(name));
+      this.set(name, 1);
       if (cachedValue) {
         resolve(cachedValue);
       } else {
         reject();
       }
     });
-  };
+  }
 
-  _this.get = function(name, callback) {
-    callback(_this.cacheImpl.get(getKey(name)));
-  };
+  get(name, callback) {
+    callback(this.instance.get(this.getKey(name)));
+  }
 
-  _this.set = function(name, value) {
-    _this.cacheImpl.set(getKey(name), value);
-  };
+  set(name, value) {
+    this.instance.set(this.getKey(name), value);
+  }
 
-  _this.start = function() {
-    return new Promise(function(resolve) {
-      _this.cacheImpl = fileCache.create({
-        file: cacheFileName,
-        life: _this.config.settings.lifespanSeconds
+  start() {
+    return new Promise((resolve) => {
+      this.instance = fileCache.create({
+        file: this.cacheFileName,
+        life: this.getConfig().settings.lifespanSeconds,
       });
 
       resolve();
     });
-  };
+  }
 
-  _this.stop = function() {
-    _this.cacheImpl = null;
-  };
+  stop() {
+    this.instance = null;
+  }
 }
 
 module.exports = FileCache;

@@ -1,44 +1,44 @@
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
 
-function ConfigurationWatcher(application, name, config) {
-  CustomWatcher.call(this, application, name, config);
+class ConfigurationWatcher extends CustomWatcher {
+  constructor(application, name, config) {
+    super(application, name, config);
+  }
 
-  const _this = this;
-
-  function watchRule(rule) {
+  watchRule(rule) {
     let cmd = rule.cmd;
     let cwd = rule.cwd = rule.cwd || process.cwd();
     let check = rule.check;
 
-    let details = Object.create({});
+    let details = {};
 
     details.Cmd = cmd;
     details.Cwd = cwd;
     details.Check = check;
 
-    _this.getApplication().getExecPool().exec(cmd, cwd).then(function(result) {
+    this.getApplication().getExecPool().exec(cmd, cwd).then((result) => {
       let stdout = result.stdout;
       if (check) {
         let r = new RegExp(check);
         if (!r.test(stdout)) {
-          _this.getApplication().notify(_this.getLoggers(), {
-            message: 'Configuration check ' + cmd + ' for ' + check + ' failed:\n\n<pre>' + stdout + '</pre>'
-          }, details, _this);
+          this.getApplication().notify(this.getLoggers(), {
+            message: `Configuration check ${cmd} for ${check} failed:\n\n<pre>${stdout}</pre>`,
+          }, details, this);
         }
       }
-    }).catch(function(result) {
+    }).catch((result) => {
       let stdout = result.stdout;
-      _this.getApplication().notify(_this.getLoggers(), {
-        message: 'Configuration check ' + cmd + ' failed:\n\n<pre>' + stdout + '</pre>'
-      }, details, _this);
+      this.getApplication().notify(this.getLoggers(), {
+        message: `Configuration check ${cmd} failed:\n\n<pre>${stdout}</pre>`,
+      }, details, this);
     });
   }
 
-  _this.watch = function() {
-    for (let i = 0; i < _this.config.settings.rules.length; i++) {
-      watchRule(_this.config.settings.rules[i]);
+  watch() {
+    for (let i = 0; i < this.getConfig().settings.rules.length; i++) {
+      this.watchRule(this.getConfig().settings.rules[i]);
     }
-  };
+  }
 }
 
 module.exports = ConfigurationWatcher;

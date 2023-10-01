@@ -3,16 +3,16 @@ const ip = require('ip');
 
 const CustomLoggable = require(`${__dirname}/CustomLoggable.js`);
 
-function CustomLogger(application, name, config) {
-  CustomLoggable.call(this, application, name, config);
+class CustomLogger extends CustomLoggable {
+  constructor(application, name, config) {
+    super(application, name, config);
 
-  const _this = this;
+    this.config = Object.assign({
+      composing: {},
+    }, this.config);
+  }
 
-  _this.config = Object.assign({
-    composing: {},
-  }, _this.config);
-
-  function packDetails2(details) {
+  packDetails2(details) {
     let result = '';
 
     if (Array.isArray(details)) {
@@ -38,22 +38,22 @@ function CustomLogger(application, name, config) {
     return result;
   }
 
-  function packDetails(details, options) {
+  packDetails1(details, options) {
     let result = '';
 
     for (let name in details) {
-      result += `${options.prefix}${name}:${options.suffix} ${packDetails2(details[name], options)}${options.eol}`;
+      result += `${options.prefix}${name}:${options.suffix} ${this.packDetails2(details[name], options)}${options.eol}`;
     }
 
     return result;
   }
 
-  _this.cleanUpFromColoring = function(value) {
+  cleanUpFromColoring(value) {
     // eslint-disable-next-line no-control-regex
     return value.replace(/[\u001b]\[[0-9]{1,2}m/g, '');
-  };
+  }
 
-  _this.expandSenders = function(senders) {
+  expandSenders(senders) {
     let result = [];
 
     if (senders) {
@@ -63,30 +63,30 @@ function CustomLogger(application, name, config) {
     }
 
     return result;
-  };
+  }
 
-  _this.formatMessage = function(message, format) {
+  formatMessage(message, format) {
     switch (format) {
-    case 'html':
-      message = message.replace(/\n/g, '<br />');
-      break;
-    case 'text':
-      message = message.replace(/<br[^>]*?>/g, '\n');
-      message = message.replace(/<[^>]*?>/g, '');
-      break;
-    case 'markdown':
-      message = message.replace(/<strong>/g, '*');
-      message = message.replace(/<\/strong>/g, '*');
-      message = message.replace(/<pre>/g, '```');
-      message = message.replace(/<\/pre>/g, '```');
-      break;
+      case 'html':
+        message = message.replace(/\n/g, '<br />');
+        break;
+      case 'text':
+        message = message.replace(/<br[^>]*?>/g, '\n');
+        message = message.replace(/<[^>]*?>/g, '');
+        break;
+      case 'markdown':
+        message = message.replace(/<strong>/g, '*');
+        message = message.replace(/<\/strong>/g, '*');
+        message = message.replace(/<pre>/g, '```');
+        message = message.replace(/<\/pre>/g, '```');
+        break;
     }
 
     return message.trim();
-  };
+  }
 
-  _this.packDetails = function(details, composing, format, options) {
-    let packableDetails = Object.create({});
+  packDetails(details, composing, format, options) {
+    let packableDetails = {};
     let name;
 
     for (name in details) {
@@ -97,65 +97,65 @@ function CustomLogger(application, name, config) {
     }
 
     if (composing.hostInfo) {
-      if (_this.getApplication().getLocation()) {
-        packableDetails.Location = _this.getApplication().getLocation();
+      if (this.getApplication().getLocation()) {
+        packableDetails.Location = this.getApplication().getLocation();
       }
       packableDetails['Date/Time'] = moment().format();
       packableDetails.IP = ip.address();
     }
 
-    if (_this.config.composing.details) {
-      for (name in _this.config.composing.details) {
-        packableDetails[name] = _this.config.composing.details[name];
+    if (this.getConfig().composing.details) {
+      for (name in this.getConfig().composing.details) {
+        packableDetails[name] = this.getConfig().composing.details[name];
       }
     }
 
     let result = '';
 
     switch (format) {
-    case 'text':
-      options = options || Object.create({});
-      options.prefix = options.prefix || '';
-      options.suffix = options.suffix || '';
-      options.eol = options.eol || '\n';
-      result = packDetails(packableDetails, options);
-      break;
-    case 'html':
-      options = options || Object.create({});
-      options.prefix = options.prefix || '<strong>';
-      options.suffix = options.suffix || '</strong>';
-      options.eol = options.eol || '<br />';
-      result = packDetails(packableDetails, options);
-      break;
-    case 'markdown':
-      options = options || Object.create({});
-      options.prefix = options.prefix || '*';
-      options.suffix = options.suffix || '*';
-      options.eol = options.eol || '\n';
-      result = packDetails(packableDetails, options);
-      break;
-    case 'json':
-      result = JSON.stringify(packableDetails);
-      if (result == '{}') {
-        result = '';
-      }
-      break;
+      case 'text':
+        options = options || {};
+        options.prefix = options.prefix || '';
+        options.suffix = options.suffix || '';
+        options.eol = options.eol || '\n';
+        result = this.packDetails1(packableDetails, options);
+        break;
+      case 'html':
+        options = options || {};
+        options.prefix = options.prefix || '<strong>';
+        options.suffix = options.suffix || '</strong>';
+        options.eol = options.eol || '<br />';
+        result = this.packDetails1(packableDetails, options);
+        break;
+      case 'markdown':
+        options = options || {};
+        options.prefix = options.prefix || '*';
+        options.suffix = options.suffix || '*';
+        options.eol = options.eol || '\n';
+        result = this.packDetails1(packableDetails, options);
+        break;
+      case 'json':
+        result = JSON.stringify(packableDetails);
+        if (result == '{}') {
+          result = '';
+        }
+        break;
     }
 
     return result;
-  };
+  }
 
-  _this.getDescription = function() {
-    if (_this.getRecipients()) {
-      return `Send message to ${_this.getRecipients()} using ${_this.config.type}`;
+  getDescription() {
+    if (this.getRecipients()) {
+      return `Send message to ${this.getRecipients()} using ${this.getConfig().type}`;
     } else {
-      return `Send message using ${_this.config.type}, --extra paramater must be provided`;
+      return `Send message using ${this.getConfig().type}, --extra paramater must be provided`;
     }
-  };
+  }
 
-  _this.getRecipients = function() {
+  getRecipients() {
     return 'unknown';
-  };
+  }
 }
 
 module.exports = CustomLogger;

@@ -2,38 +2,38 @@ const nodemailer = require('nodemailer');
 
 const CustomLogger = require(`${__dirname}/../../libs/CustomLogger.js`);
 
-function MailLogger(application, name, config) {
-  CustomLogger.call(this, application, name, config);
+class MailLogger extends CustomLogger {
+  constructor(application, name, config) {
+    super(application, name, config);
 
-  const _this = this;
+    this.config.settings = Object.assign({
+      recipients: [],
+      sendmail: '/usr/sbin/sendmail',
+      subject: '',
+    }, this.config.settings);
+  }
 
-  _this.config.settings = Object.assign({
-    recipients: [],
-    sendmail: '/usr/sbin/sendmail',
-    subject: '',
-  }, _this.config.settings);
+  getRecipients() {
+    return this.getConfig().settings.recipients.join(', ');
+  }
 
-  _this.getRecipients = function() {
-    return _this.config.settings.recipients.join(', ');
-  };
-
-  _this.log = function(data, details, senders, config) {
-    return new Promise(function(resolve, reject) {
+  log(data, details, senders, config) {
+    return new Promise((resolve, reject) => {
       if (data && data.message) {
-        data.message = _this.cleanUpFromColoring(data.message);
+        data.message = this.cleanUpFromColoring(data.message);
 
-        config.settings = Object.assign({}, _this.config.settings, config.settings);
-        config.composing = Object.assign({}, _this.config.composing, config.composing);
+        config.settings = Object.assign({}, this.getConfig().settings, config.settings);
+        config.composing = Object.assign({}, this.getConfig().composing, config.composing);
 
         details = Object.assign({}, details, config.composing.details);
-        details.Senders = _this.expandSenders(senders);
+        details.Senders = this.expandSenders(senders);
 
         let formattedMessage = data.message;
         let formattedSubject = '';
         let formattedDetails = '';
 
         if (config.composing.locationInSubject) {
-          formattedSubject += '[' + _this.getApplication().getLocation() + '] ';
+          formattedSubject += '[' + this.getApplication().getLocation() + '] ';
         }
 
         formattedSubject += config.composing.subject;
@@ -54,50 +54,50 @@ function MailLogger(application, name, config) {
             let mailMessage = {
               from: config.settings.sender,
               to: config.settings.recipients,
-              subject: formattedSubject
+              subject: formattedSubject,
             };
 
             switch (config.composing.format) {
-            case 'html':
-              formattedMessage = _this.formatMessage(formattedMessage, 'html');
-              formattedDetails = _this.packDetails(details, config.composing, 'html');
+              case 'html':
+                formattedMessage = this.formatMessage(formattedMessage, 'html');
+                formattedDetails = this.packDetails(details, config.composing, 'html');
 
-              if (formattedDetails.length > 0) {
-                formattedMessage += '<br /><br />' + formattedDetails;
-              }
+                if (formattedDetails.length > 0) {
+                  formattedMessage += '<br /><br />' + formattedDetails;
+                }
 
-              mailMessage.html = formattedMessage;
-              break;
-            default:
-              formattedMessage = _this.formatMessage(formattedMessage, 'text');
-              formattedDetails = _this.packDetails(details, config.composing, 'text');
+                mailMessage.html = formattedMessage;
+                break;
+              default:
+                formattedMessage = this.formatMessage(formattedMessage, 'text');
+                formattedDetails = this.packDetails(details, config.composing, 'text');
 
-              if (formattedDetails.length > 0) {
-                formattedMessage += '\n\n' + formattedDetails;
-              }
+                if (formattedDetails.length > 0) {
+                  formattedMessage += '\n\n' + formattedDetails;
+                }
 
-              mailMessage.text = formattedMessage;
-              break;
+                mailMessage.text = formattedMessage;
+                break;
             }
 
             const transporter = nodemailer.createTransport({
               sendmail: true,
               newline: 'unix',
-              path: config.settings.sendmail
+              path: config.settings.sendmail,
             });
 
             transporter.sendMail(mailMessage)
-              .then(function() {
-                _this.getApplication().getConsole().log(data, details, senders.concat([_this])).then(function() {
+              .then(() => {
+                this.getApplication().getConsole().log(data, details, senders.concat([this])).then(() => {
                   resolve();
-                }).catch(function() {
+                }).catch(() => {
                   resolve();
                 });
               })
-              .catch(function(error) {
-                _this.getApplication().reportError(error.toString(), details, senders, _this).then(function() {
+              .catch((error) => {
+                this.getApplication().reportError(error.toString(), details, senders, this).then(() => {
                   resolve();
-                }).catch(function() {
+                }).catch(() => {
                   resolve();
                 });
               });
@@ -105,32 +105,32 @@ function MailLogger(application, name, config) {
         }
 
         if (config.settings.recipients.length == 0) {
-          if (_this.getApplication().isToolMode()) {
+          if (this.getApplication().isToolMode()) {
             reject({
               error: 'Missing recipients paramter',
-              details: '{ recipients: [ \'RECIPIENT1\', \'RECIPIENT2\', ... ] }'
+              details: '{ recipients: [ \'RECIPIENT1\', \'RECIPIENT2\', ... ] }',
             });
           }
-          if (!_this.getApplication().isToolMode()) {
-            _this.getApplication().reportError('Missing recipients', details, senders, _this).then(function() {
+          if (!this.getApplication().isToolMode()) {
+            this.getApplication().reportError('Missing recipients', details, senders, this).then(() => {
               resolve();
-            }).catch(function() {
+            }).catch(() => {
               resolve();
             });
           }
         }
 
         if (!config.settings.sender) {
-          if (_this.getApplication().isToolMode()) {
+          if (this.getApplication().isToolMode()) {
             reject({
               error: 'Missing sender paramter',
-              details: '{ sender: \'SENDER\' }'
+              details: '{ sender: \'SENDER\' }',
             });
           }
-          if (!_this.getApplication().isToolMode()) {
-            _this.getApplication().reportError('Missing sender', details, senders, _this).then(function() {
+          if (!this.getApplication().isToolMode()) {
+            this.getApplication().reportError('Missing sender', details, senders, this).then(() => {
               resolve();
-            }).catch(function() {
+            }).catch(() => {
               resolve();
             });
           }
@@ -142,7 +142,7 @@ function MailLogger(application, name, config) {
         resolve();
       }
     });
-  };
+  }
 }
 
 module.exports = MailLogger;

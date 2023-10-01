@@ -1,19 +1,19 @@
 const WebWatcher = require(`${__dirname}/WebWatcher.js`);
 
-function HTTPWatcher(application, name, config) {
-  WebWatcher.call(this, application, name, config);
+class HTTPWatcher extends WebWatcher {
+  constructor(application, name, config) {
+    super(application, name, config);
 
-  const _this = this;
+    this.config.settings = Object.assign({
+      rules: {},
+      routes: {},
+    }, this.config.settings);
+  }
 
-  _this.config.settings = Object.assign({
-    rules: {},
-    routes: {},
-  }, _this.config.settings);
-
-  function watch(method, route, config) {
-    _this.server[method](route, function(request, response, next) {
+  watchRoute(method, route, config) {
+    this.server[method](route, function(request, response, next) {
       if (typeof config == 'function') {
-        config.call(_this, request, response, next);
+        config.call(this, request, response, next);
       } else {
         let message = '';
         let logAll = false;
@@ -77,7 +77,7 @@ function HTTPWatcher(application, name, config) {
         }
 
         if (logAll) {
-          message = request.method + ' ' + _this.getRequestUrl(request);
+          message = `${request.method} ${this.getRequestUrl(request)}`;
           if (request.body) {
             message += '\n\n' + JSON.stringify(request.body);
           }
@@ -96,12 +96,12 @@ function HTTPWatcher(application, name, config) {
         }
 
         if (message.length > 0) {
-          let details = _this.getRequestDetails(request);
+          let details = this.getRequestDetails(request);
           details.Method = method;
           details.Route = route;
-          _this.getApplication().notify(_this.getLoggers(config.loggers), {
-            message: message
-          }, details, _this);
+          this.getApplication().notify(this.getLoggers(config.loggers), {
+            message: message,
+          }, details, this);
           response.send('ok');
         }
 
@@ -112,16 +112,16 @@ function HTTPWatcher(application, name, config) {
     });
   }
 
-  _this.watch = function() {
-    _this.getWebServer(_this.config.settings.port, function(server) {
-      _this.server = server;
-      for (let method in _this.config.settings.routes) {
-        for (let route in _this.config.settings.routes[method]) {
-          watch(method, route, _this.config.settings.routes[method][route]);
+  watch() {
+    this.getWebServer(this.getConfig().settings.port, function(server) {
+      this.server = server;
+      for (let method in this.getConfig().settings.routes) {
+        for (let route in this.getConfig().settings.routes[method]) {
+          this.watchRoute(method, route, this.getConfig().settings.routes[method][route]);
         }
       }
     });
-  };
+  }
 }
 
 module.exports = HTTPWatcher;

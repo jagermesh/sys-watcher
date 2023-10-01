@@ -9,207 +9,210 @@ const CustomObject = require(`${__dirname}/CustomObject.js`);
 const ExecPool = require(`${__dirname}/ExecPool.js`);
 const ConnectionsPool = require(`${__dirname}/ConnectionsPool.js`);
 
-function Application(configFilePath) {
-  const _this = this;
+class Application extends CustomObject {
+  constructor(configFilePath) {
+    super(null, 'Application', require(configFilePath));
 
-  let __configFilePath = configFilePath;
+    this.application = this;
 
-  let config = require(__configFilePath);
+    this.config = Object.assign({
+      caching: {},
+      loggers: {},
+      watchers: {},
+      scripts: {},
+      globals: {},
+    }, this.config);
 
-  CustomObject.call(this, this, 'Application', config);
+    this.config.globals = Object.assign({
+      onStart: {},
+      onError: {},
+    }, this.config.globals);
 
-  _this.config = Object.assign({
-    caching: {},
-    loggers: {},
-    watchers: {},
-    scripts: {},
-    globals: {},
-  }, _this.config);
+    this.config.globals.onStart = Object.assign({
+      composing: {},
+    }, this.config.globals.onStart);
 
-  _this.config.globals = Object.assign({
-    onStart: {},
-    onError: {},
-  }, _this.config.globals);
+    this.config.globals.onError = Object.assign({
+      composing: {},
+    }, this.config.globals.onError);
 
-  _this.config.globals.onStart = Object.assign({
-    composing: {},
-  }, _this.config.globals.onStart);
+    this.config.globals.onStart.composing = Object.assign({
+      hostInfo: false,
+    }, this.config.globals.onStart.composing);
 
-  _this.config.globals.onError = Object.assign({
-    composing: {},
-  }, _this.config.globals.onError);
+    this.config.globals.onError.composing = Object.assign({
+      hostInfo: false,
+    }, this.config.globals.onError.composing);
 
-  _this.config.globals.onStart.composing = Object.assign({
-    hostInfo: false,
-  }, _this.config.globals.onStart.composing);
-
-  _this.config.globals.onError.composing = Object.assign({
-    hostInfo: false,
-  }, _this.config.globals.onError.composing);
-
-  let connectionsPool, execPool, loggersManager, cacheManager, watchersManager, scriptsManager, appStartWatcher, appErrorsWatcher;
-  let isToolMode = true;
-  let processingFatalError = false;
-  let gcRoutines = [];
+    this.configFilePath = configFilePath;
+    this.connectionsPool = null;
+    this.execPool = null;
+    this.loggersManager = null;
+    this.cacheManager = null;
+    this.watchersManager = null;
+    this.scriptsManager = null;
+    this.appStartWatcher = null;
+    this.appErrorsWatcher = null;
+    this.toolMode = true;
+    this.processingFatalError = false;
+    this.gcRoutines = [];
+  }
 
   // get
 
-  _this.getConfigFileName = function() {
-    return path.basename(__configFilePath);
-  };
+  getConfigFileName() {
+    return path.basename(this.configFilePath);
+  }
 
-  _this.getConfigFilePath = function() {
-    return __configFilePath;
-  };
+  getConfigFilePath() {
+    return this.configFilePath;
+  }
 
-  _this.getConnectionsPool = function() {
-    if (!connectionsPool) {
-      connectionsPool = new ConnectionsPool(_this);
+  getConnectionsPool() {
+    if (!this.connectionsPool) {
+      this.connectionsPool = new ConnectionsPool(this);
     }
 
-    return connectionsPool;
-  };
+    return this.connectionsPool;
+  }
 
-  _this.getExecPool = function() {
-    if (!execPool) {
-      execPool = new ExecPool(_this);
+  getExecPool() {
+    if (!this.execPool) {
+      this.execPool = new ExecPool(this);
     }
 
-    return execPool;
-  };
+    return this.execPool;
+  }
 
-  _this.getLoggersManager = function() {
-    if (!loggersManager) {
-      loggersManager = new LoggersManager(_this, _this.config.loggers);
+  getLoggersManager() {
+    if (!this.loggersManager) {
+      this.loggersManager = new LoggersManager(this, this.getConfig().loggers);
     }
 
-    return loggersManager;
-  };
+    return this.loggersManager;
+  }
 
-  _this.getCacheManager = function() {
-    if (!cacheManager) {
-      cacheManager = new CacheManager(_this, _this.config.caching);
+  getCacheManager() {
+    if (!this.cacheManager) {
+      this.cacheManager = new CacheManager(this, this.getConfig().caching);
     }
 
-    return cacheManager;
-  };
+    return this.cacheManager;
+  }
 
-  _this.getWatchersManager = function() {
-    if (!watchersManager) {
-      watchersManager = new WatchersManager(_this, _this.config.watchers);
+  getWatchersManager() {
+    if (!this.watchersManager) {
+      this.watchersManager = new WatchersManager(this, this.getConfig().watchers);
     }
 
-    return watchersManager;
-  };
+    return this.watchersManager;
+  }
 
-  _this.getScriptsManager = function() {
-    if (!scriptsManager) {
-      scriptsManager = new ScriptsManager(_this, _this.config.scripts);
+  getScriptsManager() {
+    if (!this.scriptsManager) {
+      this.scriptsManager = new ScriptsManager(this, this.getConfig().scripts);
     }
 
-    return scriptsManager;
-  };
+    return this.scriptsManager;
+  }
 
-  _this.getConfig = function() {
-    return _this.config;
-  };
+  getLocation() {
+    return this.getScalarValue(this.getConfig().globals.location);
+  }
 
-  _this.getLocation = function() {
-    return _this.getScalarValue(_this.config.globals.location);
-  };
+  isToolMode() {
+    return this.isToolMode;
+  }
 
-  _this.isToolMode = function() {
-    return isToolMode;
-  };
-
-  _this.getAppStartWatcher = function() {
-    if (!appStartWatcher) {
-      appStartWatcher = new AppEventsWatcher(_this, 'AppStartWatcher', _this.config.globals.onStart);
+  getAppStartWatcher() {
+    if (!this.appStartWatcher) {
+      this.appStartWatcher = new AppEventsWatcher(this, 'AppStartWatcher', this.getConfig().globals.onStart);
     }
 
-    return appStartWatcher;
-  };
+    return this.appStartWatcher;
+  }
 
-  _this.getAppErrorsWatcher = function() {
-    if (!appErrorsWatcher) {
-      appErrorsWatcher = new AppEventsWatcher(_this, 'AppErrorsWatcher', _this.config.globals.onError);
+  getAppErrorsWatcher() {
+    if (!this.appErrorsWatcher) {
+      this.appErrorsWatcher = new AppEventsWatcher(this, 'AppErrorsWatcher', this.getConfig().globals.onError);
     }
 
-    return appErrorsWatcher;
-  };
+    return this.appErrorsWatcher;
+  }
 
-  _this.start = function() {
-    isToolMode = false;
+  start() {
+    this.toolMode = false;
 
-    _this.getLoggersManager().start().then(function() {
-      return _this.getCacheManager().start();
-    }).then(function() {
-      return _this.getScriptsManager().start();
-    }).then(function() {
-      return _this.getWatchersManager().start();
-    }).then(function() {
-      return _this.notify(_this.getAppStartWatcher().getLoggers(), {
-        message: 'Watcher started'
-      }, Object.create({}), _this.getAppStartWatcher());
-    }).catch(function(initializationError) {
-      _this.reportError(initializationError).then(function() {
-        _this.die();
-      }).catch(function(additionalError) {
-        _this.getConsole().error(additionalError);
-        _this.die();
+    this.getLoggersManager().start().then(() => {
+      return this.getCacheManager().start();
+    }).then(() => {
+      return this.getScriptsManager().start();
+    }).then(() => {
+      return this.getWatchersManager().start();
+    }).then(() => {
+      return this.notify(this.getAppStartWatcher().getLoggers(), {
+        message: 'Watcher started',
+      }, {}, this.getAppStartWatcher());
+    }).catch((initializationError) => {
+      console.log(initializationError);
+      this.reportError(initializationError).then(() => {
+        this.die();
+      }).catch((additionalError) => {
+        this.getConsole().error(additionalError);
+        this.die();
       });
     });
 
-    setInterval(function() {
-      gcRoutines.forEach(function(callback) {
-        callback.call(_this);
+    setInterval(() => {
+      this.gcRoutines.forEach((callback) => {
+        callback.call(this);
       });
     }, 5 * 60 * 1000);
-  };
+  }
 
-  _this.stop = function() {
-    if (watchersManager) {
-      watchersManager.stop();
+  stop() {
+    if (this.watchersManager) {
+      this.watchersManager.stop();
     }
 
-    if (scriptsManager) {
-      scriptsManager.stop();
+    if (this.scriptsManager) {
+      this.scriptsManager.stop();
     }
 
-    if (loggersManager) {
-      loggersManager.stop();
+    if (this.loggersManager) {
+      this.loggersManager.stop();
     }
 
-    if (cacheManager) {
-      cacheManager.stop();
+    if (this.cacheManager) {
+      this.cacheManager.stop();
     }
 
-    if (execPool) {
-      execPool.stop();
+    if (this.execPool) {
+      this.execPool.stop();
     }
 
-    if (connectionsPool) {
-      connectionsPool.stop();
+    if (this.connectionsPool) {
+      this.connectionsPool.stop();
     }
-  };
+  }
 
-  _this.getConsole = function() {
+  getConsole() {
     return {
-      log: function(message, details, senders) {
-        return _this.notifyLogger('ConsoleLogger', (typeof message == 'string' ? {
-          message: message
+      log: (message, details, senders) => {
+        return this.notifyLogger('ConsoleLogger', (typeof message == 'string' ? {
+          message: message,
         } : message), details, senders);
       },
-      error: function(message, details, senders) {
-        return _this.notifyLogger('ConsoleLogger', (typeof message == 'string' ? {
+      error: (message, details, senders) => {
+        return this.notifyLogger('ConsoleLogger', (typeof message == 'string' ? {
           message: message,
-          isError: true
+          isError: true,
         } : message), details, senders);
-      }
+      },
     };
-  };
+  }
 
-  function convertLoggerNamesToLoggers(loggersOrNames, except) {
+  convertLoggerNamesToLoggers(loggersOrNames, except) {
     loggersOrNames = loggersOrNames || [];
 
     if (loggersOrNames && !Array.isArray(loggersOrNames)) {
@@ -222,7 +225,7 @@ function Application(configFilePath) {
     for (let i = 0; i < loggersOrNames.length; i++) {
       logger = loggersOrNames[i];
       if (typeof logger == 'string') {
-        logger = _this.getLoggersManager().getInstance(logger);
+        logger = this.getLoggersManager().getInstance(logger);
       }
       if ((result.indexOf(logger) == -1) && (!except || (logger != except))) {
         result.push(logger);
@@ -232,42 +235,42 @@ function Application(configFilePath) {
     return result;
   }
 
-  _this.registerGCRoutine = function(callback) {
-    gcRoutines.push(callback);
-  };
+  registerGCRoutine(callback) {
+    this.gcRoutines.push(callback);
+  }
 
-  _this.die = function() {
+  die() {
     process.exit(1);
-  };
+  }
 
-  _this.fatalError = function(message, sender) {
-    if (processingFatalError) {
+  fatalError(message, sender) {
+    if (this.processingFatalError) {
       return;
     }
 
-    processingFatalError = true;
+    this.processingFatalError = true;
 
-    if (_this.isToolMode()) {
+    if (this.isToolMode()) {
       throw message;
     } else {
       let data = (typeof message == 'string' ? {
-        message: message
+        message: message,
       } : message);
 
       data.isFatalError = true;
-      _this.reportError(data, Object.create({}), sender).then(function() {
-        _this.die();
-      }).catch(function() {
-        _this.die();
+      this.reportError(data, {}, sender).then(() => {
+        this.die();
+      }).catch(() => {
+        this.die();
       });
     }
-  };
+  }
 
-  _this.reportError = function(message, details, senders, sender) {
+  reportError(message, details, senders, sender) {
     senders = senders || [];
 
     let data = (typeof message == 'string' ? {
-      message: message
+      message: message,
     } : message);
 
     data.isError = true;
@@ -277,8 +280,8 @@ function Application(configFilePath) {
       senders = [senders];
     }
 
-    if (senders.indexOf(_this.getAppErrorsWatcher()) == -1) {
-      senders = [_this.getAppErrorsWatcher()].concat(senders);
+    if (senders.indexOf(this.getAppErrorsWatcher()) == -1) {
+      senders = [this.getAppErrorsWatcher()].concat(senders);
     }
 
     // check if sender already in the list of senders - so he already reported this error
@@ -288,17 +291,17 @@ function Application(configFilePath) {
         senders.push(sender);
       }
 
-      let loggers = convertLoggerNamesToLoggers(_this.getAppErrorsWatcher().getLoggers(), sender);
+      let loggers = this.convertLoggerNamesToLoggers(this.getAppErrorsWatcher().getLoggers(), sender);
 
-      return _this.notify(loggers, data, details, senders);
+      return this.notify(loggers, data, details, senders);
     }
 
     // and if so - do nothing
     return Promise.resolve();
-  };
+  }
 
-  _this.notifyLogger = function(loggerOrName, data, details, senders, config) {
-    return new Promise(function(resolve, reject) {
+  notifyLogger(loggerOrName, data, details, senders, config) {
+    return new Promise((resolve, reject) => {
       if (data) {
         senders = senders || [];
 
@@ -309,37 +312,37 @@ function Application(configFilePath) {
         let logger = loggerOrName;
 
         if (typeof logger == 'string') {
-          logger = _this.getLoggersManager().getInstance(logger);
+          logger = this.getLoggersManager().getInstance(logger);
         }
 
         if (!config && (senders.length > 0)) {
           config = config || senders[0].getOverrides('loggers', logger.getName());
         }
 
-        data = data || Object.create({});
-        details = details || Object.create({});
-        config = config || Object.create({});
+        data = data || {};
+        details = details || {};
+        config = config || {};
 
         details = JSON.parse(JSON.stringify(details));
         config = JSON.parse(JSON.stringify(config));
 
         let cache = logger.getCache(data.isError);
 
-        if (data.message && !_this.getApplication().isToolMode() && cache) {
+        if (data.message && !this.getApplication().isToolMode() && cache) {
           let cacheKey = data.cacheKey || data.message;
-          cache.check(cacheKey).then(function() {
+          cache.check(cacheKey).then(() => {
             resolve();
-          }).catch(function() {
-            logger.log(data, details, senders, config).then(function() {
+          }).catch(() => {
+            logger.log(data, details, senders, config).then(() => {
               resolve();
-            }).catch(function(error) {
+            }).catch((error) => {
               reject(error);
             });
           });
         } else {
-          logger.log(data, details, senders, config).then(function() {
+          logger.log(data, details, senders, config).then(() => {
             resolve();
-          }).catch(function(error) {
+          }).catch((error) => {
             reject(error);
           });
         }
@@ -347,10 +350,10 @@ function Application(configFilePath) {
         resolve();
       }
     });
-  };
+  }
 
-  _this.notify = function(loggersOrNames, data, details, senders, config) {
-    return new Promise(function(resolve, reject) {
+  notify(loggersOrNames, data, details, senders, config) {
+    return new Promise((resolve, reject) => {
       if (data) {
         senders = senders || [];
 
@@ -358,39 +361,38 @@ function Application(configFilePath) {
           senders = [senders];
         }
 
-        _this.notifyLogger('ConsoleLogger', data, details, senders);
+        this.notifyLogger('ConsoleLogger', data, details, senders);
 
-        let loggers = convertLoggerNamesToLoggers(loggersOrNames);
+        let loggers = this.convertLoggerNamesToLoggers(loggersOrNames);
 
         if (loggers.length > 0) {
-
-          details = details || Object.create({});
+          details = Object.assign({}, details);
 
           let cache = senders[0].getCache(data.isError);
 
           if (data.message && senders && cache) {
             let cacheKey = data.cacheKey || data.message;
-            cache.check(cacheKey).then(function() {
+            cache.check(cacheKey).then(() => {
               resolve();
-            }).catch(function() {
+            }).catch(() => {
               let results = [];
               for (let i = 0; i < loggers.length; i++) {
-                results.push(_this.notifyLogger(loggers[i], data, details, senders, config));
+                results.push(this.notifyLogger(loggers[i], data, details, senders, config));
               }
-              Promise.all(results).then(function() {
+              Promise.all(results).then(() => {
                 resolve();
-              }).catch(function(error) {
+              }).catch((error) => {
                 reject(error);
               });
             });
           } else {
             let results = [];
             for (let i = 0; i < loggers.length; i++) {
-              results.push(_this.notifyLogger(loggers[i], data, details, senders, config));
+              results.push(this.notifyLogger(loggers[i], data, details, senders, config));
             }
-            Promise.all(results).then(function() {
+            Promise.all(results).then(() => {
               resolve();
-            }).catch(function(error) {
+            }).catch((error) => {
               reject(error);
             });
           }
@@ -401,7 +403,7 @@ function Application(configFilePath) {
         resolve();
       }
     });
-  };
+  }
 }
 
 module.exports = Application;

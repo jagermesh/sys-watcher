@@ -4,19 +4,19 @@ const moment = require('moment');
 
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
 
-function DirectoryWatcher(application, name, config) {
-  CustomWatcher.call(this, application, name, config);
+class DirectoryWatcher extends CustomWatcher {
+  constructor(application, name, config) {
+    super(application, name, config);
 
-  const _this = this;
+    this.config.settings = Object.assign({
+      match: [],
+      except: [],
+      filters: [],
+      reportEmpty: true,
+    }, this.config.settings);
+  }
 
-  _this.config.settings = Object.assign({
-    match: [],
-    except: [],
-    filters: [],
-    reportEmpty: true,
-  }, _this.config.settings);
-
-  function check(fileInfo, match, except, filters) {
+  check(fileInfo, match, except, filters) {
     let result = true;
 
     if (match.length > 0) {
@@ -62,7 +62,7 @@ function DirectoryWatcher(application, name, config) {
     return result;
   }
 
-  let walk = function(dir, match, except, filters, done) {
+  walk(dir, match, except, filters, done) {
     let results = [];
 
     fs.readdir(dir, function(err, list) {
@@ -78,7 +78,7 @@ function DirectoryWatcher(application, name, config) {
         fs.stat(fileName, function(error, stat) {
           if (!error && stat) {
             if (stat && stat.isDirectory()) {
-              walk(fileName + '/', match, except, filters, function(err, res) {
+              this.walk(fileName + '/', match, except, filters, function(err, res) {
                 results = results.concat(res);
                 if (!--pending) {
                   done(null, results);
@@ -88,9 +88,9 @@ function DirectoryWatcher(application, name, config) {
               let fileInfo = {
                 fileName: fileName,
                 creationTime: stat.mtimeMs / 1000,
-                creationTimeStr: moment(stat.mtimeMs).format()
+                creationTimeStr: moment(stat.mtimeMs).format(),
               };
-              if (check(fileInfo, match, except, filters)) {
+              if (this.check(fileInfo, match, except, filters)) {
                 results.push(fileInfo);
               }
               if (!--pending) {
@@ -101,38 +101,38 @@ function DirectoryWatcher(application, name, config) {
         });
       });
     });
-  };
+  }
 
-  function watchPath(path, match, except, filters) {
+  watchPath(path, match, except, filters) {
     if (path[path.length - 1] != '/') {
       path += '/';
     }
 
     fs.stat(path, function(error) {
       if (error) {
-        if (_this.config.settings.retryIfNotExists) {
+        if (this.getConfig().settings.retryIfNotExists) {
           setTimeout(function() {
-            watchPath(path, match, except, filters);
+            this.watchPath(path, match, except, filters);
           }, 5 * 60 * 1000); // retry in 5 minutes
         } else {
-          _this.getApplication().notify(_this.getLoggers(), {
+          this.getApplication().notify(this.getLoggers(), {
             message: error.toString(),
-            isError: true
+            isError: true,
           }, {
-            Path: path
-          }, _this);
+            Path: path,
+          }, this);
         }
       } else {
-        walk(path, match, except, filters, function(error, results) {
+        this.walk(path, match, except, filters, function(error, results) {
           if (error) {
-            _this.getApplication().notify(_this.getLoggers(), {
+            this.getApplication().notify(this.getLoggers(), {
               message: error.toString(),
-              isError: true
+              isError: true,
             }, {
-              Path: path
-            }, _this);
+              Path: path,
+            }, this);
           } else {
-            if ((results.length > 0) || _this.config.settings.reportEmpty) {
+            if ((results.length > 0) || this.getConfig().settings.reportEmpty) {
               results = results.sort((a, b) => {
                 if (a.creationTime > b.creationTime) {
                   return 1;
@@ -142,11 +142,11 @@ function DirectoryWatcher(application, name, config) {
               });
               let details = {
                 Path: path,
-                Files: results
+                Files: results,
               };
               let message;
-              if (_this.config.settings.formatMessage) {
-                message = _this.config.settings.formatMessage(details);
+              if (this.getConfig().settings.formatMessage) {
+                message = this.getConfig().settings.formatMessage(details);
               }
               if (!message) {
                 message = `Folder ${path} contain ${results.length} file(s)`;
@@ -160,14 +160,14 @@ function DirectoryWatcher(application, name, config) {
                   message += ` filtered by ${filters.join(',')}`;
                 }
               }
-              _this.getApplication().notify(_this.getLoggers(), {
+              this.getApplication().notify(this.getLoggers(), {
                 message: message,
                 value: results.length,
                 units: 'Count',
                 dimensions: {
-                  Path: path
-                }
-              }, details, _this);
+                  Path: path,
+                },
+              }, details, this);
             }
           }
         });
@@ -175,13 +175,13 @@ function DirectoryWatcher(application, name, config) {
     });
   }
 
-  _this.watch = function() {
-    let paths = _this.getArrayValue(_this.config.settings.path);
+  watch() {
+    let paths = this.getArrayValue(this.getConfig().settings.path);
 
     for (let i = 0; i < paths.length; i++) {
-      watchPath(paths[i], _this.config.settings.match, _this.config.settings.except, _this.config.settings.filters);
+      this.watchPath(paths[i], this.getConfig().settings.match, this.getConfig().settings.except, this.getConfig().settings.filters);
     }
-  };
+  }
 }
 
 module.exports = DirectoryWatcher;

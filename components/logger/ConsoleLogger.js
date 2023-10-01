@@ -3,18 +3,18 @@ const moment = require('moment');
 
 const CustomLogger = require(`${__dirname}/../../libs/CustomLogger.js`);
 
-function ConsoleLogger(application, name, config) {
-  CustomLogger.call(this, application, name, config);
+class ConsoleLogger extends CustomLogger {
+  constructor(application, name, config) {
+    super(application, name, config);
+  }
 
-  const _this = this;
-
-  _this.log = function(data, details, senders, config) {
-    return new Promise(function(resolve) {
+  log(data, details, senders, config) {
+    return new Promise((resolve) => {
       if (data && data.message && !data.skipConsole) {
-        config.settings = Object.assign({}, _this.config.settings, config.settings);
-        config.composing = Object.assign({}, _this.config.composing, config.composing);
+        config.settings = Object.assign({}, this.getConfig().settings, config.settings);
+        config.composing = Object.assign({}, this.getConfig().composing, config.composing);
 
-        let senderNames = _this.expandSenders(senders);
+        let senderNames = this.expandSenders(senders);
 
         details = Object.assign({}, details, config.composing.details);
         details.Senders = null;
@@ -34,9 +34,9 @@ function ConsoleLogger(application, name, config) {
           formattedMessage += colors.red('[ERROR]') + ' ';
         }
 
-        formattedMessage += _this.formatMessage(data.message, 'text') + ' ';
+        formattedMessage += this.formatMessage(data.message, 'text') + ' ';
 
-        formattedDetails = _this.packDetails(details, config.composing, 'json');
+        formattedDetails = this.packDetails(details, config.composing, 'json');
 
         if (formattedDetails) {
           formattedMessage += colors.green(formattedDetails) + ' ';
@@ -47,7 +47,7 @@ function ConsoleLogger(application, name, config) {
 
       resolve();
     });
-  };
+  }
 }
 
 module.exports = ConsoleLogger;

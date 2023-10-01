@@ -1,42 +1,42 @@
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
 
-function CronWatcher(application, name, config) {
-  CustomWatcher.call(this, application, name, config);
+class CronWatcher extends CustomWatcher {
+  constructor(application, name, config) {
+    super(application, name, config);
+  }
 
-  const _this = this;
-
-  _this.watch = function() {
-    if (_this.config.settings) {
-      if (_this.config.settings.job) {
-        return _this.config.settings.job.call(_this);
+  watch() {
+    if (this.getConfig().settings) {
+      if (this.getConfig().settings.job) {
+        return this.getConfig().settings.job.call(this);
       }
-      if (_this.config.settings.cmd) {
-        let cmd = typeof _this.config.settings.cmd == 'function' ? _this.config.settings.cmd.call(_this) : _this.config.settings.cmd;
-        let cwd = _this.config.settings.cwd || process.cwd();
-        let cmdGroup = _this.config.settings.cmdGroup;
+      if (this.getConfig().settings.cmd) {
+        let cmd = typeof this.getConfig().settings.cmd == 'function' ? this.getConfig().settings.cmd.call(this) : this.getConfig().settings.cmd;
+        let cwd = this.getConfig().settings.cwd || process.cwd();
+        let cmdGroup = this.getConfig().settings.cmdGroup;
 
         let details = {
           Cmd: cmd,
           Cwd: cwd,
-          CmdGroup: cmdGroup
+          CmdGroup: cmdGroup,
         };
 
-        return _this.getApplication().getExecPool().exec(cmd, cwd, cmdGroup).then(function(result) {
+        return this.getApplication().getExecPool().exec(cmd, cwd, cmdGroup).then((result) => {
           let stdout = result.stdout;
-          _this.getApplication().notify(_this.getLoggers(), {
-            message: stdout
-          }, details, _this);
-        }).catch(function(result) {
-          let stdout = result.stdout;
-          _this.getApplication().notify(_this.getErrorLoggers(), {
+          this.getApplication().notify(this.getLoggers(), {
             message: stdout,
-            isError: true
-          }, details, _this);
+          }, details, this);
+        }).catch((result) => {
+          let stdout = result.stdout;
+          this.getApplication().notify(this.getErrorLoggers(), {
+            message: stdout,
+            isError: true,
+          }, details, this);
           throw new Error(stdout);
         });
       }
     }
-  };
+  }
 }
 
 module.exports = CronWatcher;

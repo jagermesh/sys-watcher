@@ -42,7 +42,9 @@ class ParsedSchedule {
       try {
         marker = fs.readFileSync(this.scheduleFile, 'utf8');
       } catch (error) {
-        this.scheduler.getApplication().getConsole().log(`Time marker file not found, recreating at ${this.scheduleFile}.`, { error: error }, this.scheduler);
+        this.scheduler.getApplication().getConsole().log(`Time marker file not found, recreating at ${this.scheduleFile}.`, {
+          error: error,
+        }, this.scheduler);
         fs.writeFileSync(this.scheduleFile, moment().startOf('day').format());
         marker = fs.readFileSync(this.scheduleFile, 'utf8');
       }
@@ -57,7 +59,7 @@ class ParsedSchedule {
 
   touchMarker() {
     if (this.scheduleRe) {
-      this.scheduler.getApplication().getConsole().log(`Touching time marker ${this.scheduleFile}.`, Object.create({}), this.scheduler);
+      this.scheduler.getApplication().getConsole().log(`Touching time marker ${this.scheduleFile}.`, {}, this.scheduler);
       fs.writeFileSync(this.scheduleFile, moment().format());
     }
   }

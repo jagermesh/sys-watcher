@@ -3,81 +3,81 @@ const aws = require('aws-sdk');
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
 const Scheduler = require(`${__dirname}/../../libs/Scheduler.js`);
 
-function AWSSQSWatcher(application, name, config, owner) {
-  CustomWatcher.call(this, application, name, config, owner);
+class AWSSQSWatcher extends CustomWatcher {
+  constructor(application, name, config, owner) {
+    super(application, name, config, owner);
 
-  const _this = this;
+    this.schedulers = [];
 
-  let schedulers = [];
+    this.config.settings = Object.assign({
+      queues: {},
+    }, this.config.settings);
+  }
 
-  _this.config.settings = Object.assign({
-    queues: {},
-  }, _this.config.settings);
-
-  function deleteMessage(sqs, queueName, queueConfig, receiptHandle, line, details, loggers) {
+  deleteMessage(sqs, queueName, queueConfig, receiptHandle, line, details, loggers) {
     let sqsParams = {
       QueueUrl: queueConfig.queueUrl,
-      ReceiptHandle: receiptHandle
+      ReceiptHandle: receiptHandle,
     };
 
-    sqs.deleteMessage(sqsParams, function(error) {
+    sqs.deleteMessage(sqsParams, (error) => {
       if (error) {
-        _this.getApplication().notify(_this.getLoggers(loggers), {
+        this.getApplication().notify(this.getLoggers(loggers), {
           message: error.toString(),
-          isError: true
-        }, details, _this);
+          isError: true,
+        }, details, this);
       } else {
-        _this.getApplication().getConsole().log('Message "' + line + '" deleted', details, _this);
+        this.getApplication().getConsole().log(`Message "${line}" deleted`, details, this);
       }
     });
   }
 
-  function processMatch(sqs, queueName, queueConfig, receiptHandle, line, details, loggers, cacheKey, config) {
+  processMatch(sqs, queueName, queueConfig, receiptHandle, line, details, loggers, cacheKey, config) {
     if (config.cmd) {
-      _this.getApplication().getExecPool().exec(config.cmd, config.cwd, config.cmdGroup).then(function(result) {
+      this.getApplication().getExecPool().exec(config.cmd, config.cwd, config.cmdGroup).then((result) => {
         let stdout = result.stdout;
         let message = line + '\n\n' + config.cmd + '\n\n' + stdout;
-        _this.getApplication().notify(_this.getLoggers(loggers), {
+        this.getApplication().notify(this.getLoggers(loggers), {
           message: message,
-          cacheKey: cacheKey
-        }, details, _this);
-        deleteMessage(sqs, queueName, queueConfig, receiptHandle, line, details, loggers);
-      }).catch(function(result) {
+          cacheKey: cacheKey,
+        }, details, this);
+        this.deleteMessage(sqs, queueName, queueConfig, receiptHandle, line, details, loggers);
+      }).catch((result) => {
         let stdout = result.stdout;
         let message = line + '\n\n' + config.cmd + '\n\n' + stdout;
-        _this.getApplication().notify(_this.getLoggers(loggers), {
+        this.getApplication().notify(this.getLoggers(loggers), {
           message: message,
-          isError: true
-        }, details, _this);
+          isError: true,
+        }, details, this);
       });
     } else {
-      _this.getApplication().notify(_this.getLoggers(loggers), {
+      this.getApplication().notify(this.getLoggers(loggers), {
         message: line,
-        cacheKey: cacheKey
-      }, details, _this);
-      deleteMessage(sqs, queueName, queueConfig, receiptHandle, line, details, loggers);
+        cacheKey: cacheKey,
+      }, details, this);
+      this.deleteMessage(sqs, queueName, queueConfig, receiptHandle, line, details, loggers);
     }
   }
 
-  function watchRule(sqs, queueName, queueConfig) {
+  watchRule(sqs, queueName, queueConfig) {
     let sqsParams = {
       QueueUrl: queueConfig.queueUrl,
       AttributeNames: ['All'],
       MaxNumberOfMessages: 10,
       VisibilityTimeout: 30,
-      WaitTimeSeconds: 3
+      WaitTimeSeconds: 3,
     };
 
     let details = {
-      Rule: queueName
+      Rule: queueName,
     };
 
-    sqs.receiveMessage(sqsParams, function(error, response) {
+    sqs.receiveMessage(sqsParams, (error, response) => {
       if (error) {
-        _this.getApplication().notify(_this.getLoggers(), {
-          message: 'Can not retrieve message: ' + error.toString(),
-          isError: true
-        }, details, _this);
+        this.getApplication().notify(this.getLoggers(), {
+          message: `Can not retrieve message: ${error.toString()}`,
+          isError: true,
+        }, details, this);
       } else if (response.Messages) {
         if (response.Messages.length > 0) {
           for (let i = 0; i < response.Messages.length; i++) {
@@ -86,7 +86,7 @@ function AWSSQSWatcher(application, name, config, owner) {
             if (line.length > 0) {
               if (queueConfig.rules) {
                 for (let ruleName in queueConfig.rules) {
-                  let ruleConfig = _this.config.settings.rules[ruleName];
+                  let ruleConfig = this.getConfig().settings.rules[ruleName];
                   for (let j = 0; j < ruleConfig.match.length; j++) {
                     let matchRule = ruleConfig.match[j];
                     let regexp = new RegExp(matchRule, 'im');
@@ -112,13 +112,13 @@ function AWSSQSWatcher(application, name, config, owner) {
                           cacheKey = match.replace(regexp, ruleConfig.cacheKey);
                         }
                         details.MatchRule = ruleName;
-                        processMatch(sqs, queueName, queueConfig, receiptHandle, line, details, ruleConfig.loggers ? ruleConfig.loggers : queueConfig.loggers, cacheKey, ruleConfig);
+                        this.processMatch(sqs, queueName, queueConfig, receiptHandle, line, details, ruleConfig.loggers ? ruleConfig.loggers : queueConfig.loggers, cacheKey, ruleConfig);
                       }
                     }
                   }
                 }
               } else {
-                processMatch(sqs, queueName, queueConfig, receiptHandle, line, details, queueConfig.loggers, line, queueConfig);
+                this.processMatch(sqs, queueName, queueConfig, receiptHandle, line, details, queueConfig.loggers, line, queueConfig);
               }
             }
           }
@@ -127,43 +127,44 @@ function AWSSQSWatcher(application, name, config, owner) {
     });
   }
 
-  function watch(sqs, ruleName, ruleConfig) {
-    ruleConfig.scheduling = ruleConfig.scheduling || Object.create({});
-    ruleConfig.scheduling.interval = ruleConfig.scheduling.interval || '30 sec';
+  watchRules(sqs, ruleName, ruleConfig) {
+    ruleConfig.scheduling = Object.assign({
+      interval: '30 sec',
+    }, ruleConfig.scheduling);
 
-    _this.getApplication().getConsole().log('Waiting for messages', {
-      Rule: ruleName
-    }, _this);
+    this.getApplication().getConsole().log('Waiting for messages', {
+      Rule: ruleName,
+    }, this);
 
-    let scheduler = new Scheduler(_this.getApplication(), _this.getName() + ': Scheduler', {
-      settings: ruleConfig.scheduling
-    }, _this);
+    let scheduler = new Scheduler(this.getApplication(), `${this.getName()}: Scheduler`, {
+      settings: ruleConfig.scheduling,
+    }, this);
 
-    scheduler.start(function() {
-      watchRule(sqs, ruleName, ruleConfig);
+    scheduler.start(() => {
+      this.watchRule(sqs, ruleName, ruleConfig);
     });
 
-    schedulers.push(scheduler);
+    this.schedulers.push(scheduler);
   }
 
-  _this.watch = function() {
+  watch() {
     let sqs = new aws.SQS({
-      region: _this.config.settings.AWS.region,
-      accessKeyId: _this.config.settings.AWS.accessKeyId,
-      secretAccessKey: _this.config.settings.AWS.secretAccessKey
+      region: this.getConfig().settings.AWS.region,
+      accessKeyId: this.getConfig().settings.AWS.accessKeyId,
+      secretAccessKey: this.getConfig().settings.AWS.secretAccessKey,
     });
 
-    for (let ruleName in _this.config.settings.rules) {
-      let ruleConfig = _this.config.settings.rules[ruleName];
-      watch(sqs, ruleName, ruleConfig);
+    for (let ruleName in this.getConfig().settings.rules) {
+      let ruleConfig = this.getConfig().settings.rules[ruleName];
+      this.watchRules(sqs, ruleName, ruleConfig);
     }
-  };
+  }
 
-  _this.stop = function() {
-    for (let i = 0; i < schedulers.length; i++) {
-      schedulers[i].stop();
+  stop() {
+    for (let i = 0; i < this.schedulers.length; i++) {
+      this.schedulers[i].stop();
     }
-  };
+  }
 }
 
 module.exports = AWSSQSWatcher;

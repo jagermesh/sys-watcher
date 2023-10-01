@@ -1,20 +1,24 @@
 const CustomLoggable = require(`${__dirname}/CustomLoggable.js`);
 const ParsedSchedule = require(`${__dirname}/ParsedSchedule.js`);
 
-function Scheduler(application, name, config, owner) {
-  CustomLoggable.call(this, application, name, config, owner);
+class Scheduler extends CustomLoggable {
+  constructor(application, name, config, owner) {
+    super(application, name, config, owner);
 
-  const _this = this;
+    if (!Array.isArray(this.getConfig().settings.interval)) {
+      this.getConfig().settings.interval = [this.getConfig().settings.interval];
+    }
 
-  let intervals = [];
+    this.intervals = [];
+  }
 
-  function run(parsedSchedule, onTime) {
+  run(parsedSchedule, onTime) {
     if (parsedSchedule.isTimeToRun()) {
       let result = onTime(this);
       if (result && result.then) {
-        result.then(function() {
+        result.then(() => {
           parsedSchedule.touchMarker();
-        }).catch(function() {
+        }).catch(() => {
 
         });
       } else {
@@ -23,28 +27,26 @@ function Scheduler(application, name, config, owner) {
     }
   }
 
-  _this.start = function(onTime) {
-    if (_this.config.settings.interval) {
-      let schedulings = Array.isArray(_this.config.settings.interval) ? _this.config.settings.interval : [_this.config.settings.interval];
-      schedulings.forEach(function(schedule) {
-        let parsedSchedule = new ParsedSchedule(_this, schedule);
+  start(onTime) {
+    if (this.getConfig().settings.interval) {
+      this.getConfig().settings.interval.forEach((schedule) => {
+        let parsedSchedule = new ParsedSchedule(this, schedule);
         if (parsedSchedule.isValid()) {
-          run(parsedSchedule, onTime);
-          intervals.push(setInterval(function() {
-            run(parsedSchedule, onTime);
+          this.run(parsedSchedule, onTime);
+          this.intervals.push(setInterval(() => {
+            this.run(parsedSchedule, onTime);
           }, parsedSchedule.getMs()));
-          _this.getApplication().getConsole().log(`Started. Will trigger ${parsedSchedule.getRule()}.`, Object.create({}), _this);
+          this.getApplication().getConsole().log(`Started. Will trigger ${parsedSchedule.getRule()}.`, {}, this);
         }
       });
     }
+  }
 
-  };
-
-  _this.stop = function() {
-    intervals.forEach(function(interval) {
+  stop() {
+    this.intervals.forEach((interval) => {
       clearInterval(interval);
     });
-  };
+  }
 }
 
 module.exports = Scheduler;

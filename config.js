@@ -3,22 +3,22 @@ module.exports = {
     location: 'localhost',
     onStart: {
       composing: {
-        hostInfo: true
-      }
+        hostInfo: true,
+      },
     },
     onError: {
       composing: {
-        hostInfo: true
-      }
-    }
+        hostInfo: true,
+      },
+    },
   },
   caching: {
     redis: {
       type: 'RedisCache',
       settings: {
-        lifespan: '3 min'
-      }
-    }
+        lifespan: '3 min',
+      },
+    },
   },
   loggers: {},
   watchers: {
@@ -26,33 +26,33 @@ module.exports = {
       type: 'FreeSpaceWatcher',
       settings: {
         path: '/',
-        threshold: '100 Gb'
+        threshold: '100 Gb',
       },
       scheduling: {
-        interval: '10 sec'
-      }
+        interval: '10 sec',
+      },
     },
     freeRAMWatcher: {
       type: 'FreeRAMWatcher',
       settings: {
-        // threshold: '4 Gb'
+        threshold: '1 Gb',
       },
       scheduling: {
-        interval: '3 sec'
-      }
+        interval: '3 sec',
+      },
     },
     laWatcher: {
       type: 'LAWatcher',
       settings: {},
       scheduling: {
-        interval: '3 sec'
-      }
+        interval: '3 sec',
+      },
     },
     cpuWatcher: {
       type: 'CPUWatcher',
       scheduling: {
-        interval: '3 sec'
-      }
+        interval: '3 sec',
+      },
     },
     processWatcher: {
       type: 'ProcessWatcher',
@@ -66,11 +66,11 @@ module.exports = {
             cpu_log_threshold: 10,
             uptime_threshold: '30 min',
           },
-        }
+        },
       },
       scheduling: {
-        interval: '30 sec'
-      }
+        interval: '30 sec',
+      },
     },
     monitoringSensorWatcher: {
       type: 'MonitoringSensorWatcher',
@@ -79,46 +79,49 @@ module.exports = {
           // CPU
           {
             name: 'CPU',
-            rendererName: 'Chart,Value,Table,Gauge'
-          }, {
+            rendererName: 'Chart,Value,Table,Gauge',
+          },
+          {
             name: 'CPU',
             rendererName: 'Chart,Value,Table,Gauge',
             settings: {
-              processes: 'php,node'
-            }
+              processes: 'php,node',
+            },
           },
           // RAM
           {
             name: 'RAM',
-            rendererName: 'Chart,Value,Table,Gauge'
+            rendererName: 'Chart,Value,Table,Gauge',
           },
           // LA
           {
             name: 'LA',
-            rendererName: 'Chart,Value,Table,Gauge'
+            rendererName: 'Chart,Value,Table,Gauge',
           },
           // Processes
           {
             name: 'Processes',
-            rendererName: 'Chart,Value,Table'
-          }, {
+            rendererName: 'Chart,Value,Table',
+          },
+          {
             name: 'Processes',
             rendererName: 'Chart,Value,Table',
             settings: {
-              processes: 'php,node'
-            }
+              processes: 'php,node',
+            },
           },
           // HDD
           {
             name: 'HDD',
-            rendererName: 'Chart,Value,Table'
-          }, {
+            rendererName: 'Chart,Value,Table',
+          },
+          {
             name: 'HDD',
             rendererName: 'Chart,Value,Table',
             settings: {
               mounts: '/System/Volumes/Data',
-              threshold: 80
-            }
+              threshold: 80,
+            },
           },
           // Jenkins
           {
@@ -128,7 +131,7 @@ module.exports = {
               apiUrl: 'http://localhost:8080/job/project/',
               username: 'admin',
               password: '11acff4a9f050afc3787c908c0812c3c8d',
-            }
+            },
           },
           // MySQLProcesses
           {
@@ -137,8 +140,8 @@ module.exports = {
             settings: {
               host: 'localhost',
               user: 'root',
-              password: ''
-            }
+              password: '',
+            },
           },
           // MySQL
           {
@@ -150,11 +153,11 @@ module.exports = {
               password: '',
               database: '',
               sql: 'SHOW PROCESSLIST',
-              description: 'MySQL Process List'
-            }
+              description: 'MySQL Process List',
+            },
           },
-        ]
-      }
-    }
-  }
+        ],
+      },
+    },
+  },
 };

@@ -6,80 +6,84 @@ const moment = require('moment');
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
 const ProcessInfo = require(`${__dirname}/../../libs/ProcessInfo.js`);
 
-function ProcessWatcher(application, name, config) {
-  CustomWatcher.call(this, application, name, config);
+class ProcessWatcher extends CustomWatcher {
+  constructor(application, name, config) {
+    super(application, name, config);
 
-  const _this = this;
+    this.processStats = new HashMap();
+  }
 
-  let processStats = new HashMap();
-
-  function restart(ruleName, ruleConfig, results) {
+  restart(ruleName, ruleConfig, results) {
     let cmd = ruleConfig.cmd;
     let cwd = ruleConfig.cwd || process.cwd();
 
-    ruleConfig.retryTimeout = ruleConfig.retryTimeout || '3 sec';
+    ruleConfig = Object.assign({
+      retryTimeout: '3 sec',
+    }, ruleConfig);
 
     let details = {
       Check: ruleConfig.check,
       Processes: results,
       Cmd: ruleConfig.cmd,
-      WorkingDir: cwd
+      WorkingDir: cwd,
     };
 
-    _this.getApplication().getExecPool().spawn(cmd, cwd).then(function(result) {
+    this.getApplication().getExecPool().spawn(cmd, cwd).then((result) => {
       let stdout = result.stdout;
-      _this.getApplication().notify(_this.getLoggers(), {
-        message: `Process ${ruleName} not found, restarted\n${stdout.trim().substring(0, 1024)}`
-      }, details, _this);
-    }).catch(function(result) {
+      this.getApplication().notify(this.getLoggers(), {
+        message: `Process ${ruleName} not found, restarted\n${stdout.trim().substring(0, 1024)}`,
+      }, details, this);
+    }).catch((result) => {
       let stdout = result.stdout;
-      _this.getApplication().notify(_this.getLoggers(), {
+      this.getApplication().notify(this.getLoggers(), {
         message: `Process ${ruleName} not found, restart failed\n${stdout}`,
-        isError: true
-      }, details, _this);
+        isError: true,
+      }, details, this);
     });
   }
 
-  function killProcess(ruleName, ruleConfig, processInfo, reason, processes) {
+  killProcess(ruleName, ruleConfig, processInfo, reason, processes) {
     try {
       process.kill(processInfo.pid);
-      processStats.delete(processInfo.pid);
-      _this.getApplication().notify(_this.getLoggers(), {
-        message: `${reason}, killed`
+      this.processStats.delete(processInfo.pid);
+      this.getApplication().notify(this.getLoggers(), {
+        message: `${reason}, killed`,
       }, {
         Check: ruleConfig.check,
-        Processes: processes
-      }, _this);
+        Processes: processes,
+      }, this);
       if (ruleConfig.mode.indexOf('keepalive') != -1) {
         if (ruleConfig.cmd) {
-          restart(ruleName, ruleConfig, processes);
+          this.restart(ruleName, ruleConfig, processes);
         } else {
-          _this.getApplication().notify(_this.getLoggers(), {
+          this.getApplication().notify(this.getLoggers(), {
             message: `Process ${ruleName} not found and no restart command configured`,
-            isError: true
+            isError: true,
           }, {
             Check: ruleConfig.check,
-            Processes: processes
-          }, _this);
+            Processes: processes,
+          }, this);
         }
       }
       return true;
     } catch (ex) {
-      _this.getApplication().notify(_this.getLoggers(), {
+      this.getApplication().notify(this.getLoggers(), {
         message: `${reason}, kill failed: ${ex.toString()}`,
-        isError: true
+        isError: true,
       }, {
         Check: ruleConfig.check,
-        Processes: processes
-      }, _this);
+        Processes: processes,
+      }, this);
       return false;
     }
   }
 
-  function watchRule(ruleName, ruleConfig) {
+  watchRule(ruleName, ruleConfig) {
     const isMacOS = (process.platform == 'darwin');
 
-    ruleConfig.mode = ruleConfig.mode || 'log-count';
+    ruleConfig = Object.assign({
+      mode: 'log-count',
+    }, ruleConfig);
 
     if (typeof ruleConfig.mode == 'string') {
       ruleConfig.mode = ruleConfig.mode.split(',');
@@ -103,22 +107,22 @@ function ProcessWatcher(application, name, config) {
       });
     }
 
-    let sysCmds = commands.map(function(command) {
+    let sysCmds = commands.map((command) => {
       return command.cmd;
     });
 
-    _this.getApplication().getConsole().log(`Checking for ${colors.yellow(ruleName)}, executing ${colors.yellow(commands.join(', '))}`, {
-      Check: ruleConfig.check
-    }, _this);
+    this.getApplication().getConsole().log(`Checking for ${colors.yellow(ruleName)}, executing ${colors.yellow(commands.join(', '))}`, {
+      Check: ruleConfig.check,
+    }, this);
 
-    let promises = commands.map(function(command) {
-      return _this.getApplication().getExecPool().exec(command.cmd, null, null, null, command.marker);
+    let promises = commands.map((command) => {
+      return this.getApplication().getExecPool().exec(command.cmd, null, null, null, command.marker);
     });
 
-    Promise.all(promises).then(function(execResults) {
+    Promise.all(promises).then((execResults) => {
       let processes = new Map();
 
-      execResults.forEach(function(execResult) {
+      execResults.forEach((execResult) => {
         let lines = execResult.stdout.trim().split('\n');
 
         for (let i = 0; i < lines.length; i++) {
@@ -150,10 +154,10 @@ function ProcessWatcher(application, name, config) {
             if (processInfo) {
               if ((processInfo.cpu != undefined) && ruleConfig.cpu_period) {
                 let cpu_period_sec = parseDuration(ruleConfig.cpu_period) / 1000;
-                let processStat = processStats.get(processInfo.pid);
+                let processStat = this.processStats.get(processInfo.pid);
                 if (!processStat) {
                   processStat = new ProcessInfo(processInfo.pid, processInfo.cmd);
-                  processStats.set(processInfo.pid, processStat);
+                  this.processStats.set(processInfo.pid, processStat);
                 }
                 processStat.addMetricValue('cpu', processInfo.cpu);
                 processInfo.avgCpu = processStat.getAverageMetricValue('cpu', cpu_period_sec, true);
@@ -181,47 +185,51 @@ function ProcessWatcher(application, name, config) {
 
       let processCmds = [];
 
-      processes.forEach(function(runningProcess) {
+      processes.forEach((runningProcess) => {
         processCmds.push(runningProcess.cmd);
       });
 
       if (ruleConfig.mode.indexOf('log-count') != -1) {
-        _this.getApplication().notify(_this.getLoggers(), {
+        this.getApplication().notify(this.getLoggers(), {
           message: `Found ${processes.size} ${ruleName} process${processes.size == 1 ? '' : 'es'}`,
           value: processes.size,
           units: 'Count',
           dimensions: {
-            Rule: ruleName
-          }
+            Rule: ruleName,
+          },
         }, {
           Check: ruleConfig.check,
-          Processes: processCmds
-        }, _this);
+          Processes: processCmds,
+        }, this);
       }
 
       if (processes.size === 0) {
         if (ruleConfig.mode.indexOf('keepalive') != -1) {
           if (ruleConfig.cmd) {
-            restart(ruleName, ruleConfig, processCmds);
+            this.restart(ruleName, ruleConfig, processCmds);
           } else {
-            _this.getApplication().notify(_this.getLoggers(), {
+            this.getApplication().notify(this.getLoggers(), {
               message: `Process ${ruleName} not found and no restart command configured`,
-              isError: true
+              isError: true,
             }, {
               Check: ruleConfig.check,
-              Processes: processCmds
-            }, _this);
+              Processes: processCmds,
+            }, this);
           }
         }
       }
 
       if (processes.size > 0) {
-        processes.forEach(function(runningProcess) {
+        processes.forEach((runningProcess) => {
           let killed = false;
-          if ((ruleConfig.mode.indexOf('limit-uptime') != -1) && runningProcess.uptime && ruleConfig.uptime_threshold) {
+          if (
+            (ruleConfig.mode.indexOf('limit-uptime') != -1) &&
+            runningProcess.uptime &&
+            ruleConfig.uptime_threshold
+          ) {
             let uptime_threshold_sec = parseDuration(ruleConfig.uptime_threshold) / 1000;
             if (runningProcess.uptime > uptime_threshold_sec) {
-              killed = killProcess(
+              killed = this.killProcess(
                 ruleName,
                 ruleConfig,
                 runningProcess,
@@ -231,7 +239,10 @@ function ProcessWatcher(application, name, config) {
             }
           }
           if (!killed) {
-            if ((ruleConfig.mode.indexOf('log-cpu') != -1) && (runningProcess.cpu != undefined)) {
+            if (
+              (ruleConfig.mode.indexOf('log-cpu') != -1) &&
+              (runningProcess.cpu != undefined)
+            ) {
               let cpuInRange;
               if (ruleConfig.cpu_log_threshold) {
                 cpuInRange = runningProcess.cpu > parseFloat(ruleConfig.cpu_log_threshold);
@@ -239,22 +250,26 @@ function ProcessWatcher(application, name, config) {
                 cpuInRange = true;
               }
               if (cpuInRange) {
-                _this.getApplication().notify(_this.getLoggers(), {
+                this.getApplication().notify(this.getLoggers(), {
                   message: `Application ${runningProcess.cmd} (PID ${runningProcess.pid}) CPU ${runningProcess.cpu}%`,
                   value: runningProcess.cpu,
                   units: 'Percent',
                   dimensions: {
-                    Rule: ruleName
-                  }
+                    Rule: ruleName,
+                  },
                 }, {
                   Check: ruleConfig.check,
-                  Processes: processCmds
-                }, _this);
+                  Processes: processCmds,
+                }, this);
               }
             }
-            if ((ruleConfig.mode.indexOf('limit-cpu') != -1) && (runningProcess.avgCpu != undefined) && ruleConfig.cpu_threshold) {
+            if (
+              (ruleConfig.mode.indexOf('limit-cpu') != -1) &&
+              (runningProcess.avgCpu != undefined) &&
+              ruleConfig.cpu_threshold
+            ) {
               if (runningProcess.avgCpu > parseFloat(ruleConfig.cpu_threshold)) {
-                killed = killProcess(
+                killed = this.killProcess(
                   ruleName,
                   ruleConfig,
                   runningProcess,
@@ -266,37 +281,37 @@ function ProcessWatcher(application, name, config) {
           }
         });
       }
-    }).catch(function(stdout) {
-      _this.getApplication().reportError(stdout, {
+    }).catch((stdout) => {
+      this.getApplication().reportError(stdout, {
         Cmd: sysCmds.join(', '),
-      }, _this);
+      }, this);
     });
   }
 
-  function checkForRunningProcesses() {
+  checkForRunningProcesses() {
     let killed = [];
 
-    processStats.forEach(function(processInfo) {
+    this.processStats.forEach((processInfo) => {
       if (!processInfo.isRunning()) {
         killed.push(processInfo.getPid());
       }
     });
 
-    killed.forEach(function(pid) {
-      processStats.delete(pid);
+    killed.forEach((pid) => {
+      this.processStats.delete(pid);
     });
   }
 
-  _this.watch = function() {
-    for (let ruleName in _this.config.settings.rules) {
-      let ruleConfig = _this.config.settings.rules[ruleName];
-      watchRule(ruleName, ruleConfig);
+  watch() {
+    for (let ruleName in this.getConfig().settings.rules) {
+      let ruleConfig = this.getConfig().settings.rules[ruleName];
+      this.watchRule(ruleName, ruleConfig);
     }
 
-    _this.getApplication().registerGCRoutine(function() {
-      checkForRunningProcesses();
+    this.getApplication().registerGCRoutine(() => {
+      this.checkForRunningProcesses();
     });
-  };
+  }
 }
 
 module.exports = ProcessWatcher;

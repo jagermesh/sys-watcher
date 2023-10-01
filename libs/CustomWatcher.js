@@ -1,35 +1,35 @@
 const CustomLoggable = require(`${__dirname}/CustomLoggable.js`);
 
-function CustomWatcher(application, name, config) {
-  CustomLoggable.call(this, application, name, config);
+class CustomWatcher extends CustomLoggable {
+  constructor(application, name, config) {
+    super(application, name, config);
+  }
 
-  const _this = this;
+  watch() {
 
-  _this.watch = function() {
+  }
 
-  };
-
-  _this.start = function() {
-    return new Promise(function(resolve) {
-      if (_this.needScheduler()) {
-        _this.getScheduler().start(function() {
-          return _this.watch();
+  start() {
+    return new Promise((resolve) => {
+      if (this.needScheduler()) {
+        this.getScheduler().start(() => {
+          return this.watch();
         });
       } else {
-        _this.watch();
+        this.watch();
       }
 
-      _this.getApplication().getConsole().log('Started', Object.create({}), _this);
+      this.getApplication().getConsole().log('Started', {}, this);
 
       resolve();
     });
-  };
+  }
 
-  _this.stop = function() {
-    if (_this.needScheduler()) {
-      return _this.getScheduler().stop();
+  stop() {
+    if (this.needScheduler()) {
+      return this.getScheduler().stop();
     }
-  };
+  }
 }
 
 module.exports = CustomWatcher;

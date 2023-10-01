@@ -1,23 +1,24 @@
 const moment = require('moment');
 
-function ProcessInfo(pid) {
-  const _this = this;
+class ProcessInfo {
+  constructor(pid) {
+    this.pid = pid;
+    this.metricValues = {};
+  }
 
-  let metricValues = Object.create({});
-
-  _this.addMetricValue = function(metric, value) {
-    metricValues[metric] = metricValues[metric] || [];
-    metricValues[metric].push({
+  addMetricValue(metric, value) {
+    this.metricValues[metric] = this.metricValues[metric] || [];
+    this.metricValues[metric].push({
       ts: moment().unix(),
-      value: parseFloat(value)
+      value: parseFloat(value),
     });
-  };
+  }
 
-  _this.getPid = function() {
-    return pid;
-  };
+  getPid() {
+    return this.pid;
+  }
 
-  _this.getAverageMetricValue = function(metric, period, clean) {
+  getAverageMetricValue(metric, period, clean) {
     let now = moment().unix();
     let min = 0;
 
@@ -29,13 +30,13 @@ function ProcessInfo(pid) {
     let sum = 0;
     let cln = null;
 
-    if (metricValues[metric]) {
-      for (let i = metricValues[metric].length - 1; i >= 0; i--) {
-        if (metricValues[metric][i].ts > min) {
+    if (this.metricValues[metric]) {
+      for (let i = this.metricValues[metric].length - 1; i >= 0; i--) {
+        if (this.metricValues[metric][i].ts > min) {
           cnt++;
-          sum += metricValues[metric][i].value;
+          sum += this.metricValues[metric][i].value;
         }
-        if (metricValues[metric][i].ts < min) {
+        if (this.metricValues[metric][i].ts < min) {
           cln = i;
           break;
         }
@@ -43,22 +44,22 @@ function ProcessInfo(pid) {
 
       if ((cln != null) || !period) {
         if (clean && period) {
-          metricValues[metric].splice(0, cln + 1);
+          this.metricValues[metric].splice(0, cln + 1);
         }
         if (cnt > 0) {
           return Math.round((sum / cnt) * 100) / 100;
         }
       }
     }
-  };
+  }
 
-  _this.isRunning = function() {
+  isRunning() {
     try {
-      return process.kill(_this.getPid(), 0);
+      return process.kill(this.getPid(), 0);
     } catch (e) {
       return e.code === 'EPERM';
     }
-  };
+  }
 }
 
 module.exports = ProcessInfo;

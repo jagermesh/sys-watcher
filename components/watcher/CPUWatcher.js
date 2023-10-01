@@ -2,39 +2,39 @@ const si = require('systeminformation');
 
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
 
-function CPUWatcher(application, name, config) {
-  CustomWatcher.call(this, application, name, config);
+class CPUWatcher extends CustomWatcher {
+  constructor(application, name, config) {
+    super(application, name, config);
 
-  const _this = this;
+    this.config.settings = Object.assign({
+      threshold: 0,
+    }, this.config.settings);
+  }
 
-  _this.config.settings = Object.assign({
-    threshold: 0,
-  }, _this.config.settings);
-
-  _this.watch = function() {
-    si.currentLoad().then(function(stats) {
-      if (stats.currentload > _this.config.settings.threshold) {
+  watch() {
+    si.currentLoad().then((stats) => {
+      if (stats.currentload > this.getConfig().settings.threshold) {
         let message = `CPU Load ${stats.currentload.toFixed()}%`;
 
-        if (_this.config.settings.threshold > 0) {
-          message += ' which is more than threshold ' + _this.config.settings.threshold;
+        if (this.getConfig().settings.threshold > 0) {
+          message += ` which is more than threshold ${this.getConfig().settings.threshold}`;
         }
 
-        _this.getApplication().notify(_this.getLoggers(), {
+        this.getApplication().notify(this.getLoggers(), {
           message: message,
           value: stats.currentload,
           units: 'Percent',
-          dimensions: Object.create({}),
-          skipConsole: (_this.config.settings.threshold == 0)
-        }, Object.create({}), _this);
+          dimensions: {},
+          skipConsole: (this.getConfig().settings.threshold == 0),
+        }, {}, this);
       }
-    }).catch(function(error) {
-      _this.getApplication().notify(_this.getLoggers(), {
-        message: 'Can not retrive CPU information: ' + error.toString(),
-        isError: true
-      }, Object.create({}), _this);
+    }).catch((error) => {
+      this.getApplication().notify(this.getLoggers(), {
+        message: `Can not retrive CPU information: ${error.toString()}`,
+        isError: true,
+      }, {}, this);
     });
-  };
+  }
 }
 
 module.exports = CPUWatcher;

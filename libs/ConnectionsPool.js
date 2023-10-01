@@ -2,24 +2,24 @@ const HashMap = require('hashmap');
 
 const CustomObject = require(`${__dirname}/CustomObject.js`);
 
-function ConnectionsPool(application) {
-  CustomObject.call(this, application, 'ConnectionsPool');
+class ConnectionsPool extends CustomObject {
+  constructor(application) {
+    super(application, 'ConnectionsPool');
 
-  const _this = this;
+    this.hash = new HashMap();
+  }
 
-  const hash = new HashMap();
+  getEntries() {
+    return this.hash;
+  }
 
-  _this.getEntries = function() {
-    return hash;
-  };
+  get(name) {
+    return this.getEntries().get(name);
+  }
 
-  _this.get = function(name) {
-    return _this.getEntries().get(name);
-  };
-
-  _this.set = function(name, value) {
-    return _this.getEntries().set(name, value);
-  };
+  set(name, value) {
+    return this.getEntries().set(name, value);
+  }
 }
 
 module.exports = ConnectionsPool;

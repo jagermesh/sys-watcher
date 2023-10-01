@@ -3,34 +3,34 @@ const Tail = require('tail').Tail;
 
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
 
-function FileWatcher(application, name, config) {
-  CustomWatcher.call(this, application, name, config);
+class FileWatcher extends CustomWatcher {
+  constructor(application, name, config) {
+    super(application, name, config);
+  }
 
-  const _this = this;
-
-  function watchPath(path) {
-    fs.stat(path, function(error) {
+  watchPath(path) {
+    fs.stat(path, (error) => {
       if (error) {
-        if (_this.config.settings.retryIfNotExists) {
-          setTimeout(function() {
-            watchPath(path);
+        if (this.getConfig().settings.retryIfNotExists) {
+          setTimeout(() => {
+            this.watchPath(path);
           }, 5 * 60 * 1000); // retry in 5 minutes
         } else {
-          _this.getApplication().notify(_this.getLoggers(), {
+          this.getApplication().notify(this.getLoggers(), {
             message: error.toString(),
-            isError: true
+            isError: true,
           }, {
-            Path: path
-          }, _this);
+            Path: path,
+          }, this);
         }
       } else {
         let tail = new Tail(path);
-        tail.on('line', function(line) {
+        tail.on('line', (line) => {
           line = line.trim();
           if (line.length > 0) {
-            if (_this.config.settings.rules) {
-              for (let ruleName in _this.config.settings.rules) {
-                let ruleConfig = _this.config.settings.rules[ruleName];
+            if (this.getConfig().settings.rules) {
+              for (let ruleName in this.getConfig().settings.rules) {
+                let ruleConfig = this.getConfig().settings.rules[ruleName];
                 for (let i = 0; i < ruleConfig.match.length; i++) {
                   let matchRule = ruleConfig.match[i];
                   let regexp = new RegExp(matchRule, 'im');
@@ -55,24 +55,24 @@ function FileWatcher(application, name, config) {
                         regexp = new RegExp(matchRule, 'im');
                         cacheKey = match.replace(regexp, ruleConfig.cacheKey);
                       }
-                      _this.getApplication().notify(_this.getLoggers(ruleConfig.loggers), {
+                      this.getApplication().notify(this.getLoggers(ruleConfig.loggers), {
                         message: line,
-                        cacheKey: cacheKey
+                        cacheKey: cacheKey,
                       }, {
                         Path: path,
-                        MatchRule: ruleName
-                      }, _this);
+                        MatchRule: ruleName,
+                      }, this);
                     }
                   }
                 }
               }
             } else {
-              _this.getApplication().notify(_this.getLoggers(), {
+              this.getApplication().notify(this.getLoggers(), {
                 message: line,
-                cacheKey: line
+                cacheKey: line,
               }, {
-                Path: path
-              }, _this);
+                Path: path,
+              }, this);
             }
           }
         });
@@ -80,13 +80,13 @@ function FileWatcher(application, name, config) {
     });
   }
 
-  _this.watch = function() {
-    let paths = _this.getArrayValue(_this.config.settings.path);
+  watch() {
+    let paths = this.getArrayValue(this.getConfig().settings.path);
 
     for (let i = 0; i < paths.length; i++) {
-      watchPath(paths[i]);
+      this.watchPath(paths[i]);
     }
-  };
+  }
 }
 
 module.exports = FileWatcher;

@@ -1,21 +1,23 @@
 const CustomLoggable = require(`${__dirname}/CustomLoggable.js`);
 
-function CustomCache(application, name, config) {
-  CustomLoggable.call(this, application, name, config);
+class CustomCache extends CustomLoggable {
+  constructor(application, name, config) {
+    super(application, name, config);
 
-  const _this = this;
+    this.instance = null;
+  }
 
-  _this.check = function() {
+  check() {
     return Promise.resolve();
-  };
+  }
 
-  _this.get = function(name, callback) {
+  get(name, callback) {
     callback(null);
-  };
+  }
 
-  _this.set = function() {
+  set() {
 
-  };
+  }
 }
 
 module.exports = CustomCache;

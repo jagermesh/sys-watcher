@@ -1,37 +1,39 @@
-function CustomObject(application, name, config, owner) {
-  const _this = this;
+class CustomObject {
+  constructor(application, name, config, owner) {
+    this.application = application;
+    this.name = name;
+    this.owner = owner;
+    this.config = Object.assign({}, config);
+  }
 
-  _this.config = Object.assign({
-  }, config);
+  getApplication() {
+    return this.application;
+  }
 
-  _this.getApplication = function() {
-    return application;
-  };
+  getName() {
+    return this.name;
+  }
 
-  _this.getName = function() {
-    return name;
-  };
+  getConfig() {
+    return this.config;
+  }
 
-  _this.getConfig = function() {
-    return _this.config;
-  };
+  getOwner() {
+    return this.owner;
+  }
 
-  _this.getOwner = function() {
-    return owner;
-  };
-
-  _this.getScalarValue = function(value) {
+  getScalarValue(value) {
     let result = value;
 
     if (typeof result == 'function') {
-      result = result.call(_this);
+      result = result.call(this);
     }
 
     return result;
-  };
+  }
 
-  _this.getArrayValue = function(value) {
-    let result = _this.getScalarValue(value);
+  getArrayValue(value) {
+    let result = this.getScalarValue(value);
 
     if ((result === null) && (result === undefined)) {
       result = [];
@@ -41,19 +43,19 @@ function CustomObject(application, name, config, owner) {
     }
 
     return result;
-  };
+  }
 
-  _this.getOverrides = function(entryType, entryName) {
-    if (_this.getConfig().overrides) {
-      if (_this.getConfig().overrides[entryType]) {
-        if (_this.getConfig().overrides[entryType][entryName]) {
-          return _this.getConfig().overrides[entryType][entryName];
+  getOverrides(entryType, entryName) {
+    if (this.getConfig().overrides) {
+      if (this.getConfig().overrides[entryType]) {
+        if (this.getConfig().overrides[entryType][entryName]) {
+          return this.getConfig().overrides[entryType][entryName];
         }
       }
     }
 
-    return Object.create({});
-  };
+    return {};
+  }
 }
 
 module.exports = CustomObject;

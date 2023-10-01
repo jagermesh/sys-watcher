@@ -3,42 +3,42 @@ const ip = require('ip');
 
 const CustomLogger = require(`${__dirname}/../../libs/CustomLogger.js`);
 
-function AWSCloudWatchLogger(application, name, config) {
-  CustomLogger.call(this, application, name, config);
+class AWSCloudWatchLogger extends CustomLogger {
+  constructor(application, name, config) {
+    super(application, name, config);
 
-  const _this = this;
+    this.config.settings = Object.assign({
+      nameSpace: 'Watcher',
+      dimensions: [],
+    }, this.config.settings);
+  }
 
-  _this.config.settings = Object.assign({
-    nameSpace: 'Watcher',
-    dimensions: [],
-  }, _this.config.settings);
-
-  _this.getRecipients = function() {
+  getRecipients() {
     return '';
-  };
+  }
 
-  _this.log = function(data, details, senders, config) {
-    return new Promise(function(resolve) {
+  log(data, details, senders, config) {
+    return new Promise((resolve) => {
       if (data && (data.value != undefined)) {
-        config.settings = Object.assign({}, _this.config.settings, config.settings);
-        config.composing = Object.assign({}, _this.config.composing, config.composing);
+        config.settings = Object.assign({}, this.getConfig().settings, config.settings);
+        config.composing = Object.assign({}, this.getConfig().composing, config.composing);
 
         details = Object.assign({}, details, config.composing.details);
-        details.Senders = _this.expandSenders(senders);
+        details.Senders = this.expandSenders(senders);
 
-        let dimensions = JSON.parse(JSON.stringify(_this.config.settings.dimensions));
+        let dimensions = JSON.parse(JSON.stringify(this.getConfig().settings.dimensions));
 
         if (config.composing.locationInfo) {
           dimensions.push({
             Name: 'Location',
-            Value: _this.getApplication().getLocation()
+            Value: this.getApplication().getLocation(),
           });
         }
 
         if (config.composing.hostInfo) {
           dimensions.push({
             Name: 'IP Address',
-            Value: ip.address()
+            Value: ip.address(),
           });
         }
 
@@ -46,41 +46,41 @@ function AWSCloudWatchLogger(application, name, config) {
           for (let name in data.dimensions) {
             dimensions.push({
               Name: name,
-              Value: data.dimensions[name]
+              Value: data.dimensions[name],
             });
           }
         }
 
         let params = {
           MetricData: [{
-            MetricName: _this.config.settings.metricName,
+            MetricName: this.getConfig().settings.metricName,
             Dimensions: dimensions,
             Timestamp: new Date(),
             Unit: data.units,
-            Value: data.value
+            Value: data.value,
           }],
-          Namespace: _this.config.settings.nameSpace
+          Namespace: this.getConfig().settings.nameSpace,
         };
 
         let cloudwatch = new aws.CloudWatch({
-          region: _this.config.settings.AWS.region,
-          accessKeyId: _this.config.settings.AWS.accessKeyId,
-          secretAccessKey: _this.config.settings.AWS.secretAccessKey
+          region: this.getConfig().settings.AWS.region,
+          accessKeyId: this.getConfig().settings.AWS.accessKeyId,
+          secretAccessKey: this.getConfig().settings.AWS.secretAccessKey,
         });
 
-        cloudwatch.putMetricData(params, function(error) {
+        cloudwatch.putMetricData(params, (error) => {
           if (error) {
-            _this.getApplication().reportError(error.toString(), details, senders, _this).then(function() {
+            this.getApplication().reportError(error.toString(), details, senders, this).then(() => {
               resolve();
-            }).catch(function() {
+            }).catch(() => {
               resolve();
             });
           }
 
           if (!error) {
-            _this.getApplication().getConsole().log(data, details, senders.concat([_this])).then(function() {
+            this.getApplication().getConsole().log(data, details, senders.concat([this])).then(() => {
               resolve();
-            }).catch(function() {
+            }).catch(() => {
               resolve();
             });
           }
@@ -91,7 +91,7 @@ function AWSCloudWatchLogger(application, name, config) {
         resolve();
       }
     });
-  };
+  }
 }
 
 module.exports = AWSCloudWatchLogger;

@@ -2,30 +2,31 @@ const fs = require('fs');
 
 const CustomObject = require(`${__dirname}/CustomObject.js`);
 
-function ManageableEntry(application, name, config, classFile, owner) {
-  CustomObject.call(this, application, name, config, owner);
+class ManageableEntry extends CustomObject {
+  constructor(application, name, config, classFile, owner) {
+    super(application, name, config, owner);
 
-  const _this = this;
+    this.classFile = classFile;
+    this.instance = null;
+  }
 
-  let instance;
-
-  _this.getInstance = function() {
-    if (!instance) {
+  getInstance() {
+    if (!this.instance) {
       try {
-        fs.statSync(classFile);
-        let classImpl = require(classFile);
-        instance = new classImpl(_this.getApplication(), name, config);
+        fs.statSync(this.classFile);
+        let classImpl = require(this.classFile);
+        this.instance = new classImpl(this.getApplication(), this.getName(), this.getConfig());
       } catch (error) {
-        _this.getApplication().fatalError(`Can not create instance of  ${name}: ${error.toString()}`, _this);
+        this.getApplication().fatalError(`Can not create instance of  ${this.getName()}: ${error.toString()}`, this);
       }
     }
 
-    return instance;
-  };
+    return this.instance;
+  }
 
-  _this.isInitialized = function() {
-    return !!instance;
-  };
+  isInitialized() {
+    return !!this.instance;
+  }
 }
 
 module.exports = ManageableEntry;

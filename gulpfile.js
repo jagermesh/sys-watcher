@@ -7,13 +7,15 @@ const configs = {
       '*.js',
       'components/**/*.js',
       'libs/**/*.js',
-    ]
-  }
+    ],
+  },
 };
 
 gulp.task('eslint', function() {
   return gulp.src(configs.eslint.src)
-    .pipe(eslint({quiet: true}))
+    .pipe(eslint({
+      quiet: true,
+    }))
     .pipe(eslint.format())
     .pipe(eslint.failAfterError());
 });

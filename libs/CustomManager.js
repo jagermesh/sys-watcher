@@ -3,45 +3,50 @@ const HashMap = require('hashmap');
 const CustomObject = require(`${__dirname}/CustomObject.js`);
 const ManageableEntry = require(`${__dirname}/ManageableEntry.js`);
 
-function CustomManager(application, name, config, owner, folder) {
-  CustomObject.call(this, application, name, config, owner);
+class CustomManager extends CustomObject {
+  constructor(application, name, config, owner, folder) {
+    super(application, name, config, owner);
 
-  const _this = this;
+    this.folder = folder;
+    this.hash = new HashMap();
 
-  const hash = new HashMap();
-
-  _this.getEntries = function() {
-    return hash;
-  };
-
-  _this.appendEntry = function(name, config) {
-    if (_this.getEntry(name)) {
-      _this.getApplication().console().error(`${name} already exists, skipping`, Object.create({}), _this);
-    } else {
-      let entry = new ManageableEntry(_this.getApplication(), name, config, `${__dirname}/../${folder}/${config.type}.js`, _this);
-      _this.getEntries().set(name, entry);
+    for (let entryName in this.getConfig()) {
+      this.appendEntry(entryName, this.getConfig()[entryName]);
     }
-  };
+  }
 
-  _this.getEntry = function(entryName) {
-    return _this.getEntries().get(entryName);
-  };
+  getEntries() {
+    return this.hash;
+  }
 
-  _this.getInstance = function(entryName) {
-    let entry = _this.getEntry(entryName);
+  appendEntry(name, config) {
+    if (this.getEntry(name)) {
+      this.getApplication().console().error(`${name} already exists, skipping`, {}, this);
+    } else {
+      let entry = new ManageableEntry(this.getApplication(), name, config, `${__dirname}/../${this.folder}/${config.type}.js`, this);
+      this.getEntries().set(name, entry);
+    }
+  }
+
+  getEntry(entryName) {
+    return this.getEntries().get(entryName);
+  }
+
+  getInstance(entryName) {
+    let entry = this.getEntry(entryName);
 
     if (entry) {
       return entry.getInstance();
     } else {
       // throw 'Entry ' + entryName + ' not found';
-      _this.getApplication().fatalError(`Can not find entry ${entryName}`, _this);
+      this.getApplication().fatalError(`Can not find entry ${entryName}`, this);
     }
-  };
+  }
 
-  _this.start = function() {
+  start() {
     let promises = [];
 
-    _this.getEntries().forEach(function(entry) {
+    this.getEntries().forEach((entry) => {
       try {
         promises.push(entry.getInstance().start());
       } catch (error) {
@@ -50,18 +55,14 @@ function CustomManager(application, name, config, owner, folder) {
     });
 
     return Promise.all(promises);
-  };
+  }
 
-  _this.stop = function() {
-    _this.getEntries().forEach(function(entry) {
+  stop() {
+    this.getEntries().forEach((entry) => {
       if (entry.isInitialized()) {
         entry.getInstance().stop();
       }
     });
-  };
-
-  for (let entryName in _this.config) {
-    _this.appendEntry(entryName, _this.config[entryName]);
   }
 }
 

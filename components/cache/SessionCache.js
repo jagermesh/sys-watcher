@@ -4,38 +4,38 @@ const moment = require('moment');
 
 const CustomCache = require(`${__dirname}/../../libs/CustomCache.js`);
 
-function SessionCache(application, name, config) {
-  CustomCache.call(this, application, name, config);
+class SessionCache extends CustomCache {
+  constructor(application, name, config) {
+    super(application, name, config);
 
-  const _this = this;
+    this.cacheData = {};
 
-  let cacheData = Object.create({});
+    this.config.settings = Object.assign({
+      lifespan: '5 min',
+    }, this.config.settings);
 
-  _this.config.settings = Object.assign({
-    lifespan: '5 min',
-  }, _this.config.settings);
+    this.config.settings.lifespanSeconds = parseDuration(this.config.settings.lifespan) / 1000;
+  }
 
-  _this.config.settings.lifespanSeconds = parseDuration(_this.config.settings.lifespan) / 1000;
-
-  function getKey(name) {
+  getKey(name) {
     return md5(name);
   }
 
-  _this.check = function(name) {
-    return new Promise(function(resolve, reject) {
-      let cachedValue = cacheData[getKey(name)];
+  check(name) {
+    return new Promise((resolve, reject) => {
+      let cachedValue = this.cacheData[this.getKey(name)];
       let found = false;
 
       if (cachedValue) {
-        found = (moment().unix() - cachedValue.timestamp < _this.config.settings.lifespanSeconds);
+        found = (moment().unix() - cachedValue.timestamp < this.getConfig().settings.lifespanSeconds);
       }
 
       cachedValue = {
         timestamp: moment().unix(),
-        value: 1
+        value: 1,
       };
 
-      cacheData[getKey(name)] = cachedValue;
+      this.cacheData[this.getKey(name)] = cachedValue;
 
       if (found) {
         resolve();
@@ -43,28 +43,28 @@ function SessionCache(application, name, config) {
         reject();
       }
     });
-  };
+  }
 
-  _this.get = function(name, callback) {
-    let cachedValue = cacheData[getKey(name)];
+  get(name, callback) {
+    let cachedValue = this.cacheData[this.getKey(name)];
 
     callback(cachedValue ? cachedValue.value : cachedValue);
-  };
+  }
 
-  _this.set = function(name, value) {
-    cacheData[getKey(name)] = {
+  set(name, value) {
+    this.cacheData[this.getKey(name)] = {
       timestamp: moment().unix(),
-      value: value
+      value: value,
     };
-  };
+  }
 
-  _this.start = function() {
+  start() {
     return Promise.resolve();
-  };
+  }
 
-  _this.stop = function() {
+  stop() {
 
-  };
+  }
 }
 
 module.exports = SessionCache;

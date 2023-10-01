@@ -2,118 +2,114 @@ const mysql = require('mysql');
 
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
 
-function MySQLWatcher(application, name, config) {
-  CustomWatcher.call(this, application, name, config);
+class MySQLWatcher extends CustomWatcher {
+  constructor(application, name, config) {
+    super(application, name, config);
+  }
 
-  const _this = this;
-
-  function getConnection(database, ruleName, callback) {
+  getConnection(database, ruleName, callback) {
     const connection = mysql.createConnection({
       host: database.host,
       user: database.user,
       password: database.password,
       database: database.database,
-      port: database.port
+      port: database.port,
     });
 
     let details = {
       RuleName: ruleName,
-      Database: database.database
+      Database: database.database,
     };
 
-    connection.connect(function(error) {
+    connection.connect((error) => {
       if (error) {
-        _this.getApplication().notify(_this.getLoggers(), {
-          message: 'Can not connect to database: ' + error.toString(),
-          isError: true
-        }, details, _this);
+        this.getApplication().notify(this.getLoggers(), {
+          message: `Can not connect to database: ${error.toString()}`,
+          isError: true,
+        }, details, this);
+      } else if (database.timezone) {
+        connection.query(`SET time_zone = "${database.timezone}"`, (error) => {
+          if (error) {
+            this.getApplication().notify(this.getLoggers(), {
+              message: `Can not change time zone: ${error.toString()}`,
+              isError: true,
+            }, details, this);
+          } else {
+            callback(connection);
+          }
+        });
       } else {
-        if (database.timezone) {
-          connection.query('SET time_zone = "' + database.timezone + '"', function(error) {
-            if (error) {
-              _this.getApplication().notify(_this.getLoggers(), {
-                message: 'Can not change time zone: ' + error.toString(),
-                isError: true
-              }, details, _this);
-            } else {
-              callback(connection);
-            }
-          });
-        } else {
-          callback(connection);
-        }
+        callback(connection);
       }
     });
   }
 
-  function substitute(text, prefix, obj) {
+  substitute(text, prefix, obj) {
     let result = text;
 
     for (let attrName in obj) {
-      result = result.replace('{' + prefix + '.' + attrName + '}', obj[attrName]);
+      result = result.replace(`{${prefix}.${attrName}}`, obj[attrName]);
     }
 
     return result;
   }
 
-  function watchSQL(database, ruleName, ruleConfig, sql) {
-    getConnection(database, ruleName, function(connection) {
-      let runSQL = substitute(sql, 'settings.database', database);
-      connection.query(runSQL, function(error, results) {
+  watchSQL(database, ruleName, ruleConfig, sql) {
+    this.getConnection(database, ruleName, (connection) => {
+      let runSQL = this.substitute(sql, 'settings.database', database);
+      connection.query(runSQL, (error, results) => {
         let details = {
           RuleName: ruleName,
           Database: database.database,
-          SQL: runSQL
+          SQL: runSQL,
         };
         if (error) {
-          _this.getApplication().notify(_this.getLoggers(ruleConfig.loggers), {
-            message: 'Can not run query: <pre>' + error.toString() + '</pre>',
-            isError: true
-          }, details, _this);
-        } else {
-          if (ruleConfig.format) {
-            ruleConfig.format(results, function(data) {
-              if (data) {
-                if (Array.isArray(data)) {
-                  for (let i = 0; i < data.length; i++) {
-                    _this.getApplication().notify(_this.getLoggers(ruleConfig.loggers), data[i], details, _this);
-                  }
-                } else {
-                  _this.getApplication().notify(_this.getLoggers(ruleConfig.loggers), data, details, _this);
+          this.getApplication().notify(this.getLoggers(ruleConfig.loggers), {
+            message: `Can not run query: <pre>${error.toString()}</pre>`,
+            isError: true,
+          }, details, this);
+        } else if (ruleConfig.format) {
+          ruleConfig.format(results, (data) => {
+            if (data) {
+              if (Array.isArray(data)) {
+                for (let i = 0; i < data.length; i++) {
+                  this.getApplication().notify(this.getLoggers(ruleConfig.loggers), data[i], details, this);
                 }
+              } else {
+                this.getApplication().notify(this.getLoggers(ruleConfig.loggers), data, details, this);
               }
-            }, {
-              connection: connection,
-              sql: runSQL
-            });
-          }
+            }
+          }, {
+            connection: connection,
+            sql: runSQL,
+          });
         }
         connection.end();
       });
     });
   }
 
-  function watchRule(database, ruleName, ruleConfig) {
+  watchRule(database, ruleName, ruleConfig) {
     if (typeof ruleConfig.sql === 'string') {
-      watchSQL(database, ruleName, ruleConfig, ruleConfig.sql);
+      this.watchSQL(database, ruleName, ruleConfig, ruleConfig.sql);
     } else {
-      getConnection(database, ruleName, function(connection) {
+      this.getConnection(database, ruleName, (connection) => {
         let details = {
           RuleName: ruleName,
-          Database: database.database
+          Database: database.database,
         };
-        ruleConfig.sql.call(_this, connection, function(error, results) {
+        ruleConfig.sql.call(this, connection, (error, results) => {
           if (error) {
-            _this.getApplication().notify(_this.getLoggers(ruleConfig.loggers), {
+            this.getApplication().notify(this.getLoggers(ruleConfig.loggers), {
               message: error.toString(),
-              isError: true
-            }, details, _this);
+              isError: true,
+            }, details, this);
           } else {
             if (typeof results === 'string') {
               results = [results];
             }
             for (let i = 0; i < results.length; i++) {
-              watchSQL(database, ruleName, ruleConfig, results[i]);
+              this.watchSQL(database, ruleName, ruleConfig, results[i]);
             }
           }
           connection.end();
@@ -122,19 +118,19 @@ function MySQLWatcher(application, name, config) {
     }
   }
 
-  function watchDatabase(database) {
-    for (let ruleName in _this.config.settings.rules) {
-      let ruleConfig = _this.config.settings.rules[ruleName];
-      watchRule(database, ruleName, ruleConfig);
+  watchDatabase(database) {
+    for (let ruleName in this.getConfig().settings.rules) {
+      let ruleConfig = this.getConfig().settings.rules[ruleName];
+      this.watchRule(database, ruleName, ruleConfig);
     }
   }
 
-  _this.watch = function() {
-    for (let i = 0; i < _this.config.settings.database.length; i++) {
-      let database = _this.config.settings.database[i];
-      watchDatabase(database);
+  watch() {
+    for (let i = 0; i < this.getConfig().settings.database.length; i++) {
+      let database = this.getConfig().settings.database[i];
+      this.watchDatabase(database);
     }
-  };
+  }
 }
 
 module.exports = MySQLWatcher;

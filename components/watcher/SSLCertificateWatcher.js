@@ -2,41 +2,41 @@ const SSLChecker = require('ssl-checker');
 
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
 
-function SSLCertificateWatcher(application, name, config) {
-  CustomWatcher.call(this, application, name, config);
+class SSLCertificateWatcher extends CustomWatcher {
+  constructor(application, name, config) {
+    super(application, name, config);
+  }
 
-  const _this = this;
-
-  function checkHostname(hostname) {
+  checkHostname(hostname) {
     let details = Object.create(null);
     details.hostname = hostname;
 
-    _this.getApplication().getConsole().log('Checking SSL certificate of ' + hostname, Object.create({}), _this);
+    this.getApplication().getConsole().log(`Checking SSL certificate of ${hostname}`, {}, this);
 
-    SSLChecker(hostname).then(function(result) {
+    SSLChecker(hostname).then((result) => {
       result.hostname = hostname;
-      if (result.days_remaining < _this.config.settings.threshold) {
-        _this.getApplication().notify(_this.getLoggers(), {
-          message: 'SLL certificate of ' + hostname + ' is expiring soon. ' + result.days_remaining + ' days remaining'
-        }, result, _this);
+      if (result.days_remaining < this.getConfig().settings.threshold) {
+        this.getApplication().notify(this.getLoggers(), {
+          message: `SLL certificate of ${hostname} is expiring soon. ${result.days_remaining} days remaining`,
+        }, result, this);
       } else {
-        _this.getApplication().getConsole().log('SSL certificate of ' + hostname + ' is valid, ' + result.days_remaining + ' days remaining', result, _this);
+        this.getApplication().getConsole().log(`SSL certificate of ${hostname} is valid, ${result.days_remaining} days remaining`, result, this);
       }
-    }).catch(function(error) {
-      _this.getApplication().notify(_this.getLoggers(), {
-        message: 'SSL check of ' + hostname + ' failed: ' + error.toString(),
-        isError: true
-      }, details, _this);
+    }).catch((error) => {
+      this.getApplication().notify(this.getLoggers(), {
+        message: `SSL check of ${hostname} failed: ${error.toString()}`,
+        isError: true,
+      }, details, this);
     });
   }
 
-  _this.watch = function() {
-    let hostnames = _this.getArrayValue(_this.config.settings.hostnames);
+  watch() {
+    let hostnames = this.getArrayValue(this.getConfig().settings.hostnames);
 
     for (let i = 0; i < hostnames.length; i++) {
-      checkHostname(hostnames[i]);
+      this.checkHostname(hostnames[i]);
     }
-  };
+  }
 }
 
 module.exports = SSLCertificateWatcher;

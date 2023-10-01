@@ -1,7 +1,9 @@
 const CustomManager = require(`${__dirname}/CustomManager.js`);
 
-function ScriptsManager(application, config) {
-  CustomManager.call(this, application, 'ScriptsManager', config, application, 'components/script');
+class ScriptsManager extends CustomManager {
+  constructor(application, config) {
+    super(application, 'ScriptsManager', config, application, 'components/script');
+  }
 }
 
 module.exports = ScriptsManager;

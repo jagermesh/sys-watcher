@@ -4,32 +4,30 @@ const parseDuration = require('parse-duration');
 
 const CustomCache = require(`${__dirname}/../../libs/CustomCache.js`);
 
-function RedisCache(application, name, config) {
-  CustomCache.call(this, application, name, config);
+class RedisCache extends CustomCache {
+  constructor(application, name, config) {
+    super(application, name, config);
 
-  const AppId = '8ad4edee-4482-4124-8169-03fd856de190';
+    this.appId = '8ad4edee-4482-4124-8169-03fd856de190';
 
-  const _this = this;
+    this.config.settings = Object.assign({
+      lifespan: '5 min',
+      connectString: '',
+    }, this.config.settings);
 
-  _this.config.settings = Object.assign({
-    lifespan: '5 min',
-    connectString: '',
-  }, _this.config.settings);
-
-  _this.config.settings.lifespanSeconds = parseDuration(_this.config.settings.lifespan) / 1000;
-
-  _this.cacheImpl = null;
-
-  function getKey(name) {
-    return AppId + ':' + md5(name);
+    this.config.settings.lifespanSeconds = parseDuration(this.config.settings.lifespan) / 1000;
   }
 
-  _this.check = function(name) {
-    return new Promise(function(resolve, reject) {
-      if (_this.cacheImpl) {
-        _this.cacheImpl.getset(getKey(name), 1, function(error, cachedValue) {
+  getKey(name) {
+    return this.appId + ':' + md5(name);
+  }
+
+  check(name) {
+    return new Promise((resolve, reject) => {
+      if (this.instance) {
+        this.instance.getset(this.getKey(name), 1, (error, cachedValue) => {
           try {
-            _this.set(name, 1);
+            this.set(name, 1);
             if (cachedValue) {
               resolve(cachedValue);
             } else {
@@ -43,12 +41,12 @@ function RedisCache(application, name, config) {
         reject();
       }
     });
-  };
+  }
 
-  _this.get = function(name, callback) {
-    if (_this.cacheImpl) {
+  get(name, callback) {
+    if (this.instance) {
       try {
-        _this.cacheImpl.get(getKey(name), function(error, value) {
+        this.instance.get(this.getKey(name), (error, value) => {
           callback(value);
         });
       } catch (Error) {
@@ -57,54 +55,54 @@ function RedisCache(application, name, config) {
     } else {
       callback(null);
     }
-  };
+  }
 
-  _this.set = function(name, value) {
-    if (_this.cacheImpl) {
-      _this.cacheImpl.set(getKey(name), value, 'EX', _this.config.settings.lifespanSeconds);
+  set(name, value) {
+    if (this.instance) {
+      this.instance.set(this.getKey(name), value, 'EX', this.getConfig().settings.lifespanSeconds);
     }
-  };
+  }
 
-  _this.start = function() {
+  start() {
     let inStart = true;
 
-    return new Promise(function(resolve, reject) {
-      const redisClient = redis.createClient(_this.config.settings.connectString);
+    return new Promise((resolve, reject) => {
+      const redisClient = redis.createClient(this.getConfig().settings.connectString);
 
-      redisClient.on('connect', function() {
-        redisClient.stream.setKeepAlive(true, 60*1000);
+      redisClient.on('connect', () => {
+        redisClient.stream.setKeepAlive(true, 60 * 1000);
         if (!inStart) {
-          _this.getApplication().getConsole().log('Redis re-connected', Object.create({}), _this);
+          this.getApplication().getConsole().log('Redis re-connected', {}, this);
         }
         if (inStart) {
           inStart = false;
-          _this.getApplication().getConsole().log('Redis connected', Object.create({}), _this);
+          this.getApplication().getConsole().log('Redis connected', {}, this);
           resolve();
         }
-        _this.cacheImpl = redisClient;
+        this.instance = redisClient;
       });
 
-      redisClient.on('error', function(error) {
+      redisClient.on('error', (error) => {
         if (!inStart) {
-          _this.getApplication().getConsole().error('Redis error ' + error.toString(), Object.create({}), _this);
+          this.getApplication().getConsole().error('Redis error ' + error.toString(), {}, this);
         }
         if (inStart) {
           inStart = false;
-          reject('Redis error: ' + error.toString(), _this);
+          reject('Redis error: ' + error.toString(), this);
         }
       });
 
-      redisClient.on('end', function() {
-        _this.cacheImpl = null;
+      redisClient.on('end', () => {
+        this.instance = null;
       });
     });
-  };
+  }
 
-  _this.stop = function() {
-    if (_this.cacheImpl) {
-      _this.cacheImpl.quit();
+  stop() {
+    if (this.cacheImpl) {
+      this.cacheImpl.quit();
     }
-  };
+  }
 }
 
 module.exports = RedisCache;

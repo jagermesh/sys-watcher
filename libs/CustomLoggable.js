@@ -1,37 +1,37 @@
 const CustomObject = require(`${__dirname}/CustomObject.js`);
 
-function CustomLoggable(application, name, config, owner) {
-  CustomObject.call(this, application, name, config, owner);
+class CustomLoggable extends CustomObject {
+  constructor(application, name, config, owner) {
+    super(application, name, config, owner);
 
-  const _this = this;
+    this.config = Object.assign({
+      settings: {},
+      overrides: {},
+      loggers: [],
+      scheduling: null,
+    }, this.config);
 
-  _this.config = Object.assign({
-    settings: {},
-    overrides: {},
-    loggers: [],
-    scheduling: null,
-  }, _this.config);
+    this.config.overrides = Object.assign({
+      loggers: {},
+    }, this.config.overrides);
 
-  _this.config.overrides = Object.assign({
-    loggers: {},
-  }, _this.config.overrides);
+    if (typeof this.config.loggers === 'string') {
+      this.config.loggers = this.config.loggers.split(',');
+    }
 
-  if (typeof _this.config.loggers === 'string') {
-    _this.config.loggers = _this.config.loggers.split(',');
+    this.scheduler = null;
   }
 
-  let scheduler;
-
-  _this.start = function() {
+  start() {
     return Promise.resolve();
-  };
+  }
 
-  _this.stop = function() {
+  stop() {
 
-  };
+  }
 
-  _this.getLoggers = function(including) {
-    let result = _this.getConfig().loggers;
+  getLoggers(including) {
+    let result = this.getConfig().loggers;
 
     if (including) {
       if (typeof including === 'string') {
@@ -40,45 +40,45 @@ function CustomLoggable(application, name, config, owner) {
       result = result.concat(including);
     }
 
-    result = result.filter(function(value, index, self) {
+    result = result.filter((value, index, self) => {
       return (self.indexOf(value) === index);
     });
 
     return result;
-  };
+  }
 
-  _this.getErrorLoggers = function(including) {
-    let result = _this.getLoggers(including);
+  getErrorLoggers(including) {
+    let result = this.getLoggers(including);
 
     if (result.length == 0) {
-      result = _this.getApplication().getAppErrorsWatcher().getLoggers();
+      result = this.getApplication().getAppErrorsWatcher().getLoggers();
     }
 
     return result;
-  };
+  }
 
-  _this.needScheduler = function() {
-    return !!_this.getConfig().scheduling;
-  };
+  needScheduler() {
+    return !!this.getConfig().scheduling;
+  }
 
-  _this.getScheduler = function() {
-    if (!scheduler) {
+  getScheduler() {
+    if (!this.scheduler) {
       const Scheduler = require(`${__dirname}/Scheduler.js`);
-      scheduler = new Scheduler(_this.getApplication(), `${_this.getName()}: Scheduler`, {
-        settings: _this.getConfig().scheduling
-      }, _this);
+      this.scheduler = new Scheduler(this.getApplication(), `${this.getName()}: Scheduler`, {
+        settings: this.getConfig().scheduling,
+      }, this);
     }
 
-    return scheduler;
-  };
+    return this.scheduler;
+  }
 
-  _this.getCache = function(isError) {
-    if (_this.getConfig().cache) {
-      let cacheCfg = Object.create({});
-      if (typeof _this.getConfig().cache == 'string') {
-        cacheCfg.regular = _this.getConfig().cache;
+  getCache(isError) {
+    if (this.getConfig().cache) {
+      let cacheCfg = {};
+      if (typeof this.getConfig().cache == 'string') {
+        cacheCfg.regular = this.getConfig().cache;
       } else {
-        cacheCfg = _this.getConfig().cache;
+        cacheCfg = this.getConfig().cache;
       }
       let cacheName;
       if (isError) {
@@ -87,12 +87,12 @@ function CustomLoggable(application, name, config, owner) {
         cacheName = cacheCfg.regular;
       }
       if (cacheName) {
-        return _this.getApplication().getCacheManager().getInstance(cacheName);
+        return this.getApplication().getCacheManager().getInstance(cacheName);
       }
     }
 
     return null;
-  };
+  }
 }
 
 module.exports = CustomLoggable;

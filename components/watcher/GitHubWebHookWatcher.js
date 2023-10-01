@@ -2,41 +2,43 @@ const crypto = require('crypto');
 
 const WebWatcher = require(`${__dirname}/WebWatcher.js`);
 
-function GitHubWebHookWatcher(application, name, config) {
-  WebWatcher.call(this, application, name, config);
+class GitHubWebHookWatcher extends WebWatcher {
+  constructor(application, name, config) {
+    super(application, name, config);
 
-  const _this = this;
+    this.config.settings = Object.assign({
+      events: {},
+    }, this.config.settings);
+  }
 
-  _this.config.settings.events = _this.config.settings.events || Object.create({});
-
-  function sendResponse(response, code, responseMessage, loggers, details, config, logMessage) {
+  sendResponse(response, code, responseMessage, loggers, details, config, logMessage) {
     logMessage = logMessage || responseMessage;
 
     if (code >= 400) {
-      _this.getApplication().notify(_this.getLoggers(loggers), {
+      this.getApplication().notify(this.getLoggers(loggers), {
         message: logMessage,
-        isError: true
-      }, details, _this, config);
+        isError: true,
+      }, details, this, config);
     } else {
-      _this.getApplication().notify(_this.getLoggers(loggers), {
-        message: logMessage
-      }, details, _this, config);
+      this.getApplication().notify(this.getLoggers(loggers), {
+        message: logMessage,
+      }, details, this, config);
     }
 
     response.status(code);
     response.send(responseMessage);
   }
 
-  _this.watch = function() {
-    _this.getWebServer(_this.config.settings.port, function(server) {
-      _this.server = server;
-      _this.server.post(_this.config.settings.path, function(request, response, next) {
+  watch() {
+    this.getWebServer(this.getConfig().settings.port, (server) => {
+      this.server = server;
+      this.server.post(this.getConfig().settings.path, (request, response, next) => {
         let signature = request.headers['x-hub-signature'];
         if (signature) {
-          if (_this.config.settings.secret) {
+          if (this.getConfig().settings.secret) {
             signature = signature.replace(/^sha1=/, '');
             let data = request.rawBody.toString();
-            let digest = crypto.createHmac('sha1', _this.config.settings.secret).update(data).digest('hex');
+            let digest = crypto.createHmac('sha1', this.getConfig().settings.secret).update(data).digest('hex');
             if (signature == digest) {
               if (request.body) {
                 if (request.body.ref) {
@@ -45,13 +47,13 @@ function GitHubWebHookWatcher(application, name, config) {
                 }
               }
               let event = request.headers['x-github-event'];
-              let eventHandler = _this.config.settings.events[event];
+              let eventHandler = this.getConfig().settings.events[event];
               if (!eventHandler) {
-                eventHandler = _this.config.settings.events['*'];
+                eventHandler = this.getConfig().settings.events['*'];
               }
               if (eventHandler) {
                 if (typeof eventHandler == 'function') {
-                  eventHandler.call(_this, request, response, next);
+                  eventHandler.call(this, request, response, next);
                 } else {
                   let requestHandler;
                   if (request.body.branch) {
@@ -63,12 +65,13 @@ function GitHubWebHookWatcher(application, name, config) {
                     requestHandler = eventHandler;
                   }
                   if (requestHandler) {
-                    let config = Object.create({});
+                    let config = {};
                     if (requestHandler.subject) {
-                      config.composing = config.settings || Object.create({});
-                      config.composing.subject = requestHandler.subject;
+                      config.composing = Object.assign({
+                        subject: requestHandler.subject,
+                      }, config.composing);
                     }
-                    let details = _this.getRequestDetails(request);
+                    let details = this.getRequestDetails(request);
                     if (requestHandler.cmd) {
                       requestHandler.cwd = requestHandler.cwd || process.cwd();
                       details.Cmd = requestHandler.cmd;
@@ -77,35 +80,35 @@ function GitHubWebHookWatcher(application, name, config) {
                       let cmd = requestHandler.cmd;
                       cmd = cmd.replace('{branch}', request.body.branch);
 
-                      _this.getApplication().getExecPool().exec(cmd, requestHandler.cwd, requestHandler.cmdGroup).then(function(result) {
+                      this.getApplication().getExecPool().exec(cmd, requestHandler.cwd, requestHandler.cmdGroup).then((result) => {
                         let stdout = result.stdout;
-                        sendResponse(response, 200, 'Success', requestHandler.loggers, details, config, stdout);
-                      }).catch(function(result) {
+                        this.sendResponse(response, 200, 'Success', requestHandler.loggers, details, config, stdout);
+                      }).catch((result) => {
                         let stdout = result.stdout;
-                        sendResponse(response, 500, 'Processing failed', requestHandler.loggers, details, config, stdout);
+                        this.sendResponse(response, 500, 'Processing failed', requestHandler.loggers, details, config, stdout);
                       });
                     } else {
-                      sendResponse(response, 200, 'Success', requestHandler.loggers, details, config);
+                      this.sendResponse(response, 200, 'Success', requestHandler.loggers, details, config);
                     }
                   } else {
-                    sendResponse(response, 403, 'No handler for branch ' + request.body.branch);
+                    this.sendResponse(response, 403, `No handler for branch ${request.body.branch}`);
                   }
                 }
               } else {
-                sendResponse(response, 403, 'No handler for ' + event + ' event');
+                this.sendResponse(response, 403, `No handler for ${event} event`);
               }
             } else {
-              sendResponse(response, 403, 'Incorrect signature');
+              this.sendResponse(response, 403, 'Incorrect signature');
             }
           } else {
-            sendResponse(response, 403, 'Secret not configured');
+            this.sendResponse(response, 403, 'Secret not configured');
           }
         } else {
-          sendResponse(response, 403, 'Signature missing');
+          this.sendResponse(response, 403, 'Signature missing');
         }
       });
     });
-  };
+  }
 }
 
 module.exports = GitHubWebHookWatcher;

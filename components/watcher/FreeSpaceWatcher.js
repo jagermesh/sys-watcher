@@ -3,55 +3,55 @@ const bytes = require('bytes');
 
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
 
-function FreeSpaceWatcher(application, name, config) {
-  CustomWatcher.call(this, application, name, config);
+class FreeSpaceWatcher extends CustomWatcher {
+  constructor(application, name, config) {
+    super(application, name, config);
 
-  const _this = this;
+    this.config.settings = Object.assign({
+      threshold: '0 b',
+    }, this.config.settings);
 
-  _this.config.settings = Object.assign({
-    threshold: '0 b',
-  }, _this.config.settings);
+    this.config.settings.thresholdBytes = bytes.parse(this.config.settings.threshold);
+  }
 
-  _this.config.settings.thresholdBytes = bytes.parse(_this.config.settings.threshold);
-
-  function watchPath(path) {
+  watchPath(path) {
     let details = {
-      Path: path
+      Path: path,
     };
 
-    diskusage.check(path, function(error, stats) {
+    diskusage.check(path, (error, stats) => {
       if (error) {
-        _this.getApplication().notify(_this.getLoggers(), {
+        this.getApplication().notify(this.getLoggers(), {
           message: error.toString(),
-          isError: true
-        }, details, _this);
+          isError: true,
+        }, details, this);
       } else {
-        if ((_this.config.settings.thresholdBytes == 0) || (stats.free < _this.config.settings.thresholdBytes)) {
-          let message = 'Free space is ' + bytes(stats.free);
-          if (_this.config.settings.thresholdBytes > 0) {
-            message += ' which is less than threshold ' + bytes(_this.config.settings.thresholdBytes);
+        if ((this.getConfig().settings.thresholdBytes == 0) || (stats.free < this.getConfig().settings.thresholdBytes)) {
+          let message = `Free space is ${bytes(stats.free)}`;
+          if (this.getConfig().settings.thresholdBytes > 0) {
+            message += ` which is less than threshold ${bytes(this.getConfig().settings.thresholdBytes)}`;
           }
-          _this.getApplication().notify(_this.getLoggers(), {
+          this.getApplication().notify(this.getLoggers(), {
             message: message,
             value: stats.free,
             units: 'Bytes',
             dimensions: {
-              Path: path
+              Path: path,
             },
-            skipConsole: (_this.config.settings.thresholdBytes == 0)
-          }, details, _this);
+            skipConsole: (this.getConfig().settings.thresholdBytes == 0),
+          }, details, this);
         }
       }
     });
   }
 
-  _this.watch = function() {
-    let paths = _this.getArrayValue(_this.config.settings.path);
+  watch() {
+    let paths = this.getArrayValue(this.getConfig().settings.path);
 
     for (let i = 0; i < paths.length; i++) {
-      watchPath(paths[i]);
+      this.watchPath(paths[i]);
     }
-  };
+  }
 }
 
 module.exports = FreeSpaceWatcher;

@@ -1,5 +1,5 @@
 const {
-  MonitoringSensor
+  MonitoringSensor,
 } = require('monitoring-sensor');
 
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
@@ -14,15 +14,15 @@ class Logger {
   }
 }
 
-function MonitoringSensorWatcher(application, name, config) {
-  CustomWatcher.call(this, application, name, config);
+class MonitoringSensorWatcher extends CustomWatcher {
+  constructor(application, name, config) {
+    super(application, name, config);
+  }
 
-  const _this = this;
-
-  _this.watch = function() {
-    const sensor = new MonitoringSensor(_this.config.settings, new Logger(_this));
+  watch() {
+    const sensor = new MonitoringSensor(this.getConfig().settings, new Logger(this));
     sensor.start();
-  };
+  }
 }
 
 module.exports = MonitoringSensorWatcher;
