@@ -14,7 +14,7 @@ class ExecPool extends CustomObject {
 
     this.tasks = {};
 
-    this.interval = setInterval(function() {
+    this.interval = setInterval(() => {
       for (let tag in this.tasks) {
         while (this.tasks[tag].length > 0) {
           let task = this.tasks[tag][0];
@@ -33,14 +33,14 @@ class ExecPool extends CustomObject {
   }
 
   postCheckProcessLogs(task, details, out, err, closeError) {
-    fs.stat(out.name, function(error) {
+    fs.stat(out.name, (error) => {
       if (error) {
         this.getApplication().getConsole().error(`Executed ${colors.yellow(task.cmd)}, stdout log not found`, details, task.senders.concat([this]));
         task.status = 3;
         task.done(false, '');
       }
       if (!error) {
-        fs.stat(err.name, function(error) {
+        fs.stat(err.name, (error) => {
           if (error) {
             this.getApplication().getConsole().error(`Executed ${colors.yellow(task.cmd)}, stderr log not found`, details, task.senders.concat([this]));
             task.status = 3;
@@ -96,21 +96,21 @@ class ExecPool extends CustomObject {
     let postCheckProcessLog;
 
     if (cmdProcess.stdout) {
-      cmdProcess.stdout.on('data', function(data) {
+      cmdProcess.stdout.on('data', (data) => {
         cmdLog += data.toString();
       });
     }
     if (cmdProcess.stderr) {
-      cmdProcess.stderr.on('data', function(data) {
+      cmdProcess.stderr.on('data', (data) => {
         cmdLog += data.toString();
       });
     }
-    cmdProcess.on('error', function() {
+    cmdProcess.on('error', () => {
       this.getApplication().getConsole().error(`Executed ${colors.yellow(task.cmd)}, error:\n${colors.red(cmdLog)}`, details, task.senders.concat([this]));
       task.status = 3;
       task.done(false, cmdLog.trim());
     });
-    cmdProcess.on('close', function(code) {
+    cmdProcess.on('close', (code) => {
       clearTimeout(postCheckProcessLog);
       if (code == 0) {
         this.getApplication().getConsole().log(`Executed ${colors.yellow(task.cmd)}, success:\n${colors.green(cmdLog)}`, details, task.senders.concat([this]));
@@ -178,7 +178,7 @@ class ExecPool extends CustomObject {
         cwd: cwd || process.cwd(),
         longRunning: false,
         senders: senders,
-        done: function(result, stdout) {
+        done: (result, stdout) => {
           if (result) {
             resolve({
               cmd: cmd,
@@ -220,7 +220,7 @@ class ExecPool extends CustomObject {
         cwd: cwd || process.cwd(),
         longRunning: true,
         senders: senders,
-        done: function(result, stdout) {
+        done: (result, stdout) => {
           if (result) {
             resolve({
               cmd: cmd,

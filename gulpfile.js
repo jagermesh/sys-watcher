@@ -11,7 +11,7 @@ const configs = {
   },
 };
 
-gulp.task('eslint', function() {
+gulp.task('eslint', () => {
   return gulp.src(configs.eslint.src)
     .pipe(eslint({
       quiet: true,

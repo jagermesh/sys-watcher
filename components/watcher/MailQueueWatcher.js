@@ -10,7 +10,7 @@ class MailQueueWatcher extends CustomWatcher {
   }
 
   watch() {
-    this.getApplication().getExecPool().exec('mailq').then(function(result) {
+    this.getApplication().getExecPool().exec('mailq').then((result) => {
       let stdout = result.stdout;
       let regexp = /([0-9]+) Requests/;
       let match = regexp.exec(stdout);

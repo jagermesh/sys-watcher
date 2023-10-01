@@ -11,7 +11,7 @@ class HTTPWatcher extends WebWatcher {
   }
 
   watchRoute(method, route, config) {
-    this.server[method](route, function(request, response, next) {
+    this.server[method](route, (request, response, next) => {
       if (typeof config == 'function') {
         config.call(this, request, response, next);
       } else {
@@ -113,7 +113,7 @@ class HTTPWatcher extends WebWatcher {
   }
 
   watch() {
-    this.getWebServer(this.getConfig().settings.port, function(server) {
+    this.getWebServer(this.getConfig().settings.port, (server) => {
       this.server = server;
       for (let method in this.getConfig().settings.routes) {
         for (let route in this.getConfig().settings.routes[method]) {

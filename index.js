@@ -34,20 +34,20 @@ class SysWatcher {
         console.log('');
         console.log('Available script commands:');
         let max = 0;
-        application.getScriptsManager().getEntries().forEach(function(entry, scriptName) {
+        application.getScriptsManager().getEntries().forEach((entry, scriptName) => {
           max = Math.max(max, ('  ' + watcherCli + ' run-script ' + scriptName + configParam).length);
         });
-        application.getScriptsManager().getEntries().forEach(function(entry, scriptName) {
+        application.getScriptsManager().getEntries().forEach((entry, scriptName) => {
           console.log(('  ' + watcherCli + ' run-script ' + scriptName + configParam).padEnd(max, ' ') + ' ' + colors.yellow(entry.config.name));
         });
 
         console.log('');
         console.log('Available send message commands:');
         max = 0;
-        application.getLoggersManager().getEntries().forEach(function(entry, loggerName) {
+        application.getLoggersManager().getEntries().forEach((entry, loggerName) => {
           max = Math.max(max, ('  ' + watcherCli + ' send-message ' + loggerName + ' <message>' + configParam).length);
         });
-        application.getLoggersManager().getEntries().forEach(function(entry, loggerName) {
+        application.getLoggersManager().getEntries().forEach((entry, loggerName) => {
           console.log(('  ' + watcherCli + ' send-message ' + loggerName + ' <message>' + configParam).padEnd(max, ' ') + ' ' + colors.yellow(entry.getInstance().getDescription()));
         });
       }
@@ -112,7 +112,7 @@ class SysWatcher {
                 message: commander.args[2],
               }, null, null, {
                 settings: extra,
-              }).catch(function(error) {
+              }).catch((error) => {
                 error = error || 'Unknown error';
                 error = (typeof error == 'string' ? {
                   error: error,

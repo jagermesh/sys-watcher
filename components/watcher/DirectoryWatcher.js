@@ -65,7 +65,7 @@ class DirectoryWatcher extends CustomWatcher {
   walk(dir, match, except, filters, done) {
     let results = [];
 
-    fs.readdir(dir, function(err, list) {
+    fs.readdir(dir, (err, list) => {
       if (err) {
         return done(err);
       }
@@ -73,12 +73,12 @@ class DirectoryWatcher extends CustomWatcher {
       if (!pending) {
         return done(null, results);
       }
-      list.forEach(function(fileName) {
+      list.forEach((fileName) => {
         fileName = dir + fileName;
-        fs.stat(fileName, function(error, stat) {
+        fs.stat(fileName, (error, stat) => {
           if (!error && stat) {
             if (stat && stat.isDirectory()) {
-              this.walk(fileName + '/', match, except, filters, function(err, res) {
+              this.walk(fileName + '/', match, except, filters, (err, res) => {
                 results = results.concat(res);
                 if (!--pending) {
                   done(null, results);
@@ -108,10 +108,10 @@ class DirectoryWatcher extends CustomWatcher {
       path += '/';
     }
 
-    fs.stat(path, function(error) {
+    fs.stat(path, (error) => {
       if (error) {
         if (this.getConfig().settings.retryIfNotExists) {
-          setTimeout(function() {
+          setTimeout(() => {
             this.watchPath(path, match, except, filters);
           }, 5 * 60 * 1000); // retry in 5 minutes
         } else {
@@ -123,7 +123,7 @@ class DirectoryWatcher extends CustomWatcher {
           }, this);
         }
       } else {
-        this.walk(path, match, except, filters, function(error, results) {
+        this.walk(path, match, except, filters, (error, results) => {
           if (error) {
             this.getApplication().notify(this.getLoggers(), {
               message: error.toString(),
