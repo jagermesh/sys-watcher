@@ -111,7 +111,7 @@ class ProcessWatcher extends CustomWatcher {
       return command.cmd;
     });
 
-    this.getApplication().getConsole().log(`Checking for ${colors.yellow(ruleName)}, executing ${colors.yellow(commands.join(', '))}`, {
+    this.getApplication().getConsole().log(`Checking for ${colors.yellow(ruleName)}, executing ${colors.yellow(sysCmds.join(', '))}`, {
       Check: ruleConfig.check,
     }, this);
 
