@@ -223,19 +223,38 @@ class ProcessWatcher extends CustomWatcher {
         processes.forEach((runningProcess) => {
           let killed = false;
           if (
-            (ruleConfig.mode.indexOf('limit-uptime') != -1) &&
-            runningProcess.uptime &&
+            (
+              (ruleConfig.mode.indexOf('log-uptime') != -1) ||
+              (ruleConfig.mode.indexOf('limit-uptime') != -1)
+            ) &&
+            (runningProcess.uptime != undefined) &&
             ruleConfig.uptime_threshold
           ) {
             let uptime_threshold_sec = parseDuration(ruleConfig.uptime_threshold) / 1000;
             if (runningProcess.uptime > uptime_threshold_sec) {
-              killed = this.killProcess(
-                ruleName,
-                ruleConfig,
-                runningProcess,
-                `Application ${runningProcess.cmd} (PID ${runningProcess.pid}) uptime ${runningProcess.uptime} sec, greater than threshold ${uptime_threshold_sec} sec`,
-                processCmds,
-              );
+              let message = `Application ${runningProcess.cmd} (PID ${runningProcess.pid}) uptime ${runningProcess.uptime} sec, greater than threshold ${uptime_threshold_sec} sec`;
+              if (ruleConfig.mode.indexOf('log-uptime') != -1) {
+                this.getApplication().notify(this.getLoggers(), {
+                  message: message,
+                  value: runningProcess.uptime,
+                  units: 'Duration',
+                  dimensions: {
+                    Rule: ruleName,
+                  },
+                }, {
+                  Check: ruleConfig.check,
+                  Processes: processCmds,
+                }, this);
+              }
+              if (ruleConfig.mode.indexOf('limit-uptime') != -1) {
+                killed = this.killProcess(
+                  ruleName,
+                  ruleConfig,
+                  runningProcess,
+                  message,
+                  processCmds,
+                );
+              }
             }
           }
           if (!killed) {
@@ -244,14 +263,17 @@ class ProcessWatcher extends CustomWatcher {
               (runningProcess.cpu != undefined)
             ) {
               let cpuInRange;
+              let message;
               if (ruleConfig.cpu_log_threshold) {
                 cpuInRange = runningProcess.cpu > parseFloat(ruleConfig.cpu_log_threshold);
+                message = `Application ${runningProcess.cmd} (PID ${runningProcess.pid}) CPU ${runningProcess.avgCpu}%, greater than threshold ${ruleConfig.cpu_threshold}`;
               } else {
                 cpuInRange = true;
+                message = `Application ${runningProcess.cmd} (PID ${runningProcess.pid}) CPU ${runningProcess.cpu}%`;
               }
               if (cpuInRange) {
                 this.getApplication().notify(this.getLoggers(), {
-                  message: `Application ${runningProcess.cmd} (PID ${runningProcess.pid}) CPU ${runningProcess.cpu}%`,
+                  message: message,
                   value: runningProcess.cpu,
                   units: 'Percent',
                   dimensions: {

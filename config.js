@@ -58,13 +58,21 @@ module.exports = {
       type: 'ProcessWatcher',
       settings: {
         rules: {
-          cron: {
+          watcher1: {
             check: 'watcher.js',
             mode: 'log-count,log-cpu,limit-cpu,limit-uptime,keepalive',
             cpu_period: '1 min',
             cpu_threshold: 50,
             cpu_log_threshold: 10,
             uptime_threshold: '30 min',
+          },
+          watcher2: {
+            check: 'watcher.js',
+            mode: 'log-count,log-cpu,limit-cpu,log-uptime,keepalive',
+            cpu_period: '1 min',
+            cpu_threshold: 50,
+            cpu_log_threshold: 10,
+            uptime_threshold: '5 sec',
           },
         },
       },
