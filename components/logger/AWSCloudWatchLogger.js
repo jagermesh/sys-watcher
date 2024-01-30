@@ -1,4 +1,6 @@
-const aws = require('aws-sdk');
+const {
+  CloudWatch,
+} = require('@aws-sdk/client-cloudwatch');
 const ip = require('ip');
 
 const CustomLogger = require(`${__dirname}/../../libs/CustomLogger.js`);
@@ -62,10 +64,13 @@ class AWSCloudWatchLogger extends CustomLogger {
           Namespace: this.getConfig().settings.nameSpace,
         };
 
-        let cloudwatch = new aws.CloudWatch({
+        let cloudwatch = new CloudWatch({
           region: this.getConfig().settings.AWS.region,
-          accessKeyId: this.getConfig().settings.AWS.accessKeyId,
-          secretAccessKey: this.getConfig().settings.AWS.secretAccessKey,
+
+          credentials: {
+            accessKeyId: this.getConfig().settings.AWS.accessKeyId,
+            secretAccessKey: this.getConfig().settings.AWS.secretAccessKey,
+          },
         });
 
         cloudwatch.putMetricData(params, (error) => {

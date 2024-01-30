@@ -1,4 +1,6 @@
-const aws = require('aws-sdk');
+const {
+  SQS,
+} = require('@aws-sdk/client-sqs');
 
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
 const Scheduler = require(`${__dirname}/../../libs/Scheduler.js`);
@@ -148,10 +150,13 @@ class AWSSQSWatcher extends CustomWatcher {
   }
 
   watch() {
-    let sqs = new aws.SQS({
+    let sqs = new SQS({
       region: this.getConfig().settings.AWS.region,
-      accessKeyId: this.getConfig().settings.AWS.accessKeyId,
-      secretAccessKey: this.getConfig().settings.AWS.secretAccessKey,
+
+      credentials: {
+        accessKeyId: this.getConfig().settings.AWS.accessKeyId,
+        secretAccessKey: this.getConfig().settings.AWS.secretAccessKey,
+      },
     });
 
     for (let ruleName in this.getConfig().settings.rules) {

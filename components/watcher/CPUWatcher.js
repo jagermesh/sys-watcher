@@ -13,8 +13,8 @@ class CPUWatcher extends CustomWatcher {
 
   watch() {
     si.currentLoad().then((stats) => {
-      if (stats.currentload > this.getConfig().settings.threshold) {
-        let message = `CPU Load ${stats.currentload.toFixed()}%`;
+      if (stats.currentLoad > this.getConfig().settings.threshold) {
+        let message = `CPU Load ${stats.currentLoad.toFixed()}%`;
 
         if (this.getConfig().settings.threshold > 0) {
           message += ` which is more than threshold ${this.getConfig().settings.threshold}`;
@@ -22,7 +22,7 @@ class CPUWatcher extends CustomWatcher {
 
         this.getApplication().notify(this.getLoggers(), {
           message: message,
-          value: stats.currentload,
+          value: stats.currentLoad,
           units: 'Percent',
           dimensions: {},
           skipConsole: (this.getConfig().settings.threshold == 0),
