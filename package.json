@@ -37,7 +37,7 @@
     "slimbot": "5.0.0",
     "socket.io-client": "2.4.0",
     "ssl-checker": "2.0.7",
-    "systeminformation": "4.32.0",
+    "systeminformation": "5.21.7",
     "tail": "2.0.4",
     "tmp": "0.2.1",
     "uuid": "8.3.2"
