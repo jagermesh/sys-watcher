@@ -1,4 +1,4 @@
-const diskusage = require('diskusage');
+const checkDiskSpace = require('check-disk-space').default; // replaces 'diskusage'
 const bytes = require('bytes');
 
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
@@ -14,41 +14,52 @@ class FreeSpaceWatcher extends CustomWatcher {
     this.config.settings.thresholdBytes = bytes.parse(this.config.settings.threshold);
   }
 
-  watchPath(path) {
-    let details = {
+  async watchPath(path) {
+    const details = {
       Path: path,
     };
 
-    diskusage.check(path, (error, stats) => {
-      if (error) {
-        this.getApplication().notify(this.getLoggers(), {
-          message: error.toString(),
-          isError: true,
-        }, details, this);
-      } else {
-        if ((this.getConfig().settings.thresholdBytes == 0) || (stats.free < this.getConfig().settings.thresholdBytes)) {
-          let message = `Free space is ${bytes(stats.free)}`;
-          if (this.getConfig().settings.thresholdBytes > 0) {
-            message += ` which is less than threshold ${bytes(this.getConfig().settings.thresholdBytes)}`;
-          }
-          this.getApplication().notify(this.getLoggers(), {
-            message: message,
-            value: stats.free,
-            units: 'Bytes',
-            dimensions: {
-              Path: path,
-            },
-            skipConsole: (this.getConfig().settings.thresholdBytes == 0),
-          }, details, this);
+    try {
+      // check-disk-space resolves the mount for the given path
+      const {
+        free,
+        /* size */
+      } = await checkDiskSpace(path);
+
+      if (
+        (this.getConfig().settings.thresholdBytes === 0) ||
+        (free < this.getConfig().settings.thresholdBytes)
+      ) {
+        let message = `Free space is ${bytes(free)}`;
+        if (this.getConfig().settings.thresholdBytes > 0) {
+          message += ` which is less than threshold ${bytes(
+            this.getConfig().settings.thresholdBytes,
+          )}`;
         }
+
+        this.getApplication().notify(this.getLoggers(), {
+          message,
+          value: free,
+          units: 'Bytes',
+          dimensions: {
+            Path: path,
+          },
+          // keep the original behavior: if threshold is 0, just report value without console spam
+          skipConsole: this.getConfig().settings.thresholdBytes === 0,
+        }, details, this);
       }
-    });
+    } catch (error) {
+      this.getApplication().notify(this.getLoggers(), {
+        message: error.toString(),
+        isError: true,
+      }, details, this);
+    }
   }
 
   watch() {
-    let paths = this.getArrayValue(this.getConfig().settings.path);
-
+    const paths = this.getArrayValue(this.getConfig().settings.path);
     for (let i = 0; i < paths.length; i++) {
+      // fire and forget to match original async callback style
       this.watchPath(paths[i]);
     }
   }
