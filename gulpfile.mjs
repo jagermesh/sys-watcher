@@ -1,5 +1,5 @@
-const gulp = require('gulp');
-const eslint = require('gulp-eslint');
+import gulp from 'gulp';
+import eslint from 'gulp-eslint-new';
 
 const configs = {
   eslint: {
@@ -14,8 +14,10 @@ const configs = {
 gulp.task('eslint', () => {
   return gulp.src(configs.eslint.src)
     .pipe(eslint({
+      fix: true,
       quiet: true,
     }))
+    .pipe(eslint.fix())
     .pipe(eslint.format())
     .pipe(eslint.failAfterError());
 });

@@ -153,7 +153,7 @@ class ProcessWatcher extends CustomWatcher {
 
             if (processInfo) {
               if ((processInfo.cpu != undefined) && ruleConfig.cpu_period) {
-                let cpu_period_sec = parseDuration(ruleConfig.cpu_period) / 1000;
+                let cpu_period_sec = parseDuration.default(ruleConfig.cpu_period) / 1000;
                 let processStat = this.processStats.get(processInfo.pid);
                 if (!processStat) {
                   processStat = new ProcessInfo(processInfo.pid, processInfo.cmd);
@@ -230,7 +230,7 @@ class ProcessWatcher extends CustomWatcher {
             (runningProcess.uptime != undefined) &&
             ruleConfig.uptime_threshold
           ) {
-            let uptime_threshold_sec = parseDuration(ruleConfig.uptime_threshold) / 1000;
+            let uptime_threshold_sec = parseDuration.default(ruleConfig.uptime_threshold) / 1000;
             if (runningProcess.uptime > uptime_threshold_sec) {
               let message = `Application ${runningProcess.cmd} (PID ${runningProcess.pid}) uptime ${runningProcess.uptime} sec, greater than threshold ${uptime_threshold_sec} sec`;
               if (ruleConfig.mode.indexOf('log-uptime') != -1) {

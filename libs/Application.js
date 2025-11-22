@@ -10,6 +10,8 @@ const ExecPool = require(`${__dirname}/ExecPool.js`);
 const ConnectionsPool = require(`${__dirname}/ConnectionsPool.js`);
 
 class Application extends CustomObject {
+  #isToolMode = true;
+
   constructor(configFilePath) {
     super(null, 'Application', require(configFilePath));
 
@@ -53,7 +55,6 @@ class Application extends CustomObject {
     this.scriptsManager = null;
     this.appStartWatcher = null;
     this.appErrorsWatcher = null;
-    this.toolMode = true;
     this.processingFatalError = false;
     this.gcRoutines = [];
   }
@@ -121,7 +122,7 @@ class Application extends CustomObject {
   }
 
   isToolMode() {
-    return this.isToolMode;
+    return this.#isToolMode;
   }
 
   getAppStartWatcher() {
@@ -141,7 +142,7 @@ class Application extends CustomObject {
   }
 
   start() {
-    this.toolMode = false;
+    this.#isToolMode = false;
 
     this.getLoggersManager().start().then(() => {
       return this.getCacheManager().start();
@@ -250,7 +251,7 @@ class Application extends CustomObject {
 
     this.processingFatalError = true;
 
-    if (this.isToolMode()) {
+    if (this.getApplication().isToolMode()) {
       throw message;
     } else {
       let data = (typeof message == 'string' ? {

@@ -38,7 +38,6 @@ class CustomManager extends CustomObject {
     if (entry) {
       return entry.getInstance();
     } else {
-      // throw 'Entry ' + entryName + ' not found';
       this.getApplication().fatalError(`Can not find entry ${entryName}`, this);
     }
   }

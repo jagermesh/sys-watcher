@@ -1,6 +1,6 @@
+const crypto = require('crypto');
 const parseDuration = require('parse-duration');
 const moment = require('moment');
-const md5 = require('md5');
 const fs = require('fs');
 const os = require('os');
 
@@ -17,13 +17,17 @@ class ParsedSchedule {
       this.scheduleDay = this.scheduleRe[1].toLowerCase();
       this.scheduleTime = moment(this.scheduleRe[2], 'HH:mm');
     }
-    this.scheduleMs = parseDuration(this.schedule);
-    this.scheduleFile = `${os.tmpdir()}/sys-watcher-scheduler-${md5(this.scheduler.getName())}.lock`;
+    this.scheduleMs = parseDuration.default(this.schedule);
+    this.scheduleFile = `${os.tmpdir()}/sys-watcher-scheduler-${this.getKey(this.scheduler.getName())}.lock`;
     this.applicableDays = ['day', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
     if (!this.isValid()) {
       throw new Error(`Schedule is invalid: "${this.schedule}"`);
     }
+  }
+
+  getKey(name) {
+    return crypto.createHash('sha1').update(name, 'utf8').digest('hex');
   }
 
   isValid() {

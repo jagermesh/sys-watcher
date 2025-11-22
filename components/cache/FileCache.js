@@ -1,4 +1,4 @@
-const md5 = require('md5');
+const crypto = require('crypto');
 const parseDuration = require('parse-duration');
 const fileCache = require('node-file-cache');
 const os = require('os');
@@ -15,13 +15,13 @@ class FileCache extends CustomCache {
       lifespan: '5 min',
     }, this.config.settings);
 
-    this.config.settings.lifespanSeconds = parseDuration(this.config.settings.lifespan) / 1000;
+    this.config.settings.lifespanSeconds = parseDuration.default(this.config.settings.lifespan) / 1000;
 
     this.cacheFileName = `${os.tmpdir()}/${this.appId}-${this.config.settings.lifespanSeconds}.cache`;
   }
 
   getKey(name) {
-    return md5(name);
+    return crypto.createHash('sha1').update(name, 'utf8').digest('hex');
   }
 
   check(name) {

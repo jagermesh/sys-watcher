@@ -1,4 +1,4 @@
-const md5 = require('md5');
+const crypto = require('crypto');
 const redis = require('redis');
 const parseDuration = require('parse-duration');
 
@@ -8,37 +8,35 @@ class RedisCache extends CustomCache {
   constructor(application, name, config) {
     super(application, name, config);
 
-    this.appId = '8ad4edee-4482-4124-8169-03fd856de190';
+    this.APP_ID = '8ad4edee-4482-4124-8169-03fd856de190';
 
     this.config.settings = Object.assign({
       lifespan: '5 min',
       connectString: '',
     }, this.config.settings);
 
-    this.config.settings.lifespanSeconds = parseDuration(this.config.settings.lifespan) / 1000;
+    this.config.settings.lifespanSeconds = parseDuration.default(this.config.settings.lifespan) / 1000;
   }
 
   getKey(name) {
-    return this.appId + ':' + md5(name);
+    const hash = crypto.createHash('sha1').update(name, 'utf8').digest('hex');
+    return `${this.APP_ID}:${hash}`;
   }
 
   check(name) {
     return new Promise((resolve, reject) => {
       if (this.instance) {
-        this.instance.getset(this.getKey(name), 1, (error, cachedValue) => {
-          try {
-            this.set(name, 1);
-            if (cachedValue) {
-              resolve(cachedValue);
-            } else {
-              reject();
-            }
-          } catch (ex) {
-            reject();
+        this.instance.set(this.getKey(name), 1, { GET: true }).then((value) => {
+          if (value) {
+            resolve(value);
+          } else {
+            reject('Value not found in cache');
           }
+        }).catch((error) => {
+          reject(error);
         });
       } else {
-        reject();
+        reject('Redis not connected');
       }
     });
   }
@@ -46,10 +44,12 @@ class RedisCache extends CustomCache {
   get(name, callback) {
     if (this.instance) {
       try {
-        this.instance.get(this.getKey(name), (error, value) => {
+        this.instance.get(this.getKey(name)).then((value) => {
           callback(value);
+        }).catch(() => {
+          callback(null);
         });
-      } catch (Error) {
+      } catch {
         callback(null);
       }
     } else {
@@ -68,9 +68,7 @@ class RedisCache extends CustomCache {
 
     return new Promise((resolve, reject) => {
       const redisClient = redis.createClient(this.getConfig().settings.connectString);
-
       redisClient.on('connect', () => {
-        redisClient.stream.setKeepAlive(true, 60 * 1000);
         if (!inStart) {
           this.getApplication().getConsole().log('Redis re-connected', {}, this);
         }
@@ -81,7 +79,6 @@ class RedisCache extends CustomCache {
         }
         this.instance = redisClient;
       });
-
       redisClient.on('error', (error) => {
         if (!inStart) {
           this.getApplication().getConsole().error('Redis error ' + error.toString(), {}, this);
@@ -91,16 +88,19 @@ class RedisCache extends CustomCache {
           reject('Redis error: ' + error.toString(), this);
         }
       });
-
+      redisClient.on('reconnecting', () => {
+        this.instance = null;
+      });
       redisClient.on('end', () => {
         this.instance = null;
       });
+      redisClient.connect();
     });
   }
 
   stop() {
-    if (this.cacheImpl) {
-      this.cacheImpl.quit();
+    if (this.instance) {
+      this.instance.quit();
     }
   }
 }

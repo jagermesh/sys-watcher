@@ -48,7 +48,7 @@ class DirectoryWatcher extends CustomWatcher {
           let regexp = new RegExp('age older (.+)', 'im');
           let match = regexp.exec(filters[i]);
           if (match) {
-            let ageThreshold = parseDuration(match[1]) / 1000;
+            let ageThreshold = parseDuration.default(match[1]) / 1000;
             let age = moment().unix() - fileInfo.creationTime;
             if (age < ageThreshold) {
               result = false;
