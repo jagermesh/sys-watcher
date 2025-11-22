@@ -153,14 +153,14 @@ class ProcessWatcher extends CustomWatcher {
 
             if (processInfo) {
               if ((processInfo.cpu != undefined) && ruleConfig.cpu_period) {
-                let cpu_period_sec = parseDuration.default(ruleConfig.cpu_period) / 1000;
+                let cpuPeriodSec = parseDuration.default(ruleConfig.cpu_period) / 1000;
                 let processStat = this.processStats.get(processInfo.pid);
                 if (!processStat) {
                   processStat = new ProcessInfo(processInfo.pid, processInfo.cmd);
                   this.processStats.set(processInfo.pid, processStat);
                 }
                 processStat.addMetricValue('cpu', processInfo.cpu);
-                processInfo.avgCpu = processStat.getAverageMetricValue('cpu', cpu_period_sec, true);
+                processInfo.avgCpu = processStat.getAverageMetricValue('cpu', cpuPeriodSec, true);
               }
 
               let existingProcessInfo = processes.get(processInfo.pid);
@@ -230,9 +230,9 @@ class ProcessWatcher extends CustomWatcher {
             (runningProcess.uptime != undefined) &&
             ruleConfig.uptime_threshold
           ) {
-            let uptime_threshold_sec = parseDuration.default(ruleConfig.uptime_threshold) / 1000;
-            if (runningProcess.uptime > uptime_threshold_sec) {
-              let message = `Application ${runningProcess.cmd} (PID ${runningProcess.pid}) uptime ${runningProcess.uptime} sec, greater than threshold ${uptime_threshold_sec} sec`;
+            let uptimeThresholdSec = parseDuration.default(ruleConfig.uptime_threshold) / 1000;
+            if (runningProcess.uptime > uptimeThresholdSec) {
+              let message = `Application ${runningProcess.cmd} (PID ${runningProcess.pid}) uptime ${runningProcess.uptime} sec, greater than threshold ${uptimeThresholdSec} sec`;
               if (ruleConfig.mode.indexOf('log-uptime') != -1) {
                 this.getApplication().notify(this.getLoggers(), {
                   message: message,
