@@ -12,10 +12,8 @@ class ParsedSchedule {
     this.scheduler = scheduler;
     this.scheduleRe = re.exec(this.schedule);
     this.scheduleDay = null;
-    this.scheduleTime = null;
     if (this.scheduleRe) {
       this.scheduleDay = this.scheduleRe[1].toLowerCase();
-      this.scheduleTime = moment(this.scheduleRe[2], 'HH:mm');
     }
     this.scheduleMs = parseDuration.default(this.schedule);
     this.scheduleFile = `${os.tmpdir()}/sys-watcher-scheduler-${this.getKey(this.scheduler.getName())}.lock`;
@@ -41,7 +39,15 @@ class ParsedSchedule {
 
     let currentDay = moment().format('dddd').toLowerCase();
 
-    if (this.scheduleTime.isBefore() && ((this.scheduleDay == 'day') || (this.scheduleDay == currentDay))) {
+    const [hh, mm] = this.scheduleRe[2].split(':');
+    const scheduleTime = moment()
+      .hours(parseInt(hh, 10))
+      .minutes(parseInt(mm, 10))
+      .seconds(0)
+      .milliseconds(0);
+
+    if (scheduleTime.isBefore() && ((this.scheduleDay == 'day') || (this.scheduleDay == currentDay))) {
+      console.log('AAA');
       let marker;
       try {
         marker = fs.readFileSync(this.scheduleFile, 'utf8');
@@ -53,7 +59,7 @@ class ParsedSchedule {
         marker = fs.readFileSync(this.scheduleFile, 'utf8');
       }
       let lastTime = moment(marker);
-      if (lastTime.isBefore(this.scheduleTime)) {
+      if (lastTime.isBefore(scheduleTime)) {
         return true;
       }
     }
