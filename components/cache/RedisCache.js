@@ -26,7 +26,10 @@ class RedisCache extends CustomCache {
   check(name) {
     return new Promise((resolve, reject) => {
       if (this.instance) {
-        this.instance.set(this.getKey(name), 1, { GET: true }).then((value) => {
+        this.instance.get(this.getKey(name), 1).then((value) => {
+          this.instance.set(this.getKey(name), 1, {
+            EX: this.getConfig().settings.lifespanSeconds
+          });
           if (value) {
             resolve(value);
           } else {
@@ -59,7 +62,9 @@ class RedisCache extends CustomCache {
 
   set(name, value) {
     if (this.instance) {
-      this.instance.set(this.getKey(name), value, 'EX', this.getConfig().settings.lifespanSeconds);
+      this.instance.set(this.getKey(name), value, {
+        EX: this.getConfig().settings.lifespanSeconds
+      });
     }
   }
 
@@ -67,25 +72,30 @@ class RedisCache extends CustomCache {
     let inStart = true;
 
     return new Promise((resolve, reject) => {
-      const redisClient = redis.createClient(this.getConfig().settings.connectString);
+      const redisClient = redis.createClient({
+        url: this.getConfig().settings.connectString,
+      });
       redisClient.on('connect', () => {
-        if (!inStart) {
-          this.getApplication().getConsole().log('Redis re-connected', {}, this);
-        }
         if (inStart) {
           inStart = false;
           this.getApplication().getConsole().log('Redis connected', {}, this);
           resolve();
+        } else {
+          this.getApplication().getConsole().log('Redis re-connected', {}, this);
         }
         this.instance = redisClient;
       });
       redisClient.on('error', (error) => {
-        if (!inStart) {
-          this.getApplication().getConsole().error('Redis error ' + error.toString(), {}, this);
-        }
         if (inStart) {
           inStart = false;
-          reject('Redis error: ' + error.toString(), this);
+          reject(error);
+        } else {
+          this.getApplication().getConsole().error('Redis error', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+            errors: error.errors, // важное поле у AggregateError
+          }, this);
         }
       });
       redisClient.on('reconnecting', () => {
