@@ -47,7 +47,6 @@ class ParsedSchedule {
       .milliseconds(0);
 
     if (scheduleTime.isBefore() && ((this.scheduleDay == 'day') || (this.scheduleDay == currentDay))) {
-      console.log('AAA');
       let marker;
       try {
         marker = fs.readFileSync(this.scheduleFile, 'utf8');
