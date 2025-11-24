@@ -73,7 +73,7 @@
     "release": "np",
     "test": "echo \"OK\""
   },
-  "version": "1.0.78",
+  "version": "1.0.79",
   "engines": {
     "node": ">=12"
   }
