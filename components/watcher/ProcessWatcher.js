@@ -126,7 +126,11 @@ class ProcessWatcher extends CustomWatcher {
         let lines = execResult.stdout.trim().split('\n');
 
         for (let i = 0; i < lines.length; i++) {
-          if (lines[i].indexOf('grep') == -1) {
+          if (
+            (lines[i].indexOf(' grep ') == -1) &&
+            (lines[i].indexOf(' top -b ') == -1) &&
+            (lines[i].indexOf(' ps ax ') == -1)
+          ) {
             let processInfo;
             if (execResult.marker == 'ps') {
               let match = /([^ ]+?)[ ]+([^ ]+?)[ ]+([A-Za-z]{3} [A-Za-z]{3} [ 0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2} [0-9]{4})[ ]+(.+)/.exec(lines[i]);
