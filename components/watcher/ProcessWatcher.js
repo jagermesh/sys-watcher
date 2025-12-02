@@ -92,7 +92,7 @@ class ProcessWatcher extends CustomWatcher {
     let commands = [];
 
     const PS_TEMPLATE = 'ps ax -o pid,%cpu,lstart,command';
-    const TOP_TEMPLATE = 'top -b -n 1 -c -w 4000';
+    const TOP_TEMPLATE = 'top -b -n 1 -c -w';
 
     // in MacOS ps gives us all we need
     commands.push({
