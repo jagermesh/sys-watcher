@@ -24,7 +24,7 @@
     "colors": "1.4.0",
     "commander": "14.0.2",
     "diskusage": "1.2.0",
-    "express": "5.1.0",
+    "express": "5.2.0",
     "free-memory": "1.0.0",
     "hashmap": "2.4.0",
     "ip": "2.0.1",
