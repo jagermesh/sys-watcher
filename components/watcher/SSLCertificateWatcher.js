@@ -15,12 +15,12 @@ class SSLCertificateWatcher extends CustomWatcher {
 
     SSLChecker(hostname).then((result) => {
       result.hostname = hostname;
-      if (result.days_remaining < this.getConfig().settings.threshold) {
+      if (result.daysRemaining < this.getConfig().settings.threshold) {
         this.getApplication().notify(this.getLoggers(), {
-          message: `SLL certificate of ${hostname} is expiring soon. ${result.days_remaining} days remaining`,
+          message: `SLL certificate of ${hostname} is expiring soon. ${result.daysRemaining} days remaining`,
         }, result, this);
       } else {
-        this.getApplication().getConsole().log(`SSL certificate of ${hostname} is valid, ${result.days_remaining} days remaining`, result, this);
+        this.getApplication().getConsole().log(`SSL certificate of ${hostname} is valid, ${result.daysRemaining} days remaining`, result, this);
       }
     }).catch((error) => {
       this.getApplication().notify(this.getLoggers(), {

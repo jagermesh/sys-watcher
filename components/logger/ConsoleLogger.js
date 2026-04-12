@@ -19,10 +19,7 @@ class ConsoleLogger extends CustomLogger {
         details = Object.assign({}, details, config.composing.details);
         details.Senders = null;
 
-        let formattedMessage = '';
-        let formattedDetails = '';
-
-        formattedMessage = colors.yellow(moment().format()) + ' ';
+        let formattedMessage = colors.yellow(moment().format()) + ' ';
 
         if (senderNames) {
           for (let i = 0; i < senderNames.length; i++) {
@@ -36,7 +33,7 @@ class ConsoleLogger extends CustomLogger {
 
         formattedMessage += this.formatMessage(data.message, 'text') + ' ';
 
-        formattedDetails = this.packDetails(details, config.composing, 'json');
+        const formattedDetails = this.packDetails(details, config.composing, 'json');
 
         if (formattedDetails) {
           formattedMessage += colors.green(formattedDetails) + ' ';

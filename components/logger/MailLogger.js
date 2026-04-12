@@ -30,7 +30,7 @@ class MailLogger extends CustomLogger {
 
         let formattedMessage = data.message;
         let formattedSubject = '';
-        let formattedDetails = '';
+        let formattedDetails;
 
         if (config.composing.locationInSubject) {
           formattedSubject += '[' + this.getApplication().getLocation() + '] ';

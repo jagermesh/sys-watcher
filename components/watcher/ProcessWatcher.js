@@ -295,7 +295,7 @@ class ProcessWatcher extends CustomWatcher {
               ruleConfig.cpu_threshold
             ) {
               if (runningProcess.avgCpu > parseFloat(ruleConfig.cpu_threshold)) {
-                killed = this.killProcess(
+                this.killProcess(
                   ruleName,
                   ruleConfig,
                   runningProcess,
