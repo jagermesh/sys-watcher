@@ -10,16 +10,23 @@ class Scheduler extends CustomLoggable {
     }
 
     this.intervals = [];
+    this.running = false;
   }
 
   run(parsedSchedule, onTime) {
+    if (this.running) {
+      return;
+    }
+
     if (parsedSchedule.isTimeToRun()) {
       let result = onTime(this);
       if (result && result.then) {
+        this.running = true;
         result.then(() => {
+          this.running = false;
           parsedSchedule.touchMarker();
         }).catch(() => {
-
+          this.running = false;
         });
       } else {
         parsedSchedule.touchMarker();
@@ -46,6 +53,7 @@ class Scheduler extends CustomLoggable {
     this.intervals.forEach((interval) => {
       clearInterval(interval);
     });
+    this.intervals = [];
   }
 }
 

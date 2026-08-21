@@ -14,6 +14,8 @@ class ExecPool extends CustomObject {
 
     this.tasks = {};
 
+    this.maxCmdLogBytes = 1024 * 1024;
+
     this.interval = setInterval(() => {
       for (let tag in this.tasks) {
         while (this.tasks[tag].length > 0) {
@@ -28,40 +30,95 @@ class ExecPool extends CustomObject {
             this.tasks[tag].shift();
           }
         }
+        if (this.tasks[tag].length === 0) {
+          delete this.tasks[tag];
+        }
       }
     }, 100);
   }
 
+  appendCmdLog(cmdLog, data) {
+    cmdLog += data.toString();
+    if (cmdLog.length > this.maxCmdLogBytes) {
+      cmdLog = cmdLog.slice(cmdLog.length - this.maxCmdLogBytes);
+    }
+    return cmdLog;
+  }
+
   postCheckProcessLogs(task, details, out, err, closeError) {
+    const cleanup = () => {
+      try {
+        if (out && out.name) {
+          fs.unlinkSync(out.name);
+        }
+      } catch {
+        // ignore
+      }
+      try {
+        if (err && err.name) {
+          fs.unlinkSync(err.name);
+        }
+      } catch {
+        // ignore
+      }
+    };
+
+    const readCapped = (fileName) => {
+      let fd;
+      try {
+        fd = fs.openSync(fileName, 'r');
+        let stat = fs.fstatSync(fd);
+        let size = Math.min(stat.size, this.maxCmdLogBytes);
+        let start = Math.max(0, stat.size - size);
+        let buffer = Buffer.alloc(size);
+        fs.readSync(fd, buffer, 0, size, start);
+        return buffer.toString().trim();
+      } catch {
+        return '';
+      } finally {
+        if (fd !== undefined) {
+          try {
+            fs.closeSync(fd);
+          } catch {
+            // ignore
+          }
+        }
+      }
+    };
+
     fs.stat(out.name, (error) => {
       if (error) {
         this.getApplication().getConsole().error(`Executed ${colors.yellow(task.cmd)}, stdout log not found`, details, task.senders.concat([this]));
+        cleanup();
         task.status = 3;
         task.done(false, '');
+        return;
       }
-      if (!error) {
-        fs.stat(err.name, (error) => {
-          if (error) {
-            this.getApplication().getConsole().error(`Executed ${colors.yellow(task.cmd)}, stderr log not found`, details, task.senders.concat([this]));
-            task.status = 3;
-            task.done(false, '');
-          }
-          if (!error) {
-            let outRes = fs.readFileSync(out.name);
-            let errRes = fs.readFileSync(err.name);
-            let stdout = (outRes.toString().trim() + '\n' + errRes.toString().trim()).trim();
-            if ((errRes.toString().trim().length > 0) || closeError) {
-              this.getApplication().getConsole().error(`Executed ${colors.yellow(task.cmd)}, error:\n${colors.red(stdout)}`, details, task.senders.concat([this]));
-              task.status = 3;
-              task.done(false, stdout);
-            } else {
-              this.getApplication().getConsole().log(`Executed ${colors.yellow(task.cmd)}, success:\n${colors.green(stdout)}`, details, task.senders.concat([this]));
-              task.status = 2;
-              task.done(true, stdout);
-            }
-          }
-        });
-      }
+
+      fs.stat(err.name, (error) => {
+        if (error) {
+          this.getApplication().getConsole().error(`Executed ${colors.yellow(task.cmd)}, stderr log not found`, details, task.senders.concat([this]));
+          cleanup();
+          task.status = 3;
+          task.done(false, '');
+          return;
+        }
+
+        let outRes = readCapped(out.name);
+        let errRes = readCapped(err.name);
+        let stdout = (outRes + '\n' + errRes).trim();
+        cleanup();
+
+        if ((errRes.length > 0) || closeError) {
+          this.getApplication().getConsole().error(`Executed ${colors.yellow(task.cmd)}, error:\n${colors.red(stdout)}`, details, task.senders.concat([this]));
+          task.status = 3;
+          task.done(false, stdout);
+        } else {
+          this.getApplication().getConsole().log(`Executed ${colors.yellow(task.cmd)}, success:\n${colors.green(stdout)}`, details, task.senders.concat([this]));
+          task.status = 2;
+          task.done(true, stdout);
+        }
+      });
     });
   }
 
@@ -88,58 +145,61 @@ class ExecPool extends CustomObject {
     this.getApplication().getConsole().log(`Executing ${colors.yellow(task.cmd)}`, details, task.senders.concat([this]));
 
     let cmdProcess = child_process.spawn(cmd, {
-      detached: true,
+      detached: !!task.longRunning,
       shell: true,
       cwd: task.cwd,
     });
 
     let postCheckProcessLog;
+    let finished = false;
+
+    const finishTask = (ok, output) => {
+      if (finished) {
+        return;
+      }
+      finished = true;
+      task.status = ok ? 2 : 3;
+      task.done(ok, output);
+    };
 
     if (cmdProcess.stdout) {
       cmdProcess.stdout.on('data', (data) => {
-        cmdLog += data.toString();
+        cmdLog = this.appendCmdLog(cmdLog, data);
       });
     }
     if (cmdProcess.stderr) {
       cmdProcess.stderr.on('data', (data) => {
-        cmdLog += data.toString();
+        cmdLog = this.appendCmdLog(cmdLog, data);
       });
     }
     cmdProcess.on('error', () => {
       this.getApplication().getConsole().error(`Executed ${colors.yellow(task.cmd)}, error:\n${colors.red(cmdLog)}`, details, task.senders.concat([this]));
-      task.status = 3;
-      task.done(false, cmdLog.trim());
+      finishTask(false, cmdLog.trim());
     });
     cmdProcess.on('close', (code) => {
       clearTimeout(postCheckProcessLog);
       if (code == 0) {
         this.getApplication().getConsole().log(`Executed ${colors.yellow(task.cmd)}, success:\n${colors.green(cmdLog)}`, details, task.senders.concat([this]));
-        task.status = 2;
-        task.done(true, cmdLog.trim());
+        finishTask(true, cmdLog.trim());
       } else if ((code == null) || (code > 128)) {
         if (task.longRunning) {
           this.getApplication().getConsole().error(`Executed ${colors.yellow(task.cmd)}, but crashed:\n${colors.red(cmdLog)}`, details, task.senders.concat([this]));
-          task.status = 3;
-          task.done(false, cmdLog.trim());
         } else {
           this.getApplication().getConsole().error(`Executed ${colors.yellow(task.cmd)}, error:\n${colors.red(cmdLog)}`, details, task.senders.concat([this]));
-          task.status = 3;
-          task.done(false, cmdLog.trim());
         }
+        finishTask(false, cmdLog.trim());
       } else if (code > 0) {
         if (task.longRunning) {
           this.postCheckProcessLogs(task, details, out, err, true);
         } else {
           this.getApplication().getConsole().error(`Executed ${colors.yellow(task.cmd)}, error:\n${colors.red(cmdLog)}`, details, task.senders.concat([this]));
-          task.status = 3;
-          task.done(false, cmdLog.trim());
+          finishTask(false, cmdLog.trim());
         }
       }
     });
 
-    cmdProcess.unref();
-
     if (task.longRunning) {
+      cmdProcess.unref();
       postCheckProcessLog = setTimeout(() => {
         this.postCheckProcessLogs(task, details, out, err);
       }, 3000);

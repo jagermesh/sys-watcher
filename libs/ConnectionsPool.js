@@ -20,6 +20,19 @@ class ConnectionsPool extends CustomObject {
   set(name, value) {
     return this.getEntries().set(name, value);
   }
+
+  stop() {
+    this.hash.forEach((value) => {
+      if (value && typeof value.close === 'function') {
+        try {
+          value.close();
+        } catch {
+          // already closed
+        }
+      }
+    });
+    this.hash.clear();
+  }
 }
 
 module.exports = ConnectionsPool;

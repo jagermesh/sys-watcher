@@ -11,6 +11,21 @@ class MailLogger extends CustomLogger {
       sendmail: '/usr/sbin/sendmail',
       subject: '',
     }, this.config.settings);
+
+    this.transporter = null;
+    this.transporterPath = null;
+  }
+
+  getTransporter(sendmailPath) {
+    if (!this.transporter || this.transporterPath !== sendmailPath) {
+      this.transporter = nodemailer.createTransport({
+        sendmail: true,
+        newline: 'unix',
+        path: sendmailPath,
+      });
+      this.transporterPath = sendmailPath;
+    }
+    return this.transporter;
   }
 
   getRecipients() {
@@ -80,11 +95,7 @@ class MailLogger extends CustomLogger {
                 break;
             }
 
-            const transporter = nodemailer.createTransport({
-              sendmail: true,
-              newline: 'unix',
-              path: config.settings.sendmail,
-            });
+            const transporter = this.getTransporter(config.settings.sendmail);
 
             transporter.sendMail(mailMessage)
               .then(() => {

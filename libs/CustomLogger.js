@@ -1,5 +1,5 @@
 const moment = require('moment');
-const ip = require('ip');
+const ip = require(`${__dirname}/localIp.js`);
 
 const CustomLoggable = require(`${__dirname}/CustomLoggable.js`);
 

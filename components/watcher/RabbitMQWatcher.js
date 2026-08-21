@@ -1,4 +1,4 @@
-const ip = require('ip');
+const ip = require(`${__dirname}/../../libs/localIp.js`);
 const amqpcb = require('amqplib/callback_api');
 
 const CustomWatcher = require(`${__dirname}/../../libs/CustomWatcher.js`);
@@ -10,6 +10,9 @@ class RabbitMQWatcher extends CustomWatcher {
     this.config.settings = Object.assign({
       queues: {},
     }, this.config.settings);
+
+    this.connections = {};
+    this.reconnectTimers = {};
   }
 
   processMatch(line, details, loggers, cacheKey, config) {
@@ -143,10 +146,30 @@ class RabbitMQWatcher extends CustomWatcher {
     });
   }
 
+  scheduleReconnect(ruleName, ruleConfig) {
+    if (this.reconnectTimers[ruleName]) {
+      return;
+    }
+
+    this.reconnectTimers[ruleName] = setTimeout(() => {
+      delete this.reconnectTimers[ruleName];
+      this.watchRules(ruleName, ruleConfig);
+    }, 30000);
+  }
+
   watchRules(ruleName, ruleConfig) {
     let details = {
       Rule: ruleName,
     };
+
+    if (this.connections[ruleName]) {
+      try {
+        this.connections[ruleName].close();
+      } catch {
+        // already closed
+      }
+      delete this.connections[ruleName];
+    }
 
     amqpcb.connect(this.getConfig().settings.connectString, (error, connection) => {
       if (error) {
@@ -154,10 +177,9 @@ class RabbitMQWatcher extends CustomWatcher {
           message: `Can not connect to RabbitMQ server, retrying in 30 seconds: ${error.toString()}`,
           isError: true,
         }, details, this);
-        setTimeout(() => {
-          this.watchRules(ruleName, ruleConfig);
-        }, 30000);
+        this.scheduleReconnect(ruleName, ruleConfig);
       } else {
+        this.connections[ruleName] = connection;
         connection.on('error', (error) => {
           this.getApplication().notify(this.getLoggers(), {
             message: `Error during communication with RabbitMQ server: ${error.toString()}`,
@@ -165,13 +187,14 @@ class RabbitMQWatcher extends CustomWatcher {
           }, details, this);
         });
         connection.on('close', (error) => {
+          if (this.connections[ruleName] === connection) {
+            delete this.connections[ruleName];
+          }
           this.getApplication().notify(this.getLoggers(), {
-            message: `Lost connection with RabbitMQ server, reconnecting in 30 seconds: ${error.toString()}`,
+            message: `Lost connection with RabbitMQ server, reconnecting in 30 seconds: ${error ? error.toString() : 'connection closed'}`,
             isError: true,
           }, details, this);
-          setTimeout(() => {
-            this.watchRules(ruleName, ruleConfig);
-          }, 30000);
+          this.scheduleReconnect(ruleName, ruleConfig);
         });
         this.watchRule(connection, ruleName, ruleConfig);
       }
@@ -183,6 +206,24 @@ class RabbitMQWatcher extends CustomWatcher {
       let ruleConfig = this.getConfig().settings.rules[ruleName];
       this.watchRules(ruleName, ruleConfig);
     }
+  }
+
+  stop() {
+    for (let ruleName in this.reconnectTimers) {
+      clearTimeout(this.reconnectTimers[ruleName]);
+    }
+    this.reconnectTimers = {};
+
+    for (let ruleName in this.connections) {
+      try {
+        this.connections[ruleName].close();
+      } catch {
+        // already closed
+      }
+    }
+    this.connections = {};
+
+    return super.stop();
   }
 }
 

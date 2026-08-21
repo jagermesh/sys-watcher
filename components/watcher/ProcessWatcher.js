@@ -11,6 +11,8 @@ class ProcessWatcher extends CustomWatcher {
     super(application, name, config);
 
     this.processStats = new HashMap();
+    this.watchInFlight = false;
+    this.gcRegistered = false;
   }
 
   restart(ruleName, ruleConfig, results) {
@@ -78,8 +80,9 @@ class ProcessWatcher extends CustomWatcher {
     }
   }
 
-  watchRule(ruleName, ruleConfig) {
+  watchRule(ruleName, ruleConfig, done) {
     const isMacOS = (process.platform == 'darwin');
+    const finish = typeof done === 'function' ? done : () => {};
 
     ruleConfig = Object.assign({
       mode: 'log-count',
@@ -116,7 +119,7 @@ class ProcessWatcher extends CustomWatcher {
     }, this);
 
     let promises = commands.map((command) => {
-      return this.getApplication().getExecPool().exec(command.cmd, null, null, null, command.marker);
+      return this.getApplication().getExecPool().exec(command.cmd, null, `${ruleName}:${command.marker}`, null, command.marker);
     });
 
     Promise.all(promises).then((execResults) => {
@@ -307,10 +310,12 @@ class ProcessWatcher extends CustomWatcher {
           }
         });
       }
+      finish();
     }).catch((stdout) => {
       this.getApplication().reportError(stdout, {
         Cmd: sysCmds.join(', '),
       }, this);
+      finish();
     });
   }
 
@@ -329,13 +334,33 @@ class ProcessWatcher extends CustomWatcher {
   }
 
   watch() {
-    for (let ruleName in this.getConfig().settings.rules) {
-      let ruleConfig = this.getConfig().settings.rules[ruleName];
-      this.watchRule(ruleName, ruleConfig);
+    if (this.watchInFlight) {
+      return;
     }
 
-    this.getApplication().registerGCRoutine(() => {
-      this.checkForRunningProcesses();
+    if (!this.gcRegistered) {
+      this.gcRegistered = true;
+      this.getApplication().registerGCRoutine(() => {
+        this.checkForRunningProcesses();
+      });
+    }
+
+    let ruleNames = Object.keys(this.getConfig().settings.rules || {});
+    if (ruleNames.length === 0) {
+      return;
+    }
+
+    this.watchInFlight = true;
+
+    let promises = ruleNames.map((ruleName) => {
+      return new Promise((resolve) => {
+        let ruleConfig = this.getConfig().settings.rules[ruleName];
+        this.watchRule(ruleName, ruleConfig, resolve);
+      });
+    });
+
+    Promise.all(promises).finally(() => {
+      this.watchInFlight = false;
     });
   }
 }

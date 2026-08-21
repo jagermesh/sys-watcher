@@ -1,7 +1,7 @@
 const {
   CloudWatch,
 } = require('@aws-sdk/client-cloudwatch');
-const ip = require('ip');
+const ip = require(`${__dirname}/../../libs/localIp.js`);
 
 const CustomLogger = require(`${__dirname}/../../libs/CustomLogger.js`);
 
@@ -13,6 +13,21 @@ class AWSCloudWatchLogger extends CustomLogger {
       nameSpace: 'Watcher',
       dimensions: [],
     }, this.config.settings);
+
+    this.cloudwatch = null;
+  }
+
+  getClient() {
+    if (!this.cloudwatch) {
+      this.cloudwatch = new CloudWatch({
+        region: this.getConfig().settings.AWS.region,
+        credentials: {
+          accessKeyId: this.getConfig().settings.AWS.accessKeyId,
+          secretAccessKey: this.getConfig().settings.AWS.secretAccessKey,
+        },
+      });
+    }
+    return this.cloudwatch;
   }
 
   getRecipients() {
@@ -64,16 +79,7 @@ class AWSCloudWatchLogger extends CustomLogger {
           Namespace: this.getConfig().settings.nameSpace,
         };
 
-        let cloudwatch = new CloudWatch({
-          region: this.getConfig().settings.AWS.region,
-
-          credentials: {
-            accessKeyId: this.getConfig().settings.AWS.accessKeyId,
-            secretAccessKey: this.getConfig().settings.AWS.secretAccessKey,
-          },
-        });
-
-        cloudwatch.putMetricData(params, (error) => {
+        this.getClient().putMetricData(params, (error) => {
           if (error) {
             this.getApplication().reportError(error.toString(), details, senders, this).then(() => {
               resolve();
@@ -96,6 +102,13 @@ class AWSCloudWatchLogger extends CustomLogger {
         resolve();
       }
     });
+  }
+
+  stop() {
+    if (this.cloudwatch && typeof this.cloudwatch.destroy === 'function') {
+      this.cloudwatch.destroy();
+    }
+    this.cloudwatch = null;
   }
 }
 

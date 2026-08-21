@@ -26,7 +26,7 @@ class RedisCache extends CustomCache {
   check(name) {
     return new Promise((resolve, reject) => {
       if (this.instance) {
-        this.instance.get(this.getKey(name), 1).then((value) => {
+        this.instance.get(this.getKey(name)).then((value) => {
           this.instance.set(this.getKey(name), 1, {
             EX: this.getConfig().settings.lifespanSeconds
           });
@@ -75,6 +75,7 @@ class RedisCache extends CustomCache {
       const redisClient = redis.createClient({
         url: this.getConfig().settings.connectString,
       });
+      this.client = redisClient;
       redisClient.on('connect', () => {
         if (inStart) {
           inStart = false;
@@ -109,8 +110,17 @@ class RedisCache extends CustomCache {
   }
 
   stop() {
-    if (this.instance) {
-      this.instance.quit();
+    let client = this.client || this.instance;
+    this.instance = null;
+    this.client = null;
+    if (client) {
+      client.quit().catch(() => {
+        try {
+          client.disconnect();
+        } catch {
+          // ignore
+        }
+      });
     }
   }
 }

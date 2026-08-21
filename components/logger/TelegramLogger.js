@@ -1,4 +1,4 @@
-const Slimbot = require('slimbot');
+const axios = require('axios');
 
 const CustomLogger = require(`${__dirname}/../../libs/CustomLogger.js`);
 
@@ -17,6 +17,13 @@ class TelegramLogger extends CustomLogger {
     return this.getConfig().settings.recipients.join(', ');
   }
 
+  sendTelegramMessage(token, chatId, text) {
+    return axios.post(`https://api.telegram.org/bot${token}/sendMessage`, {
+      chat_id: chatId,
+      text: text,
+    });
+  }
+
   sendMessage(message, formattedDetails, data, details, senders, config) {
     return new Promise((resolve, reject) => {
       let formattedMessage = message;
@@ -29,7 +36,6 @@ class TelegramLogger extends CustomLogger {
 
       if (config.settings.token) {
         if (config.settings.recipients.length > 0) {
-          const bot = new Slimbot(config.settings.token);
           let results = [];
           for (let i = 0; i < config.settings.recipients.length; i++) {
             ((recipient) => {
@@ -38,14 +44,17 @@ class TelegramLogger extends CustomLogger {
                 let dataTmp = JSON.parse(JSON.stringify(data));
                 dataTmp.message = message;
                 detailsTmp.Recipient = recipient;
-                bot.sendMessage(recipient, formattedMessage)
+                this.sendTelegramMessage(config.settings.token, recipient, formattedMessage)
                   .then(() => {
                     this.getApplication().getConsole().log(dataTmp, detailsTmp, senders.concat([this])).then(() => {
                       resolve();
                     });
                   })
                   .catch((error) => {
-                    this.getApplication().reportError(error.toString(), detailsTmp, senders, this).then(() => {
+                    let errorMessage = error.response && error.response.data
+                      ? JSON.stringify(error.response.data)
+                      : error.toString();
+                    this.getApplication().reportError(errorMessage, detailsTmp, senders, this).then(() => {
                       resolve();
                     }).catch(() => {
                       resolve();

@@ -1,4 +1,5 @@
-const Slack = require('@slack/client');
+const SlackWebhook = require('@slack/webhook');
+const SlackWebApi = require('@slack/web-api');
 
 const CustomLogger = require(`${__dirname}/../../libs/CustomLogger.js`);
 
@@ -10,6 +11,24 @@ class SlackLogger extends CustomLogger {
       recipients: [],
       webHooks: [],
     }, this.config.settings);
+
+    this.webHooks = {};
+    this.webClient = null;
+  }
+
+  getWebhook(url) {
+    if (!this.webHooks[url]) {
+      this.webHooks[url] = new SlackWebhook.IncomingWebhook(url);
+    }
+    return this.webHooks[url];
+  }
+
+  getWebClient(token) {
+    if (!this.webClient || this.webClientToken !== token) {
+      this.webClient = new SlackWebApi.WebClient(token);
+      this.webClientToken = token;
+    }
+    return this.webClient;
   }
 
   getRecipients() {
@@ -81,7 +100,7 @@ class SlackLogger extends CustomLogger {
               for (let i = 0; i < config.settings.webHooks.length; i++) {
                 let webHook = config.settings.webHooks[i];
                 let payload = this.preparePayload(formattedMessage, config);
-                const transport = new Slack.IncomingWebhook(webHook);
+                const transport = this.getWebhook(webHook);
                 transport.send(payload)
                   .then(() => {
                     this.getApplication().getConsole().log(data.message, details, senders.concat([this])).then(() => {
@@ -115,7 +134,7 @@ class SlackLogger extends CustomLogger {
           case 'direct':
             if (config.settings.token) {
               if (config.settings.recipients.length > 0) {
-                const transport = new Slack.WebClient(config.settings.token);
+                const transport = this.getWebClient(config.settings.token);
                 let results = [];
                 for (let i = 0; i < config.settings.recipients.length; i++) {
                   ((recipient) => {

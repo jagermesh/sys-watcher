@@ -23,6 +23,7 @@ class MySQLWatcher extends CustomWatcher {
 
     connection.connect((error) => {
       if (error) {
+        connection.destroy();
         this.getApplication().notify(this.getLoggers(), {
           message: `Can not connect to database: ${error.toString()}`,
           isError: true,
@@ -30,6 +31,7 @@ class MySQLWatcher extends CustomWatcher {
       } else if (database.timezone) {
         connection.query(`SET time_zone = "${database.timezone}"`, (error) => {
           if (error) {
+            connection.destroy();
             this.getApplication().notify(this.getLoggers(), {
               message: `Can not change time zone: ${error.toString()}`,
               isError: true,

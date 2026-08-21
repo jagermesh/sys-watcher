@@ -14,6 +14,8 @@ class DirectoryWatcher extends CustomWatcher {
       filters: [],
       reportEmpty: true,
     }, this.config.settings);
+
+    this.watchInFlight = false;
   }
 
   check(fileInfo, match, except, filters) {
@@ -79,7 +81,9 @@ class DirectoryWatcher extends CustomWatcher {
           if (!error && stat) {
             if (stat && stat.isDirectory()) {
               this.walk(fileName + '/', match, except, filters, (err, res) => {
-                results = results.concat(res);
+                if (!err && res) {
+                  results = results.concat(res);
+                }
                 if (!--pending) {
                   done(null, results);
                 }
@@ -97,13 +101,17 @@ class DirectoryWatcher extends CustomWatcher {
                 done(null, results);
               }
             }
+          } else if (!--pending) {
+            done(null, results);
           }
         });
       });
     });
   }
 
-  watchPath(path, match, except, filters) {
+  watchPath(path, match, except, filters, done) {
+    const finish = typeof done === 'function' ? done : () => {};
+
     if (path[path.length - 1] != '/') {
       path += '/';
     }
@@ -111,6 +119,7 @@ class DirectoryWatcher extends CustomWatcher {
     fs.stat(path, (error) => {
       if (error) {
         if (this.getConfig().settings.retryIfNotExists) {
+          finish();
           setTimeout(() => {
             this.watchPath(path, match, except, filters);
           }, 5 * 60 * 1000); // retry in 5 minutes
@@ -121,6 +130,7 @@ class DirectoryWatcher extends CustomWatcher {
           }, {
             Path: path,
           }, this);
+          finish();
         }
       } else {
         this.walk(path, match, except, filters, (error, results) => {
@@ -170,16 +180,31 @@ class DirectoryWatcher extends CustomWatcher {
               }, details, this);
             }
           }
+          finish();
         });
       }
     });
   }
 
   watch() {
+    if (this.watchInFlight) {
+      return;
+    }
+
     let paths = this.getArrayValue(this.getConfig().settings.path);
+    if (!paths || paths.length === 0) {
+      return;
+    }
+
+    this.watchInFlight = true;
+    let pending = paths.length;
 
     for (let i = 0; i < paths.length; i++) {
-      this.watchPath(paths[i], this.getConfig().settings.match, this.getConfig().settings.except, this.getConfig().settings.filters);
+      this.watchPath(paths[i], this.getConfig().settings.match, this.getConfig().settings.except, this.getConfig().settings.filters, () => {
+        if (!--pending) {
+          this.watchInFlight = false;
+        }
+      });
     }
   }
 }

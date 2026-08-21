@@ -21,21 +21,31 @@ class SessionCache extends CustomCache {
     return crypto.createHash('sha1').update(name, 'utf8').digest('hex');
   }
 
+  purgeExpired() {
+    let now = moment().unix();
+    let lifespan = this.getConfig().settings.lifespanSeconds;
+
+    for (let key in this.cacheData) {
+      if (now - this.cacheData[key].timestamp >= lifespan) {
+        delete this.cacheData[key];
+      }
+    }
+  }
+
   check(name) {
     return new Promise((resolve, reject) => {
-      let cachedValue = this.cacheData[this.getKey(name)];
+      let key = this.getKey(name);
+      let cachedValue = this.cacheData[key];
       let found = false;
 
       if (cachedValue) {
         found = (moment().unix() - cachedValue.timestamp < this.getConfig().settings.lifespanSeconds);
       }
 
-      cachedValue = {
+      this.cacheData[key] = {
         timestamp: moment().unix(),
         value: 1,
       };
-
-      this.cacheData[this.getKey(name)] = cachedValue;
 
       if (found) {
         resolve();
@@ -59,11 +69,15 @@ class SessionCache extends CustomCache {
   }
 
   start() {
+    this.getApplication().registerGCRoutine(() => {
+      this.purgeExpired();
+    });
+
     return Promise.resolve();
   }
 
   stop() {
-
+    this.cacheData = {};
   }
 }
 
